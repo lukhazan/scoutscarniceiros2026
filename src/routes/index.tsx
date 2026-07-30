@@ -9,7 +9,19 @@ import { RankingExportCard } from "@/components/RankingExportCard";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { displayName, totalsQueryOptions, type PlayerTotals } from "@/lib/team-data";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  displayName,
+  statsByYearQueryOptions,
+  totalsQueryOptions,
+  type PlayerTotals,
+} from "@/lib/team-data";
 
 export const Route = createFileRoute("/")({
   head: () => ({
