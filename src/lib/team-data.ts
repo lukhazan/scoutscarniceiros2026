@@ -7,6 +7,8 @@ export type Player = {
   position: string | null;
   shirt_number: number | null;
   active: boolean;
+  initial_goals: number;
+  initial_assists: number;
 };
 
 export type PlayerTotals = {
