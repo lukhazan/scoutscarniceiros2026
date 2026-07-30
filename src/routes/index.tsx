@@ -26,16 +26,16 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Súmula — Artilharia e assistências do time" },
+      { title: "Scouts Amador — Artilharia e assistências do time" },
       {
         name: "description",
         content:
-          "Ranking de gols e assistências do time amador, atualizado a cada jogo lançado.",
+          "Ranking de gols e assistências do seu time amador, atualizado a cada jogo lançado.",
       },
-      { property: "og:title", content: "Súmula — Artilharia e assistências do time" },
+      { property: "og:title", content: "Scouts Amador — Artilharia e assistências do time" },
       {
         property: "og:description",
-        content: "Ranking de gols e assistências do time amador, atualizado a cada jogo.",
+        content: "Ranking de gols e assistências do seu time amador, atualizado a cada jogo lançado.",
       },
     ],
   }),

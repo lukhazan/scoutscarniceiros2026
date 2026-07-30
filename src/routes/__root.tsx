@@ -79,10 +79,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Estatísticas do Time" },
-      { name: "description", content: "Gols e assistências do time amador." },
+      { title: "Scouts Amador — Artilharia e assistências do time" },
+      { name: "description", content: "Ranking de gols e assistências do seu time amador, atualizado a cada jogo lançado." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:title", content: "Scouts Amador — Artilharia e assistências do time" },
+      { name: "twitter:title", content: "Scouts Amador — Artilharia e assistências do time" },
+      { property: "og:description", content: "Ranking de gols e assistências do seu time amador, atualizado a cada jogo lançado." },
+      { name: "twitter:description", content: "Ranking de gols e assistências do seu time amador, atualizado a cada jogo lançado." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/77b48d02-200f-4801-a431-0cb6dba207e4" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/77b48d02-200f-4801-a431-0cb6dba207e4" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
