@@ -304,6 +304,7 @@ function ElencoPage() {
                   <Input
                     id="initial-goals"
                     inputMode="numeric"
+                    className="h-11 text-base"
                     value={form.initialGoals}
                     onChange={(e) =>
                       setForm({
@@ -318,6 +319,7 @@ function ElencoPage() {
                   <Input
                     id="initial-assists"
                     inputMode="numeric"
+                    className="h-11 text-base"
                     value={form.initialAssists}
                     onChange={(e) =>
                       setForm({
@@ -338,14 +340,15 @@ function ElencoPage() {
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setOpen(false)}>
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button variant="ghost" className="h-11" onClick={() => setOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={save} disabled={saving}>
+            <Button className="h-11" onClick={save} disabled={saving}>
               Salvar
             </Button>
           </DialogFooter>
+
         </DialogContent>
       </Dialog>
 
