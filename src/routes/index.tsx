@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useRef, useState } from "react";
-import { Search, Target, Handshake, ImageDown, FileDown } from "lucide-react";
+import { Search, Target, Handshake, ImageDown, FileDown, CalendarRange } from "lucide-react";
 import { toPng } from "html-to-image";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
@@ -9,7 +9,19 @@ import { RankingExportCard } from "@/components/RankingExportCard";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { displayName, totalsQueryOptions, type PlayerTotals } from "@/lib/team-data";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  displayName,
+  statsByYearQueryOptions,
+  totalsQueryOptions,
+  type PlayerTotals,
+} from "@/lib/team-data";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -94,8 +106,22 @@ function Ranking({
 }
 
 function Index() {
-  const { data, isLoading } = useQuery(totalsQueryOptions);
+  const { data: allTimeData, isLoading } = useQuery(totalsQueryOptions);
+  const { data: yearData } = useQuery(statsByYearQueryOptions);
   const [search, setSearch] = useState("");
+  const [period, setPeriod] = useState("all");
+
+  const years = useMemo(
+    () => Object.keys(yearData ?? {}).sort((a, b) => Number(b) - Number(a)),
+    [yearData],
+  );
+
+  const data = useMemo(() => {
+    if (period === "all") return allTimeData ?? [];
+    return yearData?.[period] ?? [];
+  }, [period, allTimeData, yearData]);
+
+  const periodLabel = period === "all" ? "Geral (todos os anos)" : `Temporada ${period}`;
 
   const rows = useMemo(() => {
     const list = data ?? [];
@@ -188,7 +214,21 @@ function Index() {
           Os números somam automaticamente todos os jogos lançados. Nada de bloco de notas.
         </p>
 
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <Select value={period} onValueChange={setPeriod}>
+            <SelectTrigger className="w-[200px]" aria-label="Filtrar período">
+              <CalendarRange className="mr-1.5 size-4 text-muted-foreground" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Geral (todos os anos)</SelectItem>
+              {years.map((y) => (
+                <SelectItem key={y} value={y}>
+                  Temporada {y}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button
             variant="outline"
             size="sm"
@@ -211,7 +251,12 @@ function Index() {
 
 
         <div aria-hidden className="pointer-events-none fixed -left-[4000px] top-0">
-          <RankingExportCard ref={exportRef} rows={data ?? []} teamName="Carniceiros Fut 7" />
+          <RankingExportCard
+            ref={exportRef}
+            rows={data ?? []}
+            teamName="Carniceiros Fut 7"
+            periodLabel={periodLabel}
+          />
         </div>
 
 

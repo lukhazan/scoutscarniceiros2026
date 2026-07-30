@@ -48,8 +48,8 @@ function Column({ rows, metric }: { rows: PlayerTotals[]; metric: ExportMetric }
 
 export const RankingExportCard = forwardRef<
   HTMLDivElement,
-  { rows: PlayerTotals[]; teamName: string }
->(function RankingExportCard({ rows, teamName }, ref) {
+  { rows: PlayerTotals[]; teamName: string; periodLabel?: string }
+>(function RankingExportCard({ rows, teamName, periodLabel }, ref) {
   const goals = rows.reduce((sum, r) => sum + r.goals, 0);
   const assists = rows.reduce((sum, r) => sum + r.assists, 0);
 
@@ -64,7 +64,7 @@ export const RankingExportCard = forwardRef<
         <div>
           <p className="font-display text-5xl leading-none tracking-wide">{teamName}</p>
           <p className="mt-1 text-sm uppercase tracking-[0.25em] text-muted-foreground">
-            Artilharia &amp; assistências da temporada
+            {periodLabel ?? "Artilharia & assistências"}
           </p>
         </div>
         <div className="ml-auto text-right">
