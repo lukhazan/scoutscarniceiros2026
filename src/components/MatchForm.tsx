@@ -254,6 +254,7 @@ export function MatchForm({ match }: { match?: Match }) {
                 <div className="flex items-center gap-3">
                   <Checkbox
                     id={`played-${player.id}`}
+                    className="size-5 shrink-0"
                     checked={row.played}
                     onCheckedChange={(checked) =>
                       update(player.id, { played: checked === true })
@@ -269,9 +270,9 @@ export function MatchForm({ match }: { match?: Match }) {
                     ) : null}
                   </Label>
                 </div>
-                <div className="mt-2 flex items-center justify-between gap-3 pl-7">
-                  <div className="flex items-center gap-2">
-                    <span className="w-16 text-xs uppercase tracking-wide text-muted-foreground">
+                <div className="mt-2 grid grid-cols-2 gap-2 pl-8">
+                  <div className="flex min-w-0 flex-col gap-1">
+                    <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
                       Gols
                     </span>
                     <Stepper
@@ -280,8 +281,8 @@ export function MatchForm({ match }: { match?: Match }) {
                       onChange={(goals) => update(player.id, { goals })}
                     />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-16 text-right text-xs uppercase tracking-wide text-muted-foreground">
+                  <div className="flex min-w-0 flex-col gap-1">
+                    <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
                       Assist.
                     </span>
                     <Stepper
@@ -297,10 +298,11 @@ export function MatchForm({ match }: { match?: Match }) {
         </ul>
       )}
 
-      <div className="sticky bottom-0 -mx-4 border-t border-border/70 bg-background/90 px-4 py-3 backdrop-blur">
-        <Button className="w-full" size="lg" onClick={save} disabled={saving}>
+      <div className="sticky bottom-0 -mx-4 border-t border-border/70 bg-background/90 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur">
+        <Button className="h-12 w-full text-base" size="lg" onClick={save} disabled={saving}>
           {saving ? "Salvando…" : match ? "Salvar alterações" : "Salvar jogo"}
         </Button>
+
       </div>
     </div>
   );
