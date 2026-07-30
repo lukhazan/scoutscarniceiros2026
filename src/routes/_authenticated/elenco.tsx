@@ -1,0 +1,307 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { z } from "zod";
+import { toast } from "sonner";
+import { Pencil, Plus, Trash2, UserRound } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { AppHeader } from "@/components/AppHeader";
+import { AdminGate } from "@/components/AdminGate";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { POSITIONS, playersQueryOptions, type Player } from "@/lib/team-data";
+
+export const Route = createFileRoute("/_authenticated/elenco")({
+  head: () => ({
+    meta: [
+      { title: "Elenco — Súmula do time" },
+      { name: "description", content: "Cadastro de jogadores do time amador." },
+      { property: "og:title", content: "Elenco — Súmula do time" },
+      { property: "og:description", content: "Cadastro de jogadores do time amador." },
+    ],
+  }),
+  component: ElencoPage,
+});
+
+const playerSchema = z.object({
+  name: z.string().trim().min(2, "Informe o nome do jogador").max(80),
+  nickname: z.string().trim().max(40).optional(),
+  position: z.string().trim().max(30).optional(),
+  shirt_number: z.number().int().min(0).max(99).nullable(),
+  active: z.boolean(),
+});
+
+const empty = {
+  name: "",
+  nickname: "",
+  position: "",
+  shirt: "",
+  active: true,
+};
+
+function ElencoPage() {
+  const queryClient = useQueryClient();
+  const { data: players, isLoading } = useQuery(playersQueryOptions);
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Player | null>(null);
+  const [form, setForm] = useState(empty);
+  const [saving, setSaving] = useState(false);
+  const [toDelete, setToDelete] = useState<Player | null>(null);
+
+  const sorted = useMemo(
+    () =>
+      [...(players ?? [])].sort(
+        (a, b) => Number(b.active) - Number(a.active) || a.name.localeCompare(b.name),
+      ),
+    [players],
+  );
+
+  function openNew() {
+    setEditing(null);
+    setForm(empty);
+    setOpen(true);
+  }
+
+  function openEdit(player: Player) {
+    setEditing(player);
+    setForm({
+      name: player.name,
+      nickname: player.nickname ?? "",
+      position: player.position ?? "",
+      shirt: player.shirt_number == null ? "" : String(player.shirt_number),
+      active: player.active,
+    });
+    setOpen(true);
+  }
+
+  async function save() {
+    const parsed = playerSchema.safeParse({
+      name: form.name,
+      nickname: form.nickname || undefined,
+      position: form.position || undefined,
+      shirt_number: form.shirt === "" ? null : Number(form.shirt),
+      active: form.active,
+    });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0].message);
+      return;
+    }
+    setSaving(true);
+    const payload = {
+      name: parsed.data.name,
+      nickname: parsed.data.nickname ?? null,
+      position: parsed.data.position ?? null,
+      shirt_number: parsed.data.shirt_number,
+      active: parsed.data.active,
+    };
+    const { error } = editing
+      ? await supabase.from("players").update(payload).eq("id", editing.id)
+      : await supabase.from("players").insert(payload);
+    setSaving(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success(editing ? "Jogador atualizado." : "Jogador cadastrado.");
+    setOpen(false);
+    queryClient.invalidateQueries();
+  }
+
+  async function confirmDelete() {
+    if (!toDelete) return;
+    const { error } = await supabase.from("players").delete().eq("id", toDelete.id);
+    setToDelete(null);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Jogador removido.");
+    queryClient.invalidateQueries();
+  }
+
+  return (
+    <div className="min-h-screen">
+      <AppHeader />
+      <main className="mx-auto max-w-3xl px-4 pb-16 pt-6">
+        <AdminGate>
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <h1 className="font-display text-4xl leading-none">Elenco</h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {sorted.length} jogador{sorted.length === 1 ? "" : "es"} cadastrado
+                {sorted.length === 1 ? "" : "s"}
+              </p>
+            </div>
+            <Button onClick={openNew}>
+              <Plus className="mr-1 size-4" /> Novo
+            </Button>
+          </div>
+
+          {isLoading ? (
+            <p className="py-10 text-center text-sm text-muted-foreground">Carregando…</p>
+          ) : sorted.length === 0 ? (
+            <div className="mt-6 rounded-lg border border-dashed border-border/70 p-8 text-center">
+              <UserRound className="mx-auto size-6 text-muted-foreground" />
+              <p className="mt-2 text-sm text-muted-foreground">
+                Cadastre os jogadores para começar a lançar os jogos.
+              </p>
+            </div>
+          ) : (
+            <ul className="mt-5 divide-y divide-border/60 overflow-hidden rounded-lg border border-border/60 bg-card">
+              {sorted.map((player) => (
+                <li key={player.id} className="flex items-center gap-3 px-3 py-3">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-secondary font-display text-lg tabular">
+                    {player.shirt_number ?? "–"}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold leading-tight">
+                      {player.name}
+                      {player.nickname ? (
+                        <span className="text-muted-foreground"> · {player.nickname}</span>
+                      ) : null}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {[player.position, player.active ? null : "Inativo"]
+                        .filter(Boolean)
+                        .join(" · ") || "Sem posição"}
+                    </p>
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => openEdit(player)}>
+                    <Pencil className="size-4" />
+                    <span className="sr-only">Editar</span>
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => setToDelete(player)}>
+                    <Trash2 className="size-4 text-destructive" />
+                    <span className="sr-only">Remover</span>
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="mt-8 text-center">
+            <Button asChild variant="outline">
+              <Link to="/jogos/novo">Lançar um jogo</Link>
+            </Button>
+          </div>
+        </AdminGate>
+      </main>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editing ? "Editar jogador" : "Novo jogador"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="name">Nome</Label>
+              <Input
+                id="name"
+                value={form.name}
+                maxLength={80}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="nickname">Apelido</Label>
+                <Input
+                  id="nickname"
+                  value={form.nickname}
+                  maxLength={40}
+                  onChange={(e) => setForm({ ...form, nickname: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="shirt">Camisa</Label>
+                <Input
+                  id="shirt"
+                  inputMode="numeric"
+                  value={form.shirt}
+                  onChange={(e) =>
+                    setForm({ ...form, shirt: e.target.value.replace(/\D/g, "").slice(0, 2) })
+                  }
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Posição</Label>
+              <Select
+                value={form.position || undefined}
+                onValueChange={(value) => setForm({ ...form, position: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  {POSITIONS.map((p) => (
+                    <SelectItem key={p} value={p}>
+                      {p}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center justify-between rounded-md border border-border/60 px-3 py-2">
+              <Label htmlFor="active">No elenco atual</Label>
+              <Switch
+                id="active"
+                checked={form.active}
+                onCheckedChange={(checked) => setForm({ ...form, active: checked })}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={save} disabled={saving}>
+              Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={!!toDelete} onOpenChange={(o) => !o && setToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remover {toDelete?.name}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Os gols e assistências dele nos jogos também serão apagados.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Remover</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
