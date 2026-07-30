@@ -184,12 +184,13 @@ export function MatchForm({ match }: { match?: Match }) {
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="date">Data</Label>
           <Input
             id="date"
             type="date"
+            className="h-11 text-base"
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
@@ -200,11 +201,13 @@ export function MatchForm({ match }: { match?: Match }) {
             id="opponent"
             value={opponent}
             maxLength={60}
+            className="h-11 text-base"
             placeholder="Opcional"
             onChange={(e) => setOpponent(e.target.value)}
           />
         </div>
       </div>
+
 
       <div className="grid grid-cols-3 gap-2">
         {[
@@ -230,10 +233,11 @@ export function MatchForm({ match }: { match?: Match }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar jogador"
-          className="pl-9"
+          className="h-11 pl-9 text-base"
           aria-label="Buscar jogador"
         />
       </div>
+
 
       {isLoading ? (
         <p className="py-8 text-center text-sm text-muted-foreground">Carregando elenco…</p>
