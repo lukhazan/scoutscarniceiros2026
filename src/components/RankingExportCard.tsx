@@ -16,28 +16,37 @@ function Column({ rows, metric }: { rows: PlayerTotals[]; metric: ExportMetric }
     .filter((r) => r[metric] > 0)
     .slice(0, 10);
 
+  const title = metric === "goals" ? "Artilharia" : "Assistências";
+  const accent = metric === "goals" ? "text-red-600" : "text-red-500";
+
   return (
-    <div className="flex-1">
-      <p className="mb-3 border-b border-primary/50 pb-2 font-display text-2xl tracking-wide text-primary">
-        {metric === "goals" ? "Artilharia" : "Assistências"}
+    <div className="flex-1 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <p className={`mb-4 border-b-2 border-red-600 pb-3 font-display text-2xl font-bold tracking-wide ${accent}`}>
+        {title}
       </p>
       {list.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Sem lançamentos</p>
+        <p className="text-sm text-slate-500">Sem lançamentos</p>
       ) : (
-        <ol className="space-y-1.5">
+        <ol className="space-y-2">
           {list.map((row, index) => (
-            <li key={row.player_id} className="flex items-center gap-2.5">
+            <li key={row.player_id} className="flex items-center gap-3">
               <span
-                className={`w-6 text-center font-display text-lg tabular ${
-                  index === 0 ? "text-primary" : "text-muted-foreground"
+                className={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold tabular ${
+                  index === 0
+                    ? "bg-red-600 text-white"
+                    : index === 1
+                      ? "bg-slate-800 text-white"
+                      : index === 2
+                        ? "bg-slate-500 text-white"
+                        : "bg-slate-100 text-slate-600"
                 }`}
               >
                 {index + 1}
               </span>
-              <span className="min-w-0 flex-1 truncate text-sm font-semibold">
+              <span className="min-w-0 flex-1 truncate text-base font-semibold text-slate-800">
                 {displayName(row)}
               </span>
-              <span className="font-display text-xl tabular text-primary">{row[metric]}</span>
+              <span className={`font-display text-2xl font-bold tabular ${accent}`}>{row[metric]}</span>
             </li>
           ))}
         </ol>
