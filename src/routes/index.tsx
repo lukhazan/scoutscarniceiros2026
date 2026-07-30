@@ -94,8 +94,22 @@ function Ranking({
 }
 
 function Index() {
-  const { data, isLoading } = useQuery(totalsQueryOptions);
+  const { data: allTimeData, isLoading } = useQuery(totalsQueryOptions);
+  const { data: yearData } = useQuery(statsByYearQueryOptions);
   const [search, setSearch] = useState("");
+  const [period, setPeriod] = useState("all");
+
+  const years = useMemo(
+    () => Object.keys(yearData ?? {}).sort((a, b) => Number(b) - Number(a)),
+    [yearData],
+  );
+
+  const data = useMemo(() => {
+    if (period === "all") return allTimeData ?? [];
+    return yearData?.[period] ?? [];
+  }, [period, allTimeData, yearData]);
+
+  const periodLabel = period === "all" ? "Geral (todos os anos)" : `Temporada ${period}`;
 
   const rows = useMemo(() => {
     const list = data ?? [];
