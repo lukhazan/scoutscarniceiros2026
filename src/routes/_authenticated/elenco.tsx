@@ -55,6 +55,12 @@ const playerSchema = z.object({
   position: z.string().trim().max(30).optional(),
   shirt_number: z.number().int().min(0).max(99).nullable(),
   active: z.boolean(),
+  initial_goals: z.number().int().min(0, "Gols anteriores não podem ser negativos").max(9999),
+  initial_assists: z
+    .number()
+    .int()
+    .min(0, "Assistências anteriores não podem ser negativas")
+    .max(9999),
 });
 
 const empty = {
@@ -63,6 +69,8 @@ const empty = {
   position: "",
   shirt: "",
   active: true,
+  initialGoals: "0",
+  initialAssists: "0",
 };
 
 function ElencoPage() {
@@ -96,6 +104,8 @@ function ElencoPage() {
       position: player.position ?? "",
       shirt: player.shirt_number == null ? "" : String(player.shirt_number),
       active: player.active,
+      initialGoals: String(player.initial_goals ?? 0),
+      initialAssists: String(player.initial_assists ?? 0),
     });
     setOpen(true);
   }
@@ -107,6 +117,8 @@ function ElencoPage() {
       position: form.position || undefined,
       shirt_number: form.shirt === "" ? null : Number(form.shirt),
       active: form.active,
+      initial_goals: form.initialGoals === "" ? 0 : Number(form.initialGoals),
+      initial_assists: form.initialAssists === "" ? 0 : Number(form.initialAssists),
     });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0].message);
@@ -119,6 +131,8 @@ function ElencoPage() {
       position: parsed.data.position ?? null,
       shirt_number: parsed.data.shirt_number,
       active: parsed.data.active,
+      initial_goals: parsed.data.initial_goals,
+      initial_assists: parsed.data.initial_assists,
     };
     const { error } = editing
       ? await supabase.from("players").update(payload).eq("id", editing.id)
@@ -187,7 +201,13 @@ function ElencoPage() {
                       ) : null}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {[player.position, player.active ? null : "Inativo"]
+                      {[
+                        player.position,
+                        player.active ? null : "Inativo",
+                        player.initial_goals || player.initial_assists
+                          ? `Saldo inicial: ${player.initial_goals}G / ${player.initial_assists}A`
+                          : null,
+                      ]
                         .filter(Boolean)
                         .join(" · ") || "Sem posição"}
                     </p>
@@ -267,6 +287,42 @@ function ElencoPage() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="rounded-md border border-border/60 p-3">
+              <p className="text-sm font-semibold">Totais anteriores ao app</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                O que o atleta já tinha registrado fora do app. Soma ao ranking geral.
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="initial-goals">Gols</Label>
+                  <Input
+                    id="initial-goals"
+                    inputMode="numeric"
+                    value={form.initialGoals}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        initialGoals: e.target.value.replace(/\D/g, "").slice(0, 4),
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="initial-assists">Assistências</Label>
+                  <Input
+                    id="initial-assists"
+                    inputMode="numeric"
+                    value={form.initialAssists}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        initialAssists: e.target.value.replace(/\D/g, "").slice(0, 4),
+                      })
+                    }
+                  />
+                </div>
+              </div>
             </div>
             <div className="flex items-center justify-between rounded-md border border-border/60 px-3 py-2">
               <Label htmlFor="active">No elenco atual</Label>

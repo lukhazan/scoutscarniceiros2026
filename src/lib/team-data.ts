@@ -7,6 +7,8 @@ export type Player = {
   position: string | null;
   shirt_number: number | null;
   active: boolean;
+  initial_goals: number;
+  initial_assists: number;
 };
 
 export type PlayerTotals = {
@@ -52,7 +54,9 @@ export const playersQueryOptions = {
   queryFn: async (): Promise<Player[]> => {
     const { data, error } = await supabase
       .from("players")
-      .select("id, name, nickname, position, shirt_number, active")
+      .select(
+        "id, name, nickname, position, shirt_number, active, initial_goals, initial_assists",
+      )
       .order("name");
     if (error) throw new Error(error.message);
     return data ?? [];
