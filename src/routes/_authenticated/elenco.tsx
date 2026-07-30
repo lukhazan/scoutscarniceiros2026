@@ -201,7 +201,13 @@ function ElencoPage() {
                       ) : null}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {[player.position, player.active ? null : "Inativo"]
+                      {[
+                        player.position,
+                        player.active ? null : "Inativo",
+                        player.initial_goals || player.initial_assists
+                          ? `Saldo inicial: ${player.initial_goals}G / ${player.initial_assists}A`
+                          : null,
+                      ]
                         .filter(Boolean)
                         .join(" · ") || "Sem posição"}
                     </p>
