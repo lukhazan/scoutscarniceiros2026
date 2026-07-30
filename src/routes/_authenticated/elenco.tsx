@@ -162,20 +162,21 @@ function ElencoPage() {
   return (
     <div className="min-h-screen">
       <AppHeader />
-      <main className="mx-auto max-w-3xl px-4 pb-16 pt-6">
+      <main className="mx-auto max-w-3xl px-4 pb-[calc(4rem+env(safe-area-inset-bottom))] pt-6">
         <AdminGate>
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <h1 className="font-display text-4xl leading-none">Elenco</h1>
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
+            <div className="min-w-0">
+              <h1 className="font-display text-3xl leading-none sm:text-4xl">Elenco</h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 {sorted.length} jogador{sorted.length === 1 ? "" : "es"} cadastrado
                 {sorted.length === 1 ? "" : "s"}
               </p>
             </div>
-            <Button onClick={openNew}>
+            <Button onClick={openNew} className="h-11 shrink-0">
               <Plus className="mr-1 size-4" /> Novo
             </Button>
           </div>
+
 
           {isLoading ? (
             <p className="py-10 text-center text-sm text-muted-foreground">Carregando…</p>
