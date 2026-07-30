@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useRef, useState } from "react";
-import { Search, Target, Handshake, ImageDown } from "lucide-react";
+import { Search, Target, Handshake, ImageDown, FileDown } from "lucide-react";
 import { toPng } from "html-to-image";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
