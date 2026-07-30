@@ -33,29 +33,30 @@ function Stepper({
   onChange: (next: number) => void;
 }) {
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1.5">
       <Button
         type="button"
         variant="outline"
         size="icon"
-        className="size-8"
+        className="size-10"
         onClick={() => onChange(Math.max(0, value - 1))}
         aria-label={`Diminuir ${label}`}
       >
-        <Minus className="size-3.5" />
+        <Minus className="size-4" />
       </Button>
-      <span className="w-6 text-center font-display text-xl tabular">{value}</span>
+      <span className="w-7 text-center font-display text-2xl tabular">{value}</span>
       <Button
         type="button"
         variant="outline"
         size="icon"
-        className="size-8"
+        className="size-10"
         onClick={() => onChange(Math.min(30, value + 1))}
         aria-label={`Aumentar ${label}`}
       >
-        <Plus className="size-3.5" />
+        <Plus className="size-4" />
       </Button>
     </div>
+
   );
 }
 
