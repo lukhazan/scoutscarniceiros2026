@@ -104,6 +104,8 @@ function ElencoPage() {
       position: player.position ?? "",
       shirt: player.shirt_number == null ? "" : String(player.shirt_number),
       active: player.active,
+      initialGoals: String(player.initial_goals ?? 0),
+      initialAssists: String(player.initial_assists ?? 0),
     });
     setOpen(true);
   }
@@ -115,6 +117,8 @@ function ElencoPage() {
       position: form.position || undefined,
       shirt_number: form.shirt === "" ? null : Number(form.shirt),
       active: form.active,
+      initial_goals: form.initialGoals === "" ? 0 : Number(form.initialGoals),
+      initial_assists: form.initialAssists === "" ? 0 : Number(form.initialAssists),
     });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0].message);
@@ -127,6 +131,8 @@ function ElencoPage() {
       position: parsed.data.position ?? null,
       shirt_number: parsed.data.shirt_number,
       active: parsed.data.active,
+      initial_goals: parsed.data.initial_goals,
+      initial_assists: parsed.data.initial_assists,
     };
     const { error } = editing
       ? await supabase.from("players").update(payload).eq("id", editing.id)
