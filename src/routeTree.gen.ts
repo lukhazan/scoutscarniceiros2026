@@ -10,33 +10,96 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedElencoRouteImport } from './routes/_authenticated/elenco'
+import { Route as AuthenticatedJogosIndexRouteImport } from './routes/_authenticated/jogos.index'
+import { Route as AuthenticatedJogosMatchIdRouteImport } from './routes/_authenticated/jogos.$matchId'
+import { Route as AuthenticatedJogosNovoRouteImport } from './routes/_authenticated/jogos.novo'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedElencoRoute = AuthenticatedElencoRouteImport.update({
+  id: '/elenco',
+  path: '/elenco',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedJogosIndexRoute = AuthenticatedJogosIndexRouteImport.update({
+  id: '/jogos/',
+  path: '/jogos/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedJogosMatchIdRoute =
+  AuthenticatedJogosMatchIdRouteImport.update({
+    id: '/jogos/$matchId',
+    path: '/jogos/$matchId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedJogosNovoRoute = AuthenticatedJogosNovoRouteImport.update({
+  id: '/jogos/novo',
+  path: '/jogos/novo',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/elenco': typeof AuthenticatedElencoRoute
+  '/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
+  '/jogos/novo': typeof AuthenticatedJogosNovoRoute
+  '/jogos/': typeof AuthenticatedJogosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/elenco': typeof AuthenticatedElencoRoute
+  '/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
+  '/jogos/novo': typeof AuthenticatedJogosNovoRoute
+  '/jogos': typeof AuthenticatedJogosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/elenco': typeof AuthenticatedElencoRoute
+  '/_authenticated/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
+  '/_authenticated/jogos/novo': typeof AuthenticatedJogosNovoRoute
+  '/_authenticated/jogos/': typeof AuthenticatedJogosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/auth' | '/elenco' | '/jogos/$matchId' | '/jogos/novo' | '/jogos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/auth' | '/elenco' | '/jogos/$matchId' | '/jogos/novo' | '/jogos'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/elenco'
+    | '/_authenticated/jogos/$matchId'
+    | '/_authenticated/jogos/novo'
+    | '/_authenticated/jogos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +111,73 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/elenco': {
+      id: '/_authenticated/elenco'
+      path: '/elenco'
+      fullPath: '/elenco'
+      preLoaderRoute: typeof AuthenticatedElencoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/jogos/': {
+      id: '/_authenticated/jogos/'
+      path: '/jogos'
+      fullPath: '/jogos/'
+      preLoaderRoute: typeof AuthenticatedJogosIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/jogos/$matchId': {
+      id: '/_authenticated/jogos/$matchId'
+      path: '/jogos/$matchId'
+      fullPath: '/jogos/$matchId'
+      preLoaderRoute: typeof AuthenticatedJogosMatchIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/jogos/novo': {
+      id: '/_authenticated/jogos/novo'
+      path: '/jogos/novo'
+      fullPath: '/jogos/novo'
+      preLoaderRoute: typeof AuthenticatedJogosNovoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedElencoRoute: typeof AuthenticatedElencoRoute
+  AuthenticatedJogosMatchIdRoute: typeof AuthenticatedJogosMatchIdRoute
+  AuthenticatedJogosNovoRoute: typeof AuthenticatedJogosNovoRoute
+  AuthenticatedJogosIndexRoute: typeof AuthenticatedJogosIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedElencoRoute: AuthenticatedElencoRoute,
+  AuthenticatedJogosMatchIdRoute: AuthenticatedJogosMatchIdRoute,
+  AuthenticatedJogosNovoRoute: AuthenticatedJogosNovoRoute,
+  AuthenticatedJogosIndexRoute: AuthenticatedJogosIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
