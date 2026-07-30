@@ -96,7 +96,7 @@ function Ranking({
               {row[metric]}
             </span>
             <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-              {metric === "goals" ? `${row.assists} assist.` : `${row.goals} gols`}
+              {metric === "goals" ? "Gols" : "Passes"}
             </p>
           </div>
         </li>
