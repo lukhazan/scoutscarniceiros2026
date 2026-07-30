@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { LogOut, Trophy } from "lucide-react";
+import { LogOut } from "lucide-react";
+import teamLogo from "@/assets/team-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/hooks/useSession";
