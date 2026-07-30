@@ -33,29 +33,30 @@ function Stepper({
   onChange: (next: number) => void;
 }) {
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1.5">
       <Button
         type="button"
         variant="outline"
         size="icon"
-        className="size-8"
+        className="size-10"
         onClick={() => onChange(Math.max(0, value - 1))}
         aria-label={`Diminuir ${label}`}
       >
-        <Minus className="size-3.5" />
+        <Minus className="size-4" />
       </Button>
-      <span className="w-6 text-center font-display text-xl tabular">{value}</span>
+      <span className="w-7 text-center font-display text-2xl tabular">{value}</span>
       <Button
         type="button"
         variant="outline"
         size="icon"
-        className="size-8"
+        className="size-10"
         onClick={() => onChange(Math.min(30, value + 1))}
         aria-label={`Aumentar ${label}`}
       >
-        <Plus className="size-3.5" />
+        <Plus className="size-4" />
       </Button>
     </div>
+
   );
 }
 
@@ -183,12 +184,13 @@ export function MatchForm({ match }: { match?: Match }) {
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="date">Data</Label>
           <Input
             id="date"
             type="date"
+            className="h-11 text-base"
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
@@ -199,11 +201,13 @@ export function MatchForm({ match }: { match?: Match }) {
             id="opponent"
             value={opponent}
             maxLength={60}
+            className="h-11 text-base"
             placeholder="Opcional"
             onChange={(e) => setOpponent(e.target.value)}
           />
         </div>
       </div>
+
 
       <div className="grid grid-cols-3 gap-2">
         {[
@@ -229,10 +233,11 @@ export function MatchForm({ match }: { match?: Match }) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar jogador"
-          className="pl-9"
+          className="h-11 pl-9 text-base"
           aria-label="Buscar jogador"
         />
       </div>
+
 
       {isLoading ? (
         <p className="py-8 text-center text-sm text-muted-foreground">Carregando elenco…</p>
@@ -249,6 +254,7 @@ export function MatchForm({ match }: { match?: Match }) {
                 <div className="flex items-center gap-3">
                   <Checkbox
                     id={`played-${player.id}`}
+                    className="size-5 shrink-0"
                     checked={row.played}
                     onCheckedChange={(checked) =>
                       update(player.id, { played: checked === true })
@@ -264,9 +270,9 @@ export function MatchForm({ match }: { match?: Match }) {
                     ) : null}
                   </Label>
                 </div>
-                <div className="mt-2 flex items-center justify-between gap-3 pl-7">
-                  <div className="flex items-center gap-2">
-                    <span className="w-16 text-xs uppercase tracking-wide text-muted-foreground">
+                <div className="mt-2 grid grid-cols-2 gap-2 pl-8">
+                  <div className="flex min-w-0 flex-col gap-1">
+                    <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
                       Gols
                     </span>
                     <Stepper
@@ -275,8 +281,8 @@ export function MatchForm({ match }: { match?: Match }) {
                       onChange={(goals) => update(player.id, { goals })}
                     />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-16 text-right text-xs uppercase tracking-wide text-muted-foreground">
+                  <div className="flex min-w-0 flex-col gap-1">
+                    <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
                       Assist.
                     </span>
                     <Stepper
@@ -292,10 +298,11 @@ export function MatchForm({ match }: { match?: Match }) {
         </ul>
       )}
 
-      <div className="sticky bottom-0 -mx-4 border-t border-border/70 bg-background/90 px-4 py-3 backdrop-blur">
-        <Button className="w-full" size="lg" onClick={save} disabled={saving}>
+      <div className="sticky bottom-0 -mx-4 border-t border-border/70 bg-background/90 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur">
+        <Button className="h-12 w-full text-base" size="lg" onClick={save} disabled={saving}>
           {saving ? "Salvando…" : match ? "Salvar alterações" : "Salvar jogo"}
         </Button>
+
       </div>
     </div>
   );

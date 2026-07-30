@@ -162,20 +162,21 @@ function ElencoPage() {
   return (
     <div className="min-h-screen">
       <AppHeader />
-      <main className="mx-auto max-w-3xl px-4 pb-16 pt-6">
+      <main className="mx-auto max-w-3xl px-4 pb-[calc(4rem+env(safe-area-inset-bottom))] pt-6">
         <AdminGate>
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <h1 className="font-display text-4xl leading-none">Elenco</h1>
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
+            <div className="min-w-0">
+              <h1 className="font-display text-3xl leading-none sm:text-4xl">Elenco</h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 {sorted.length} jogador{sorted.length === 1 ? "" : "es"} cadastrado
                 {sorted.length === 1 ? "" : "s"}
               </p>
             </div>
-            <Button onClick={openNew}>
+            <Button onClick={openNew} className="h-11 shrink-0">
               <Plus className="mr-1 size-4" /> Novo
             </Button>
           </div>
+
 
           {isLoading ? (
             <p className="py-10 text-center text-sm text-muted-foreground">Carregando…</p>
@@ -234,7 +235,7 @@ function ElencoPage() {
       </main>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editing ? "Editar jogador" : "Novo jogador"}</DialogTitle>
           </DialogHeader>
@@ -243,6 +244,7 @@ function ElencoPage() {
               <Label htmlFor="name">Nome</Label>
               <Input
                 id="name"
+                className="h-11 text-base"
                 value={form.name}
                 maxLength={80}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -253,6 +255,7 @@ function ElencoPage() {
                 <Label htmlFor="nickname">Apelido</Label>
                 <Input
                   id="nickname"
+                  className="h-11 text-base"
                   value={form.nickname}
                   maxLength={40}
                   onChange={(e) => setForm({ ...form, nickname: e.target.value })}
@@ -263,6 +266,7 @@ function ElencoPage() {
                 <Input
                   id="shirt"
                   inputMode="numeric"
+                  className="h-11 text-base"
                   value={form.shirt}
                   onChange={(e) =>
                     setForm({ ...form, shirt: e.target.value.replace(/\D/g, "").slice(0, 2) })
@@ -276,7 +280,7 @@ function ElencoPage() {
                 value={form.position || undefined}
                 onValueChange={(value) => setForm({ ...form, position: value })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-11">
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
@@ -288,6 +292,7 @@ function ElencoPage() {
                 </SelectContent>
               </Select>
             </div>
+
             <div className="rounded-md border border-border/60 p-3">
               <p className="text-sm font-semibold">Totais anteriores ao app</p>
               <p className="mt-0.5 text-xs text-muted-foreground">
@@ -299,6 +304,7 @@ function ElencoPage() {
                   <Input
                     id="initial-goals"
                     inputMode="numeric"
+                    className="h-11 text-base"
                     value={form.initialGoals}
                     onChange={(e) =>
                       setForm({
@@ -313,6 +319,7 @@ function ElencoPage() {
                   <Input
                     id="initial-assists"
                     inputMode="numeric"
+                    className="h-11 text-base"
                     value={form.initialAssists}
                     onChange={(e) =>
                       setForm({
@@ -333,14 +340,15 @@ function ElencoPage() {
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setOpen(false)}>
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button variant="ghost" className="h-11" onClick={() => setOpen(false)}>
               Cancelar
             </Button>
-            <Button onClick={save} disabled={saving}>
+            <Button className="h-11" onClick={save} disabled={saving}>
               Salvar
             </Button>
           </DialogFooter>
+
         </DialogContent>
       </Dialog>
 
