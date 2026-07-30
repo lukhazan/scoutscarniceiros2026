@@ -72,7 +72,7 @@ export const RankingExportCard = forwardRef<
 
       <div className="flex items-center gap-6 border-b border-slate-200 pb-8">
         <div className="flex h-28 w-28 items-center justify-center rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
-          <img src={teamLogo} alt="" width={88} height={88} className="size-22 object-contain" />
+          <img src={teamLogo} alt="" width={88} height={88} className="h-[88px] w-[88px] object-contain" />
         </div>
         <div className="flex-1">
           <p className="font-display text-5xl font-bold leading-none tracking-tight text-slate-900">
