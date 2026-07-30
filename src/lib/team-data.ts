@@ -108,6 +108,66 @@ export const matchTotalsQueryOptions = {
   },
 };
 
+type StatRow = {
+  player_id: string;
+  goals: number;
+  assists: number;
+  played: boolean;
+  matches: { match_date: string } | null;
+  players: {
+    name: string;
+    nickname: string | null;
+    position: string | null;
+    shirt_number: number | null;
+    active: boolean;
+  } | null;
+};
+
+export const statsByYearQueryOptions = {
+  queryKey: ["stats_by_year"],
+  queryFn: async (): Promise<Record<string, PlayerTotals[]>> => {
+    const { data, error } = await supabase
+      .from("match_stats")
+      .select(
+        "player_id, goals, assists, played, matches(match_date), players(name, nickname, position, shirt_number, active)",
+      );
+    if (error) throw new Error(error.message);
+
+    const byYear: Record<string, Map<string, PlayerTotals>> = {};
+    for (const row of (data ?? []) as unknown as StatRow[]) {
+      const date = row.matches?.match_date;
+      const player = row.players;
+      if (!date || !player) continue;
+      const year = date.slice(0, 4);
+      const bucket = (byYear[year] ??= new Map());
+      let entry = bucket.get(row.player_id);
+      if (!entry) {
+        entry = {
+          player_id: row.player_id,
+          name: player.name,
+          nickname: player.nickname,
+          position: player.position,
+          shirt_number: player.shirt_number,
+          active: player.active,
+          matches_played: 0,
+          goals: 0,
+          assists: 0,
+          contributions: 0,
+        };
+        bucket.set(row.player_id, entry);
+      }
+      if (row.played) entry.matches_played += 1;
+      entry.goals += row.goals;
+      entry.assists += row.assists;
+      entry.contributions = entry.goals + entry.assists;
+    }
+
+    return Object.fromEntries(
+      Object.entries(byYear).map(([year, map]) => [year, [...map.values()]]),
+    );
+  },
+};
+
 export function displayName(p: { name: string; nickname: string | null }) {
   return p.nickname?.trim() ? p.nickname : p.name;
 }
