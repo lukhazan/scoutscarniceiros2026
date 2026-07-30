@@ -55,6 +55,12 @@ const playerSchema = z.object({
   position: z.string().trim().max(30).optional(),
   shirt_number: z.number().int().min(0).max(99).nullable(),
   active: z.boolean(),
+  initial_goals: z.number().int().min(0, "Gols anteriores não podem ser negativos").max(9999),
+  initial_assists: z
+    .number()
+    .int()
+    .min(0, "Assistências anteriores não podem ser negativas")
+    .max(9999),
 });
 
 const empty = {
@@ -63,6 +69,8 @@ const empty = {
   position: "",
   shirt: "",
   active: true,
+  initialGoals: "0",
+  initialAssists: "0",
 };
 
 function ElencoPage() {
