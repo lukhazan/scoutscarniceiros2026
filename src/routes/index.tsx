@@ -172,7 +172,7 @@ function Index() {
         </Button>
 
         <div aria-hidden className="pointer-events-none fixed -left-[4000px] top-0">
-          <RankingExportCard ref={exportRef} rows={data ?? []} teamName="Meu Time FC" />
+          <RankingExportCard ref={exportRef} rows={data ?? []} teamName="Carniceiros Fut 7" />
         </div>
 
 
