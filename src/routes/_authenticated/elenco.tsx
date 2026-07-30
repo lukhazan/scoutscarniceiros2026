@@ -288,6 +288,42 @@ function ElencoPage() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="rounded-md border border-border/60 p-3">
+              <p className="text-sm font-semibold">Totais anteriores ao app</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                O que o atleta já tinha registrado fora do app. Soma ao ranking geral.
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="initial-goals">Gols</Label>
+                  <Input
+                    id="initial-goals"
+                    inputMode="numeric"
+                    value={form.initialGoals}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        initialGoals: e.target.value.replace(/\D/g, "").slice(0, 4),
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="initial-assists">Assistências</Label>
+                  <Input
+                    id="initial-assists"
+                    inputMode="numeric"
+                    value={form.initialAssists}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        initialAssists: e.target.value.replace(/\D/g, "").slice(0, 4),
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            </div>
             <div className="flex items-center justify-between rounded-md border border-border/60 px-3 py-2">
               <Label htmlFor="active">No elenco atual</Label>
               <Switch
