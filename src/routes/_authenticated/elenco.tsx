@@ -235,7 +235,7 @@ function ElencoPage() {
       </main>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editing ? "Editar jogador" : "Novo jogador"}</DialogTitle>
           </DialogHeader>
@@ -244,6 +244,7 @@ function ElencoPage() {
               <Label htmlFor="name">Nome</Label>
               <Input
                 id="name"
+                className="h-11 text-base"
                 value={form.name}
                 maxLength={80}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -254,6 +255,7 @@ function ElencoPage() {
                 <Label htmlFor="nickname">Apelido</Label>
                 <Input
                   id="nickname"
+                  className="h-11 text-base"
                   value={form.nickname}
                   maxLength={40}
                   onChange={(e) => setForm({ ...form, nickname: e.target.value })}
@@ -264,6 +266,7 @@ function ElencoPage() {
                 <Input
                   id="shirt"
                   inputMode="numeric"
+                  className="h-11 text-base"
                   value={form.shirt}
                   onChange={(e) =>
                     setForm({ ...form, shirt: e.target.value.replace(/\D/g, "").slice(0, 2) })
@@ -277,7 +280,7 @@ function ElencoPage() {
                 value={form.position || undefined}
                 onValueChange={(value) => setForm({ ...form, position: value })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="h-11">
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
@@ -289,6 +292,7 @@ function ElencoPage() {
                 </SelectContent>
               </Select>
             </div>
+
             <div className="rounded-md border border-border/60 p-3">
               <p className="text-sm font-semibold">Totais anteriores ao app</p>
               <p className="mt-0.5 text-xs text-muted-foreground">
