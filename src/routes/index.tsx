@@ -214,7 +214,21 @@ function Index() {
           Os números somam automaticamente todos os jogos lançados. Nada de bloco de notas.
         </p>
 
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <Select value={period} onValueChange={setPeriod}>
+            <SelectTrigger className="w-[200px]" aria-label="Filtrar período">
+              <CalendarRange className="mr-1.5 size-4 text-muted-foreground" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Geral (todos os anos)</SelectItem>
+              {years.map((y) => (
+                <SelectItem key={y} value={y}>
+                  Temporada {y}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button
             variant="outline"
             size="sm"
@@ -237,7 +251,12 @@ function Index() {
 
 
         <div aria-hidden className="pointer-events-none fixed -left-[4000px] top-0">
-          <RankingExportCard ref={exportRef} rows={data ?? []} teamName="Carniceiros Fut 7" />
+          <RankingExportCard
+            ref={exportRef}
+            rows={data ?? []}
+            teamName="Carniceiros Fut 7"
+            periodLabel={periodLabel}
+          />
         </div>
 
 
