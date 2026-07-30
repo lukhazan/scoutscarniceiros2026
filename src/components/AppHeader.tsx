@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { LogOut, Trophy } from "lucide-react";
+import { LogOut } from "lucide-react";
+import teamLogo from "@/assets/team-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/hooks/useSession";
@@ -21,7 +22,7 @@ export function AppHeader() {
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur">
       <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
         <Link to="/" className="flex items-center gap-2">
-          <Trophy className="size-5 text-primary" aria-hidden />
+          <img src={teamLogo} alt="Escudo do time" width={28} height={28} className="size-7 object-contain" />
           <span className="font-display text-2xl leading-none">Súmula</span>
         </Link>
 

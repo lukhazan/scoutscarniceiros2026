@@ -1,8 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { Search, Target, Handshake } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { Search, Target, Handshake, ImageDown } from "lucide-react";
+import { toPng } from "html-to-image";
+import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
+import { RankingExportCard } from "@/components/RankingExportCard";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -122,7 +125,28 @@ function Index() {
     };
     return { goals: top("goals"), assists: top("assists") };
   }, [data]);
+  const exportRef = useRef<HTMLDivElement>(null);
+  const [exporting, setExporting] = useState(false);
 
+  async function handleExport() {
+    if (!exportRef.current) return;
+    setExporting(true);
+    try {
+      const dataUrl = await toPng(exportRef.current, {
+        pixelRatio: 2,
+        cacheBust: true,
+      });
+      const link = document.createElement("a");
+      link.download = `ranking-${new Date().toISOString().slice(0, 10)}.png`;
+      link.href = dataUrl;
+      link.click();
+      toast.success("Imagem gerada!");
+    } catch {
+      toast.error("Não foi possível gerar a imagem.");
+    } finally {
+      setExporting(false);
+    }
+  }
 
   return (
     <div className="min-h-screen">
@@ -135,6 +159,22 @@ function Index() {
         <p className="mt-2 text-sm text-muted-foreground">
           Os números somam automaticamente todos os jogos lançados. Nada de bloco de notas.
         </p>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-4"
+          onClick={handleExport}
+          disabled={exporting || (data ?? []).length === 0}
+        >
+          <ImageDown className="mr-1.5 size-4" />
+          {exporting ? "Gerando…" : "Exportar imagem"}
+        </Button>
+
+        <div aria-hidden className="pointer-events-none fixed -left-[4000px] top-0">
+          <RankingExportCard ref={exportRef} rows={data ?? []} teamName="Meu Time FC" />
+        </div>
+
 
         <div className="mt-5 grid grid-cols-3 gap-2">
           {[
