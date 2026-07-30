@@ -1,8 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { Search, Target, Handshake } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { Search, Target, Handshake, ImageDown } from "lucide-react";
+import { toPng } from "html-to-image";
+import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
+import { RankingExportCard } from "@/components/RankingExportCard";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
