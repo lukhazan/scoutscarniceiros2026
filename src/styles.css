@@ -126,7 +126,15 @@
     border-color: var(--color-border);
   }
 
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
   body {
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
