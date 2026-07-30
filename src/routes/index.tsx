@@ -206,17 +206,18 @@ function Index() {
     <div className="min-h-screen">
       <AppHeader />
 
-      <main className="mx-auto max-w-3xl px-4 pb-16 pt-6">
-        <h1 className="font-display text-4xl leading-none sm:text-5xl">
+      <main className="mx-auto max-w-3xl px-4 pb-[calc(4rem+env(safe-area-inset-bottom))] pt-6">
+        <h1 className="font-display text-3xl leading-none sm:text-5xl">
           Artilharia &amp; assistências
         </h1>
+
         <p className="mt-2 text-sm text-muted-foreground">
           Os números somam automaticamente todos os jogos lançados. Nada de bloco de notas.
         </p>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="mt-4 space-y-2">
           <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger className="w-[200px]" aria-label="Filtrar período">
+            <SelectTrigger className="h-11 w-full sm:w-[220px]" aria-label="Filtrar período">
               <CalendarRange className="mr-1.5 size-4 text-muted-foreground" />
               <SelectValue />
             </SelectTrigger>
@@ -229,25 +230,28 @@ function Index() {
               ))}
             </SelectContent>
           </Select>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExport}
-            disabled={exporting || exportingPdf || (data ?? []).length === 0}
-          >
-            <ImageDown className="mr-1.5 size-4" />
-            {exporting ? "Gerando…" : "Exportar imagem"}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExportPdf}
-            disabled={exporting || exportingPdf || (data ?? []).length === 0}
-          >
-            <FileDown className="mr-1.5 size-4" />
-            {exportingPdf ? "Gerando…" : "Exportar PDF"}
-          </Button>
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+            <Button
+              variant="outline"
+              className="h-11 w-full sm:w-auto"
+              onClick={handleExport}
+              disabled={exporting || exportingPdf || (data ?? []).length === 0}
+            >
+              <ImageDown className="mr-1.5 size-4" />
+              {exporting ? "Gerando…" : "Imagem"}
+            </Button>
+            <Button
+              variant="outline"
+              className="h-11 w-full sm:w-auto"
+              onClick={handleExportPdf}
+              disabled={exporting || exportingPdf || (data ?? []).length === 0}
+            >
+              <FileDown className="mr-1.5 size-4" />
+              {exportingPdf ? "Gerando…" : "PDF"}
+            </Button>
+          </div>
         </div>
+
 
 
         <div aria-hidden className="pointer-events-none fixed -left-[4000px] top-0">
@@ -300,14 +304,15 @@ function Index() {
                 <award.icon className="size-3.5" /> {award.title}
               </p>
               {award.leader ? (
-                <p className="mt-1 flex items-baseline gap-2">
-                  <span className="truncate font-display text-2xl leading-none">
+                <p className="mt-1 flex flex-wrap items-baseline gap-x-2">
+                  <span className="min-w-0 max-w-full truncate font-display text-2xl leading-none">
                     {displayName(award.leader)}
                   </span>
                   <span className="whitespace-nowrap text-sm text-primary">
                     {award.leader[award.key]} {award.suffix}
                   </span>
                 </p>
+
               ) : (
                 <p className="mt-1 text-sm text-muted-foreground">Ainda sem lançamentos</p>
               )}
@@ -323,20 +328,22 @@ function Index() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar jogador"
-            className="pl-9"
+            className="h-11 pl-9 text-base"
             aria-label="Buscar jogador"
           />
+
         </div>
 
         <Tabs defaultValue="goals" className="mt-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="goals">
+          <TabsList className="grid h-11 w-full grid-cols-2">
+            <TabsTrigger value="goals" className="h-9 text-sm">
               <Target className="mr-1.5 size-4" /> Gols
             </TabsTrigger>
-            <TabsTrigger value="assists">
+            <TabsTrigger value="assists" className="h-9 text-sm">
               <Handshake className="mr-1.5 size-4" /> Assistências
             </TabsTrigger>
           </TabsList>
+
           <TabsContent value="goals" className="mt-3">
             <Ranking rows={rows} metric="goals" loading={isLoading} />
           </TabsContent>
