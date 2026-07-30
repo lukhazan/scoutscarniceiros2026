@@ -14,10 +14,135 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      match_stats: {
+        Row: {
+          assists: number
+          created_at: string
+          goals: number
+          id: string
+          match_id: string
+          played: boolean
+          player_id: string
+        }
+        Insert: {
+          assists?: number
+          created_at?: string
+          goals?: number
+          id?: string
+          match_id: string
+          played?: boolean
+          player_id: string
+        }
+        Update: {
+          assists?: number
+          created_at?: string
+          goals?: number
+          id?: string
+          match_id?: string
+          played?: boolean
+          player_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_stats_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_stats_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "player_totals"
+            referencedColumns: ["player_id"]
+          },
+          {
+            foreignKeyName: "match_stats_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      matches: {
+        Row: {
+          created_at: string
+          id: string
+          match_date: string
+          notes: string | null
+          opponent: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          match_date?: string
+          notes?: string | null
+          opponent?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          match_date?: string
+          notes?: string | null
+          opponent?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      players: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          nickname: string | null
+          position: string | null
+          shirt_number: number | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          nickname?: string | null
+          position?: string | null
+          shirt_number?: number | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          nickname?: string | null
+          position?: string | null
+          shirt_number?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      player_totals: {
+        Row: {
+          active: boolean | null
+          assists: number | null
+          contributions: number | null
+          goals: number | null
+          matches_played: number | null
+          name: string | null
+          nickname: string | null
+          player_id: string | null
+          position: string | null
+          shirt_number: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
