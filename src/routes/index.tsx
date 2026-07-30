@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useRef, useState } from "react";
-import { Search, Target, Handshake, ImageDown } from "lucide-react";
+import { Search, Target, Handshake, ImageDown, FileDown } from "lucide-react";
 import { toPng } from "html-to-image";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
@@ -128,14 +128,18 @@ function Index() {
   const exportRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
 
+  const [exportingPdf, setExportingPdf] = useState(false);
+
+  async function renderCard() {
+    if (!exportRef.current) return null;
+    return await toPng(exportRef.current, { pixelRatio: 2, cacheBust: true });
+  }
+
   async function handleExport() {
-    if (!exportRef.current) return;
     setExporting(true);
     try {
-      const dataUrl = await toPng(exportRef.current, {
-        pixelRatio: 2,
-        cacheBust: true,
-      });
+      const dataUrl = await renderCard();
+      if (!dataUrl) return;
       const link = document.createElement("a");
       link.download = `ranking-${new Date().toISOString().slice(0, 10)}.png`;
       link.href = dataUrl;
@@ -145,6 +149,30 @@ function Index() {
       toast.error("Não foi possível gerar a imagem.");
     } finally {
       setExporting(false);
+    }
+  }
+
+  async function handleExportPdf() {
+    setExportingPdf(true);
+    try {
+      const dataUrl = await renderCard();
+      if (!dataUrl || !exportRef.current) return;
+      const { jsPDF } = await import("jspdf");
+      const node = exportRef.current;
+      const width = node.offsetWidth;
+      const height = node.offsetHeight;
+      const pdf = new jsPDF({
+        orientation: height >= width ? "portrait" : "landscape",
+        unit: "px",
+        format: [width, height],
+      });
+      pdf.addImage(dataUrl, "PNG", 0, 0, width, height);
+      pdf.save(`ranking-${new Date().toISOString().slice(0, 10)}.pdf`);
+      toast.success("PDF gerado!");
+    } catch {
+      toast.error("Não foi possível gerar o PDF.");
+    } finally {
+      setExportingPdf(false);
     }
   }
 
@@ -160,16 +188,27 @@ function Index() {
           Os números somam automaticamente todos os jogos lançados. Nada de bloco de notas.
         </p>
 
-        <Button
-          variant="outline"
-          size="sm"
-          className="mt-4"
-          onClick={handleExport}
-          disabled={exporting || (data ?? []).length === 0}
-        >
-          <ImageDown className="mr-1.5 size-4" />
-          {exporting ? "Gerando…" : "Exportar imagem"}
-        </Button>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExport}
+            disabled={exporting || exportingPdf || (data ?? []).length === 0}
+          >
+            <ImageDown className="mr-1.5 size-4" />
+            {exporting ? "Gerando…" : "Exportar imagem"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportPdf}
+            disabled={exporting || exportingPdf || (data ?? []).length === 0}
+          >
+            <FileDown className="mr-1.5 size-4" />
+            {exportingPdf ? "Gerando…" : "Exportar PDF"}
+          </Button>
+        </div>
+
 
         <div aria-hidden className="pointer-events-none fixed -left-[4000px] top-0">
           <RankingExportCard ref={exportRef} rows={data ?? []} teamName="Carniceiros Fut 7" />
