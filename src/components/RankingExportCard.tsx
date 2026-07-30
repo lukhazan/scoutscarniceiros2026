@@ -66,37 +66,52 @@ export const RankingExportCard = forwardRef<
     <div
       ref={ref}
       style={{ width: 1080 }}
-      className="bg-background px-14 py-12 text-foreground"
+      className="relative overflow-hidden bg-white px-14 py-12 text-slate-900"
     >
-      <div className="flex items-center gap-5 border-b border-border pb-6">
-        <img src={teamLogo} alt="" width={96} height={96} className="size-24 object-contain" />
-        <div>
-          <p className="font-display text-5xl leading-none tracking-wide">{teamName}</p>
-          <p className="mt-1 text-sm uppercase tracking-[0.25em] text-muted-foreground">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-red-700 via-red-500 to-red-700" />
+
+      <div className="flex items-center gap-6 border-b border-slate-200 pb-8">
+        <div className="flex h-28 w-28 items-center justify-center rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+          <img src={teamLogo} alt="" width={88} height={88} className="size-22 object-contain" />
+        </div>
+        <div className="flex-1">
+          <p className="font-display text-5xl font-bold leading-none tracking-tight text-slate-900">
+            {teamName}
+          </p>
+          <p className="mt-2 text-sm font-semibold uppercase tracking-[0.2em] text-red-600">
             {periodLabel ?? "Artilharia & assistências"}
           </p>
         </div>
-        <div className="ml-auto text-right">
-          <p className="font-display text-4xl leading-none tabular text-primary">{goals}</p>
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">gols</p>
-          <p className="mt-2 font-display text-4xl leading-none tabular text-accent">{assists}</p>
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">assist.</p>
+        <div className="flex gap-6 text-right">
+          <div className="rounded-xl bg-slate-50 px-5 py-3">
+            <p className="font-display text-4xl font-bold leading-none tabular text-red-600">{goals}</p>
+            <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">gols</p>
+          </div>
+          <div className="rounded-xl bg-slate-50 px-5 py-3">
+            <p className="font-display text-4xl font-bold leading-none tabular text-red-500">{assists}</p>
+            <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">assist.</p>
+          </div>
         </div>
       </div>
 
-      <div className="mt-8 flex gap-12">
+      <div className="mt-10 flex gap-8">
         <Column rows={rows} metric="goals" />
         <Column rows={rows} metric="assists" />
       </div>
 
-      <p className="mt-10 text-center text-xs uppercase tracking-[0.3em] text-muted-foreground">
-        Atualizado em{" "}
-        {new Date().toLocaleDateString("pt-BR", {
-          day: "2-digit",
-          month: "long",
-          year: "numeric",
-        })}
-      </p>
+      <div className="mt-10 flex items-center justify-between border-t border-slate-200 pt-5">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+          Carniceiros Fut 7
+        </p>
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+          Atualizado em{" "}
+          {new Date().toLocaleDateString("pt-BR", {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+          })}
+        </p>
+      </div>
     </div>
   );
 });
