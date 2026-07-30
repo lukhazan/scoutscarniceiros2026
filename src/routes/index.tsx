@@ -114,6 +114,16 @@ function Index() {
     };
   }, [data]);
 
+  const leaders = useMemo(() => {
+    const list = data ?? [];
+    const top = (metric: Metric) => {
+      const best = [...list].sort((a, b) => b[metric] - a[metric])[0];
+      return best && best[metric] > 0 ? best : null;
+    };
+    return { goals: top("goals"), assists: top("assists") };
+  }, [data]);
+
+
   return (
     <div className="min-h-screen">
       <AppHeader />
