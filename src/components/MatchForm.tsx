@@ -186,7 +186,7 @@ export function MatchForm({ match }: { match?: Match }) {
         if (error) throw error;
       }
 
-      queryClient.invalidateQueries();
+      await queryClient.invalidateQueries({ refetchType: "all" });
       toast.success("Jogo salvo. Tabela atualizada!");
       navigate({ to: "/jogos" });
     } catch (error) {
