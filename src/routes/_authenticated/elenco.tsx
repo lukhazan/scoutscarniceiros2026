@@ -37,7 +37,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { POSITIONS, playersQueryOptions, displayName, type Player } from "@/lib/team-data";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
-import { fileToAvatarDataUrl } from "@/lib/player-photo";
+import { fileToAvatarDataUrl, fileToCutoutDataUrl } from "@/lib/player-photo";
 
 export const Route = createFileRoute("/_authenticated/elenco")({
   head: () => ({
@@ -85,6 +85,8 @@ function ElencoPage() {
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);
   const [toDelete, setToDelete] = useState<Player | null>(null);
+  const [photoProcessing, setPhotoProcessing] = useState(false);
+  const [originalPhoto, setOriginalPhoto] = useState<string | null>(null);
 
   const sorted = useMemo(
     () =>
