@@ -10,6 +10,7 @@ import {
   interestWhatsappLink,
   isThursday,
   weekdayLabel,
+  whatsappNumberQueryOptions,
 } from "@/lib/agenda-data";
 
 export const Route = createFileRoute("/horarios")({
