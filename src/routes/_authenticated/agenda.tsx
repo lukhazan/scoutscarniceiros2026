@@ -6,6 +6,7 @@ import { CalendarDays, ChevronLeft, ChevronRight, Plus, Share2, Trash2 } from "l
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { RecurringSlotsSection } from "@/components/RecurringSlotsSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
