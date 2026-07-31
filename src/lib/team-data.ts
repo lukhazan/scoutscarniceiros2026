@@ -9,6 +9,7 @@ export type Player = {
   active: boolean;
   initial_goals: number;
   initial_assists: number;
+  photo_url: string | null;
 };
 
 export type PlayerTotals = {
@@ -18,11 +19,13 @@ export type PlayerTotals = {
   position: string | null;
   shirt_number: number | null;
   active: boolean;
+  photo_url: string | null;
   matches_played: number;
   goals: number;
   assists: number;
   contributions: number;
 };
+
 
 export type Match = {
   id: string;
