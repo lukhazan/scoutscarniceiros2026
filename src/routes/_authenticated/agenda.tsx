@@ -274,6 +274,7 @@ function AgendaPage() {
           </section>
         )}
 
+        {isAdmin && <RecurringSlotsSection />}
 
         <section className="mt-5 rounded-lg border border-border/60 bg-card p-3">
           <div className="flex items-center justify-between">
