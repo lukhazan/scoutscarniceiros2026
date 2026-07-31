@@ -1,0 +1,1 @@
+ALTER VIEW public.player_totals SET (security_invoker = on);
