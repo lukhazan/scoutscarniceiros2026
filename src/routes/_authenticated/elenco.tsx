@@ -453,7 +453,7 @@ function ElencoPage() {
             <Button variant="ghost" className="h-11" onClick={() => setOpen(false)}>
               Cancelar
             </Button>
-            <Button className="h-11" onClick={save} disabled={saving}>
+            <Button className="h-11" onClick={save} disabled={saving || photoProcessing}>
               Salvar
             </Button>
           </DialogFooter>
