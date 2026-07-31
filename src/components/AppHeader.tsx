@@ -43,6 +43,9 @@ export function AppHeader() {
               <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
                 <Link to="/jogos">Jogos</Link>
               </Button>
+              <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                <Link to="/agenda">Agenda</Link>
+              </Button>
               <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sair">
                 <LogOut className="size-4" />
               </Button>
