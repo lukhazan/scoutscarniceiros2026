@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
 import { RankingExportCard } from "@/components/RankingExportCard";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
+import { Podium } from "@/components/Podium";
 
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
