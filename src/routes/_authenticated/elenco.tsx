@@ -345,8 +345,8 @@ function ElencoPage() {
                 </Label>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   {photoProcessing
-                    ? "Removendo fundo…"
-                    : "PNG ou JPG, até 8 MB. O fundo é removido automaticamente."}
+                    ? "Processando imagem…"
+                    : "PNG ou JPG, até 8 MB. Remover o fundo é opcional."}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   <Button
@@ -360,6 +360,17 @@ function ElencoPage() {
                     <ImagePlus className="mr-1 size-4" />
                     {form.photo ? "Trocar" : "Enviar foto"}
                   </Button>
+                  {pendingFile && !cutoutSource && !photoProcessing ? (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="h-9"
+                      onClick={() => void removeBackgroundNow()}
+                    >
+                      <Scissors className="mr-1 size-4" /> Remover fundo
+                    </Button>
+                  ) : null}
                   {cutoutSource && originalSource && !photoProcessing ? (
                     <Button
                       type="button"
