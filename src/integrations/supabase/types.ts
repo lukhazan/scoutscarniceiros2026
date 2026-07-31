@@ -19,6 +19,7 @@ export type Database = {
           assists: number
           created_at: string
           goals: number
+          goals_conceded: number
           id: string
           match_id: string
           played: boolean
@@ -28,6 +29,7 @@ export type Database = {
           assists?: number
           created_at?: string
           goals?: number
+          goals_conceded?: number
           id?: string
           match_id: string
           played?: boolean
@@ -37,6 +39,7 @@ export type Database = {
           assists?: number
           created_at?: string
           goals?: number
+          goals_conceded?: number
           id?: string
           match_id?: string
           played?: boolean
@@ -99,6 +102,7 @@ export type Database = {
           created_at: string
           id: string
           initial_assists: number
+          initial_conceded: number
           initial_goals: number
           name: string
           nickname: string | null
@@ -112,6 +116,7 @@ export type Database = {
           created_at?: string
           id?: string
           initial_assists?: number
+          initial_conceded?: number
           initial_goals?: number
           name: string
           nickname?: string | null
@@ -125,6 +130,7 @@ export type Database = {
           created_at?: string
           id?: string
           initial_assists?: number
+          initial_conceded?: number
           initial_goals?: number
           name?: string
           nickname?: string | null
@@ -164,7 +170,7 @@ export type Database = {
           assists: number | null
           contributions: number | null
           goals: number | null
-          initial_assists: number | null
+          goals_conceded: number | null
           initial_goals: number | null
           matches_played: number | null
           name: string | null
