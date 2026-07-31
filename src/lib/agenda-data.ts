@@ -42,8 +42,32 @@ export function formatTime(value: string | null) {
   return value ? value.slice(0, 5) : null;
 }
 
-/** Número de WhatsApp do responsável pelo time (formato internacional, só dígitos). */
-export const WHATSAPP_NUMBER = "5511999999999";
+/** Número de WhatsApp padrão, usado só enquanto o admin não configurar um. */
+export const DEFAULT_WHATSAPP_NUMBER = "5511999999999";
+
+export const whatsappNumberQueryOptions = {
+  queryKey: ["team_settings", "whatsapp_number"],
+  queryFn: async (): Promise<string> => {
+    const { data, error } = await supabase
+      .from("team_settings")
+      .select("value")
+      .eq("key", "whatsapp_number")
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    const digits = (data?.value ?? "").replace(/\D/g, "");
+    return digits || DEFAULT_WHATSAPP_NUMBER;
+  },
+};
+
+export async function saveWhatsappNumber(value: string) {
+  const digits = value.replace(/\D/g, "");
+  const { error } = await supabase
+    .from("team_settings")
+    .upsert({ key: "whatsapp_number", value: digits }, { onConflict: "key" });
+  if (error) throw new Error(error.message);
+  return digits;
+}
+
 
 export function toLocalDate(value: string) {
   const [y, m, d] = value.split("-").map(Number);
@@ -58,13 +82,14 @@ export function weekdayLabel(value: string) {
   return toLocalDate(value).toLocaleDateString("pt-BR", { weekday: "long" });
 }
 
-export function interestWhatsappLink(slot: TeamEvent) {
+export function interestWhatsappLink(slot: TeamEvent, phone?: string) {
   const date = toLocalDate(slot.event_date).toLocaleDateString("pt-BR");
   const time = formatTime(slot.start_time);
   const message = `Olá! Vi que a ${weekdayLabel(slot.event_date)} ${date}${
     time ? ` às ${time}` : ""
   } está disponível para amistoso e gostaria de conversar sobre essa data.`;
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  const number = (phone ?? "").replace(/\D/g, "") || DEFAULT_WHATSAPP_NUMBER;
+  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }
 
 export const eventsQueryOptions = {

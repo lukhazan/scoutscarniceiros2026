@@ -31,8 +31,10 @@ import {
   EVENT_TYPES,
   eventsQueryOptions,
   formatTime,
+  saveWhatsappNumber,
   statusLabel,
   typeMeta,
+  whatsappNumberQueryOptions,
   type TeamEvent,
 } from "@/lib/agenda-data";
 
@@ -87,6 +89,31 @@ function AgendaPage() {
   const isAdmin = useIsAdmin();
   const queryClient = useQueryClient();
   const { data: events, isLoading } = useQuery(eventsQueryOptions);
+  const { data: whatsappNumber } = useQuery(whatsappNumberQueryOptions);
+  const [phoneDraft, setPhoneDraft] = useState<string | null>(null);
+  const [savingPhone, setSavingPhone] = useState(false);
+  const phoneInput = phoneDraft ?? whatsappNumber ?? "";
+  const setPhoneInput = setPhoneDraft;
+
+  async function handleSavePhone() {
+    const digits = phoneInput.replace(/\D/g, "");
+    if (digits.length < 10) {
+      toast.error("Informe o número com DDI e DDD, ex.: 5511987654321.");
+      return;
+    }
+    setSavingPhone(true);
+    try {
+      await saveWhatsappNumber(digits);
+      setPhoneDraft(digits);
+      toast.success("Número de WhatsApp atualizado.");
+      queryClient.invalidateQueries({ queryKey: ["team_settings", "whatsapp_number"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Não foi possível salvar.");
+    } finally {
+      setSavingPhone(false);
+    }
+  }
+
   const [cursor, setCursor] = useState(() => {
     const now = new Date();
     return { year: now.getFullYear(), month: now.getMonth() };
@@ -223,6 +250,30 @@ function AgendaPage() {
         <Button variant="outline" className="mt-4 h-11 w-full" onClick={copyPublicLink}>
           <Share2 className="mr-2 size-4" /> Compartilhar horários disponíveis
         </Button>
+
+        {isAdmin && (
+          <section className="mt-4 rounded-lg border border-border/60 bg-card p-4">
+            <Label htmlFor="whatsapp-number">WhatsApp oficial do time</Label>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Usado no botão “Tenho interesse” da página pública. Formato internacional, ex.:
+              5511987654321.
+            </p>
+            <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+              <Input
+                id="whatsapp-number"
+                inputMode="numeric"
+                placeholder="5511987654321"
+                className="h-11"
+                value={phoneInput}
+                onChange={(e) => setPhoneInput(e.target.value)}
+              />
+              <Button className="h-11 shrink-0" onClick={handleSavePhone} disabled={savingPhone}>
+                Salvar
+              </Button>
+            </div>
+          </section>
+        )}
+
 
         <section className="mt-5 rounded-lg border border-border/60 bg-card p-3">
           <div className="flex items-center justify-between">
