@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Pencil, Plus, Trash2, UserRound } from "lucide-react";
+import { ImagePlus, Pencil, Plus, Trash2, UserRound, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
 import { AdminGate } from "@/components/AdminGate";
@@ -35,7 +35,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { POSITIONS, playersQueryOptions, type Player } from "@/lib/team-data";
+import { POSITIONS, playersQueryOptions, displayName, type Player } from "@/lib/team-data";
+import { PlayerAvatar } from "@/components/PlayerAvatar";
+import { fileToAvatarDataUrl } from "@/lib/player-photo";
 
 export const Route = createFileRoute("/_authenticated/elenco")({
   head: () => ({
@@ -61,6 +63,7 @@ const playerSchema = z.object({
     .int()
     .min(0, "Assistências anteriores não podem ser negativas")
     .max(9999),
+  photo_url: z.string().nullable(),
 });
 
 const empty = {
@@ -71,6 +74,7 @@ const empty = {
   active: true,
   initialGoals: "0",
   initialAssists: "0",
+  photo: null as string | null,
 };
 
 function ElencoPage() {
@@ -106,6 +110,7 @@ function ElencoPage() {
       active: player.active,
       initialGoals: String(player.initial_goals ?? 0),
       initialAssists: String(player.initial_assists ?? 0),
+      photo: player.photo_url ?? null,
     });
     setOpen(true);
   }
@@ -119,6 +124,7 @@ function ElencoPage() {
       active: form.active,
       initial_goals: form.initialGoals === "" ? 0 : Number(form.initialGoals),
       initial_assists: form.initialAssists === "" ? 0 : Number(form.initialAssists),
+      photo_url: form.photo,
     });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0].message);
@@ -133,6 +139,7 @@ function ElencoPage() {
       active: parsed.data.active,
       initial_goals: parsed.data.initial_goals,
       initial_assists: parsed.data.initial_assists,
+      photo_url: parsed.data.photo_url,
     };
     const { error } = editing
       ? await supabase.from("players").update(payload).eq("id", editing.id)
@@ -191,9 +198,12 @@ function ElencoPage() {
             <ul className="mt-5 divide-y divide-border/60 overflow-hidden rounded-lg border border-border/60 bg-card">
               {sorted.map((player) => (
                 <li key={player.id} className="flex items-center gap-3 px-3 py-3">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-secondary font-display text-lg tabular">
-                    {player.shirt_number ?? "–"}
-                  </span>
+                  <PlayerAvatar
+                    src={player.photo_url}
+                    name={displayName(player)}
+                    className="size-11"
+                    fallback={player.shirt_number == null ? undefined : String(player.shirt_number)}
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold leading-tight">
                       {player.name}
@@ -240,6 +250,55 @@ function ElencoPage() {
             <DialogTitle>{editing ? "Editar jogador" : "Novo jogador"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
+            <div className="flex items-center gap-4 rounded-md border border-border/60 p-3">
+              <PlayerAvatar src={form.photo} name={form.name || "Jogador"} className="size-16" />
+              <div className="min-w-0 flex-1">
+                <Label htmlFor="photo" className="text-sm font-semibold">
+                  Foto do jogador
+                </Label>
+                <p className="mt-0.5 text-xs text-muted-foreground">PNG ou JPG, até 8 MB.</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-9"
+                    onClick={() => document.getElementById("photo")?.click()}
+                  >
+                    <ImagePlus className="mr-1 size-4" />
+                    {form.photo ? "Trocar" : "Enviar foto"}
+                  </Button>
+                  {form.photo ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-9"
+                      onClick={() => setForm((f) => ({ ...f, photo: null }))}
+                    >
+                      <X className="mr-1 size-4" /> Remover
+                    </Button>
+                  ) : null}
+                </div>
+                <input
+                  id="photo"
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    e.target.value = "";
+                    if (!file) return;
+                    try {
+                      const dataUrl = await fileToAvatarDataUrl(file);
+                      setForm((f) => ({ ...f, photo: dataUrl }));
+                    } catch (err) {
+                      toast.error(err instanceof Error ? err.message : "Falha ao ler a imagem.");
+                    }
+                  }}
+                />
+              </div>
+            </div>
             <div className="space-y-1.5">
               <Label htmlFor="name">Nome</Label>
               <Input

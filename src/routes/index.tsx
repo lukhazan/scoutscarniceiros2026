@@ -6,6 +6,8 @@ import { toPng } from "html-to-image";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
 import { RankingExportCard } from "@/components/RankingExportCard";
+import { PlayerAvatar } from "@/components/PlayerAvatar";
+
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -77,12 +79,13 @@ function Ranking({
       {sorted.map((row, index) => (
         <li key={row.player_id} className="flex items-center gap-3 px-3 py-3">
           <span
-            className={`w-7 shrink-0 text-center font-display text-xl tabular ${
+            className={`w-6 shrink-0 text-center font-display text-xl tabular ${
               index === 0 ? "text-primary" : index < 3 ? "text-accent" : "text-muted-foreground"
             }`}
           >
             {index + 1}
           </span>
+          <PlayerAvatar src={row.photo_url} name={displayName(row)} className="size-10" />
           <div className="min-w-0 flex-1">
             <p className="truncate font-semibold leading-tight">{displayName(row)}</p>
             <p className="truncate text-xs text-muted-foreground">
@@ -91,6 +94,7 @@ function Ranking({
                 .join(" · ")}
             </p>
           </div>
+
           <div className="text-right">
             <span className="font-display text-3xl leading-none tabular text-primary">
               {row[metric]}

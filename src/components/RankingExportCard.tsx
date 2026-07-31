@@ -41,9 +41,17 @@ function Column({ rows, metric }: { rows: PlayerTotals[]; metric: ExportMetric }
               >
                 {index + 1}
               </span>
+              {row.photo_url ? (
+                <img
+                  src={row.photo_url}
+                  alt=""
+                  className="h-9 w-9 shrink-0 rounded-full border border-slate-200 object-cover"
+                />
+              ) : null}
               <span className="min-w-0 flex-1 truncate text-base font-semibold text-slate-800">
                 {displayName(row)}
               </span>
+
               <span className={`font-display text-2xl font-bold tabular ${accent}`}>{row[metric]}</span>
             </li>
           ))}

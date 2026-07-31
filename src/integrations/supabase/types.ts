@@ -102,6 +102,7 @@ export type Database = {
           initial_goals: number
           name: string
           nickname: string | null
+          photo_url: string | null
           position: string | null
           shirt_number: number | null
           updated_at: string
@@ -114,6 +115,7 @@ export type Database = {
           initial_goals?: number
           name: string
           nickname?: string | null
+          photo_url?: string | null
           position?: string | null
           shirt_number?: number | null
           updated_at?: string
@@ -126,6 +128,7 @@ export type Database = {
           initial_goals?: number
           name?: string
           nickname?: string | null
+          photo_url?: string | null
           position?: string | null
           shirt_number?: number | null
           updated_at?: string
@@ -166,6 +169,7 @@ export type Database = {
           matches_played: number | null
           name: string | null
           nickname: string | null
+          photo_url: string | null
           player_id: string | null
           position: string | null
           shirt_number: number | null
