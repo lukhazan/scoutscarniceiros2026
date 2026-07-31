@@ -342,18 +342,16 @@ function ElencoPage() {
                     <ImagePlus className="mr-1 size-4" />
                     {form.photo ? "Trocar" : "Enviar foto"}
                   </Button>
-                  {originalPhoto && !photoProcessing ? (
+                  {cutoutSource && originalSource && !photoProcessing ? (
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       className="h-9"
-                      onClick={() => {
-                        setForm((f) => ({ ...f, photo: originalPhoto }));
-                        setOriginalPhoto(null);
-                      }}
+                      onClick={() => setUsingCutout((v) => !v)}
                     >
-                      <RotateCcw className="mr-1 size-4" /> Usar foto original
+                      <RotateCcw className="mr-1 size-4" />
+                      {usingCutout ? "Usar foto original" : "Usar sem fundo"}
                     </Button>
                   ) : null}
                   {form.photo && !photoProcessing ? (
@@ -364,12 +362,13 @@ function ElencoPage() {
                       className="h-9"
                       onClick={() => {
                         setForm((f) => ({ ...f, photo: null }));
-                        setOriginalPhoto(null);
+                        resetPhotoState();
                       }}
                     >
                       <X className="mr-1 size-4" /> Remover
                     </Button>
                   ) : null}
+
                 </div>
                 <input
                   id="photo"
