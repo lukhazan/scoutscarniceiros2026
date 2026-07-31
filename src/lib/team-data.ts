@@ -9,6 +9,7 @@ export type Player = {
   active: boolean;
   initial_goals: number;
   initial_assists: number;
+  initial_conceded: number;
   photo_url: string | null;
 };
 
@@ -23,6 +24,7 @@ export type PlayerTotals = {
   matches_played: number;
   goals: number;
   assists: number;
+  goals_conceded: number;
   contributions: number;
 };
 
@@ -40,6 +42,7 @@ export type MatchStat = {
   player_id: string;
   goals: number;
   assists: number;
+  goals_conceded: number;
   played: boolean;
 };
 
@@ -58,7 +61,7 @@ export const playersQueryOptions = {
     const { data, error } = await supabase
       .from("players")
       .select(
-        "id, name, nickname, position, shirt_number, active, initial_goals, initial_assists, photo_url",
+        "id, name, nickname, position, shirt_number, active, initial_goals, initial_assists, initial_conceded, photo_url",
       )
       .order("name");
     if (error) throw new Error(error.message);
@@ -96,7 +99,7 @@ export function matchStatsQueryOptions(matchId: string) {
     queryFn: async (): Promise<MatchStat[]> => {
       const { data, error } = await supabase
         .from("match_stats")
-        .select("id, match_id, player_id, goals, assists, played")
+        .select("id, match_id, player_id, goals, assists, goals_conceded, played")
         .eq("match_id", matchId);
       if (error) throw new Error(error.message);
       return data ?? [];
@@ -109,7 +112,7 @@ export const matchTotalsQueryOptions = {
   queryFn: async () => {
     const { data, error } = await supabase
       .from("match_stats")
-      .select("match_id, goals, assists, played");
+      .select("match_id, goals, assists, goals_conceded, played");
     if (error) throw new Error(error.message);
     return data ?? [];
   },
@@ -119,6 +122,7 @@ type StatRow = {
   player_id: string;
   goals: number;
   assists: number;
+  goals_conceded: number;
   played: boolean;
   matches: { match_date: string } | null;
   players: {
@@ -137,7 +141,7 @@ export const statsByYearQueryOptions = {
     const { data, error } = await supabase
       .from("match_stats")
       .select(
-        "player_id, goals, assists, played, matches(match_date), players(name, nickname, position, shirt_number, active, photo_url)",
+        "player_id, goals, assists, goals_conceded, played, matches(match_date), players(name, nickname, position, shirt_number, active, photo_url)",
       );
     if (error) throw new Error(error.message);
 
@@ -161,6 +165,7 @@ export const statsByYearQueryOptions = {
           matches_played: 0,
           goals: 0,
           assists: 0,
+          goals_conceded: 0,
           contributions: 0,
         };
         bucket.set(row.player_id, entry);
@@ -168,6 +173,7 @@ export const statsByYearQueryOptions = {
       if (row.played) entry.matches_played += 1;
       entry.goals += row.goals;
       entry.assists += row.assists;
+      entry.goals_conceded += row.goals_conceded ?? 0;
       entry.contributions = entry.goals + entry.assists;
     }
 
