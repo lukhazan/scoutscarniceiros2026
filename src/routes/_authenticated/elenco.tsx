@@ -95,7 +95,8 @@ function ElencoPage() {
   const [photoProcessing, setPhotoProcessing] = useState(false);
   const [cutoutSource, setCutoutSource] = useState<string | null>(null);
   const [originalSource, setOriginalSource] = useState<string | null>(null);
-  const [usingCutout, setUsingCutout] = useState(true);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [usingCutout, setUsingCutout] = useState(false);
   const [adjust, setAdjust] = useState<PhotoAdjust>(DEFAULT_ADJUST);
 
   const activeSource = usingCutout ? (cutoutSource ?? originalSource) : originalSource;
