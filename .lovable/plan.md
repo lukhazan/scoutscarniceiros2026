@@ -1,33 +1,35 @@
-## Objetivo
+# Remoção automática de fundo na foto do jogador
 
-Substituir o bloco de notas por um app onde você faz login, cadastra o elenco, lança gols e assistências de cada jogo, e a tabela geral de artilharia/assistências se atualiza sozinha.
+Hoje, ao enviar a foto no cadastro/edição do elenco, a imagem é apenas recortada em quadrado e reduzida. A proposta é que, logo após o envio, o fundo seja removido automaticamente e reste só o atleta.
 
-## Telas
+## Como vai funcionar
 
-1. **/ (Início)** — página pública com o nome do time, a tabela geral de estatísticas (somente leitura) e botão "Entrar".
-2. **/auth** — login e cadastro por e-mail e senha (apenas você/administrador).
-3. **/elenco** (protegida) — cadastrar, editar e remover jogadores (nome, apelido, posição, número).
-4. **/jogos** (protegida) — lista de jogos lançados, com opção de editar ou excluir um lançamento.
-5. **/jogos/novo** (protegida) — o formulário principal: escolhe a data e o adversário (opcional), depois marca quantos gols e assistências cada jogador do elenco fez naquele jogo. Ao salvar, a tabela principal recalcula automaticamente.
+1. O admin escolhe o PNG/JPG normalmente.
+2. Aparece um indicador "Removendo fundo…" no lugar da miniatura.
+3. A foto volta já recortada, sem fundo, sobre o círculo do avatar.
+4. Um botão "Usar foto original" permite desfazer a remoção caso o resultado fique ruim.
+5. Se a remoção falhar, a foto original é usada e um aviso discreto é exibido — nunca bloqueia o cadastro.
 
-## Tabela principal
+## Abordagem técnica
 
-Duas tabelas separadas em formato de ranking ( Gols ) e ( Assistências) . Busca por nome e possibilidade de ordenar por cada coluna. Layout pensado para celular primeiro, já que você vai lançar direto do campo.
+Remoção no próprio navegador, sem custo por imagem e sem novo backend:
 
-## Como funciona por dentro
+- Adicionar a biblioteca `@imgly/background-removal` (roda via WebAssembly/WebGPU no browser).
+- Em `src/lib/player-photo.ts`, criar `fileToCutoutDataUrl(file)`:
+  - valida tipo/tamanho como hoje (até 8 MB);
+  - executa a remoção de fundo sobre o arquivo original;
+  - passa o resultado pelo pipeline atual de recorte quadrado + redimensionamento para 256px;
+  - exporta PNG com transparência (`canvas.toDataURL("image/png")` já preserva alfa).
+- A função existente `fileToAvatarDataUrl` continua como fallback (foto original).
+- Carregar a biblioteca com `import()` dinâmico dentro do handler, para não pesar no bundle inicial nem no SSR.
 
-- Backend com Lovable Cloud (banco de dados + login inclusos, sem contas externas).
-- Tabelas: `players` (elenco), `matches` (jogos), `match_stats` (gols e assistências por jogador por jogo).
-- Os totais nunca são digitados à mão: são somados a partir dos lançamentos, então corrigir um jogo antigo já corrige a tabela.
-- Leitura pública da tabela; escrita apenas para o usuário autenticado, com políticas de segurança no banco.
+Na UI (`src/routes/_authenticated/elenco.tsx`):
+- estado `processingPhoto` para o indicador de carregamento e para desabilitar "Salvar" durante o processo;
+- guardar a versão original em memória para o botão "Usar foto original";
+- nenhuma mudança no banco: continua salvando data URL PNG em `players.photo_url`.
 
-## Detalhes técnicos
+`PlayerAvatar` já usa `object-cover` sobre `bg-secondary`, então o recorte transparente aparece bem tanto no elenco quanto nos rankings e no card de exportação.
 
-- TanStack Start com rotas protegidas em `_authenticated` e página inicial pública.
-- Server functions para as escritas (jogos e elenco); leitura pública da tabela via cliente publicável com política SELECT para anônimos.
-- Estatísticas agregadas por uma view/consulta no banco, para não recalcular no navegador.
-- Zod validando os formulários (nome do jogador, quantidades não negativas).
+## Observação
 
-## Fora do escopo (por agora)
-
-Cartões, placar do jogo e vários usuários lançando — dá para adicionar depois.
+O primeiro uso baixa o modelo (alguns MB) e leva alguns segundos; depois fica em cache no navegador. Como só o admin envia fotos, isso não afeta quem apenas visualiza os rankings.
