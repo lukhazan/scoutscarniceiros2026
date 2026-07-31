@@ -175,6 +175,18 @@ function Index() {
     };
     return { goals: top("goals"), assists: top("assists") };
   }, [data]);
+
+  const bestKeeper = useMemo(() => {
+    const list = (data ?? []).filter((r) => r.position === "Goleiro" && r.matches_played > 0);
+    return (
+      [...list].sort(
+        (a, b) =>
+          a.goals_conceded - b.goals_conceded ||
+          b.matches_played - a.matches_played ||
+          a.name.localeCompare(b.name),
+      )[0] ?? null
+    );
+  }, [data]);
   const exportRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
 
