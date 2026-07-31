@@ -1,7 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useRef, useState } from "react";
-import { Search, Target, Handshake, ImageDown, FileDown, CalendarRange } from "lucide-react";
+import {
+  Search,
+  Target,
+  Handshake,
+  ImageDown,
+  FileDown,
+  CalendarRange,
+  Shield,
+} from "lucide-react";
 import { toPng } from "html-to-image";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
@@ -52,10 +60,20 @@ function Ranking({
   loading,
 }: {
   rows: PlayerTotals[];
-  metric: Metric;
+  metric: Metric | "goals_conceded";
   loading: boolean;
 }) {
   const sorted = useMemo(() => {
+    if (metric === "goals_conceded") {
+      return [...rows]
+        .filter((r) => r.position === "Goleiro")
+        .sort(
+          (a, b) =>
+            a.goals_conceded - b.goals_conceded ||
+            b.matches_played - a.matches_played ||
+            a.name.localeCompare(b.name),
+        );
+    }
     const other: Metric = metric === "goals" ? "assists" : "goals";
     return [...rows].sort(
       (a, b) => b[metric] - a[metric] || b[other] - a[other] || a.name.localeCompare(b.name),
@@ -69,7 +87,9 @@ function Ranking({
   if (sorted.length === 0) {
     return (
       <p className="py-10 text-center text-sm text-muted-foreground">
-        Nenhum jogador encontrado ainda.
+        {metric === "goals_conceded"
+          ? "Nenhum goleiro cadastrado ainda."
+          : "Nenhum jogador encontrado ainda."}
       </p>
     );
   }
@@ -100,7 +120,7 @@ function Ranking({
               {row[metric]}
             </span>
             <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-              {metric === "goals" ? "Gols" : "Passes"}
+              {metric === "goals" ? "Gols" : metric === "assists" ? "Passes" : "Sofridos"}
             </p>
           </div>
         </li>
@@ -339,12 +359,15 @@ function Index() {
         </div>
 
         <Tabs defaultValue="goals" className="mt-4">
-          <TabsList className="grid h-11 w-full grid-cols-2">
+          <TabsList className="grid h-11 w-full grid-cols-3">
             <TabsTrigger value="goals" className="h-9 text-sm">
               <Target className="mr-1.5 size-4" /> Gols
             </TabsTrigger>
             <TabsTrigger value="assists" className="h-9 text-sm">
-              <Handshake className="mr-1.5 size-4" /> Assistências
+              <Handshake className="mr-1.5 size-4" /> Assist.
+            </TabsTrigger>
+            <TabsTrigger value="goals_conceded" className="h-9 text-sm">
+              <Shield className="mr-1.5 size-4" /> Goleiros
             </TabsTrigger>
           </TabsList>
 
@@ -353,6 +376,12 @@ function Index() {
           </TabsContent>
           <TabsContent value="assists" className="mt-3">
             <Ranking rows={rows} metric="assists" loading={isLoading} />
+          </TabsContent>
+          <TabsContent value="goals_conceded" className="mt-3">
+            <p className="mb-2 text-xs text-muted-foreground">
+              Ranking de goleiros por gols sofridos — do menos vazado para o mais vazado.
+            </p>
+            <Ranking rows={rows} metric="goals_conceded" loading={isLoading} />
           </TabsContent>
         </Tabs>
 
