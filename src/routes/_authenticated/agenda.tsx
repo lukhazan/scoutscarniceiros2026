@@ -6,6 +6,7 @@ import { CalendarDays, ChevronLeft, ChevronRight, Plus, Share2, Trash2 } from "l
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { RecurringSlotsSection } from "@/components/RecurringSlotsSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -216,6 +217,7 @@ function AgendaPage() {
     toast.success("Compromisso salvo.");
     setForm(null);
     queryClient.invalidateQueries({ queryKey: ["team_events"] });
+    queryClient.invalidateQueries({ queryKey: ["availability", "generated"] });
   }
 
   async function removeEvent(id: string) {
@@ -227,6 +229,7 @@ function AgendaPage() {
     setSelected(null);
     toast.success("Compromisso removido.");
     queryClient.invalidateQueries({ queryKey: ["team_events"] });
+    queryClient.invalidateQueries({ queryKey: ["availability", "generated"] });
   }
 
   return (
@@ -274,6 +277,7 @@ function AgendaPage() {
           </section>
         )}
 
+        {isAdmin && <RecurringSlotsSection />}
 
         <section className="mt-5 rounded-lg border border-border/60 bg-card p-3">
           <div className="flex items-center justify-between">

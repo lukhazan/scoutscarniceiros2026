@@ -189,6 +189,42 @@ export type Database = {
         }
         Relationships: []
       }
+      recurring_slots: {
+        Row: {
+          active: boolean
+          created_at: string
+          end_time: string
+          id: string
+          location: string | null
+          start_time: string
+          updated_at: string
+          weekday: number
+          whatsapp: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          end_time: string
+          id?: string
+          location?: string | null
+          start_time: string
+          updated_at?: string
+          weekday: number
+          whatsapp?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          end_time?: string
+          id?: string
+          location?: string | null
+          start_time?: string
+          updated_at?: string
+          weekday?: number
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       team_events: {
         Row: {
           created_at: string
@@ -301,7 +337,14 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      busy_periods: {
+        Args: { from_date: string; to_date: string }
+        Returns: {
+          end_time: string
+          event_date: string
+          start_time: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin"
