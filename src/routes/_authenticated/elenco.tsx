@@ -157,24 +157,32 @@ function ElencoPage() {
   async function handlePhotoFile(file: File) {
     setPhotoProcessing(true);
     resetPhotoState();
-    let original: string;
+    setUsingCutout(false);
     try {
-      original = await fileToSourceDataUrl(file);
+      const original = await fileToSourceDataUrl(file);
+      setOriginalSource(original);
     } catch (err) {
-      setPhotoProcessing(false);
       toast.error(err instanceof Error ? err.message : "Falha ao ler a imagem.");
-      return;
-    }
-    setOriginalSource(original);
-    try {
-      const cutout = await fileToCutoutSourceDataUrl(file);
-      setCutoutSource(cutout);
-    } catch {
-      toast.message("Não foi possível remover o fundo. Usando a foto original.");
     } finally {
       setPhotoProcessing(false);
     }
   }
+
+  async function removeBackgroundNow() {
+    const file = pendingFile;
+    if (!file) return;
+    setPhotoProcessing(true);
+    try {
+      const cutout = await fileToCutoutSourceDataUrl(file);
+      setCutoutSource(cutout);
+      setUsingCutout(true);
+    } catch {
+      toast.message("Não foi possível remover o fundo. Mantendo a foto original.");
+    } finally {
+      setPhotoProcessing(false);
+    }
+  }
+
 
 
   async function save() {
