@@ -16,7 +16,11 @@ import {
   type Match,
 } from "@/lib/team-data";
 
-type Row = { played: boolean; goals: number; assists: number };
+type Row = { played: boolean; goals: number; assists: number; goals_conceded: number };
+
+const EMPTY_ROW: Row = { played: false, goals: 0, assists: 0, goals_conceded: 0 };
+
+const isKeeper = (position: string | null) => position === "Goleiro";
 
 const headerSchema = z.object({
   match_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Informe a data do jogo"),
@@ -84,8 +88,13 @@ export function MatchForm({ match }: { match?: Match }) {
         next[player.id] =
           current[player.id] ??
           (saved
-            ? { played: saved.played, goals: saved.goals, assists: saved.assists }
-            : { played: false, goals: 0, assists: 0 });
+            ? {
+                played: saved.played,
+                goals: saved.goals,
+                assists: saved.assists,
+                goals_conceded: saved.goals_conceded ?? 0,
+              }
+            : EMPTY_ROW);
       }
       return next;
     });
@@ -114,9 +123,13 @@ export function MatchForm({ match }: { match?: Match }) {
 
   function update(playerId: string, patch: Partial<Row>) {
     setRows((current) => {
-      const row = current[playerId] ?? { played: false, goals: 0, assists: 0 };
+      const row = current[playerId] ?? EMPTY_ROW;
       const next = { ...row, ...patch };
-      if ((next.goals > 0 || next.assists > 0) && !("played" in patch)) next.played = true;
+      if (
+        (next.goals > 0 || next.assists > 0 || next.goals_conceded > 0) &&
+        !("played" in patch)
+      )
+        next.played = true;
       return { ...current, [playerId]: next };
     });
   }
@@ -158,12 +171,13 @@ export function MatchForm({ match }: { match?: Match }) {
       }
 
       const inserts = Object.entries(rows)
-        .filter(([, row]) => row.played || row.goals > 0 || row.assists > 0)
+        .filter(([, row]) => row.played || row.goals > 0 || row.assists > 0 || row.goals_conceded > 0)
         .map(([player_id, row]) => ({
           match_id: matchId!,
           player_id,
           goals: row.goals,
           assists: row.assists,
+          goals_conceded: row.goals_conceded,
           played: true,
         }));
 
@@ -248,7 +262,7 @@ export function MatchForm({ match }: { match?: Match }) {
       ) : (
         <ul className="divide-y divide-border/60 overflow-hidden rounded-lg border border-border/60 bg-card">
           {visible.map((player) => {
-            const row = rows[player.id] ?? { played: false, goals: 0, assists: 0 };
+            const row = rows[player.id] ?? EMPTY_ROW;
             return (
               <li key={player.id} className="px-3 py-3">
                 <div className="flex items-center gap-3">
@@ -291,6 +305,18 @@ export function MatchForm({ match }: { match?: Match }) {
                       onChange={(assists) => update(player.id, { assists })}
                     />
                   </div>
+                  {isKeeper(player.position) ? (
+                    <div className="col-span-2 flex min-w-0 flex-col gap-1">
+                      <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        Gols sofridos
+                      </span>
+                      <Stepper
+                        label={`gols sofridos por ${player.name}`}
+                        value={row.goals_conceded}
+                        onChange={(goals_conceded) => update(player.id, { goals_conceded })}
+                      />
+                    </div>
+                  ) : null}
                 </div>
               </li>
             );
