@@ -314,43 +314,8 @@ function Index() {
           ))}
         </div>
 
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-          {[
-            {
-              key: "goals" as const,
-              title: "Artilheiro do ano",
-              icon: Target,
-              leader: leaders.goals,
-              suffix: "gols",
-            },
-            {
-              key: "assists" as const,
-              title: "Garçom do ano",
-              icon: Handshake,
-              leader: leaders.assists,
-              suffix: "assistências",
-            },
-          ].map((award) => (
-            <div key={award.key} className="rounded-lg border border-primary/40 bg-card px-4 py-3">
-              <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground">
-                <award.icon className="size-3.5" /> {award.title}
-              </p>
-              {award.leader ? (
-                <p className="mt-1 flex flex-wrap items-baseline gap-x-2">
-                  <span className="min-w-0 max-w-full truncate font-display text-2xl leading-none">
-                    {displayName(award.leader)}
-                  </span>
-                  <span className="whitespace-nowrap text-sm text-primary">
-                    {award.leader[award.key]} {award.suffix}
-                  </span>
-                </p>
+        <div className="mt-3" />
 
-              ) : (
-                <p className="mt-1 text-sm text-muted-foreground">Ainda sem lançamentos</p>
-              )}
-            </div>
-          ))}
-        </div>
 
         <div className="mt-2 rounded-lg border border-primary/40 bg-card px-4 py-3">
           <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground">
