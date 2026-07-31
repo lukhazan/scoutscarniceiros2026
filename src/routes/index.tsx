@@ -37,13 +37,13 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Scouts Amador — Artilharia e assistências do time" },
+      { title: "Scouts CF7 2026 — Artilharia e assistências do time" },
       {
         name: "description",
         content:
           "Ranking de gols e assistências do seu time amador, atualizado a cada jogo lançado.",
       },
-      { property: "og:title", content: "Scouts Amador — Artilharia e assistências do time" },
+      { property: "og:title", content: "Scouts CF7 2026 — Artilharia e assistências do time" },
       {
         property: "og:description",
         content: "Ranking de gols e assistências do seu time amador, atualizado a cada jogo lançado.",
