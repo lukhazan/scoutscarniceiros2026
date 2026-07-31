@@ -34,6 +34,7 @@ export const Route = createFileRoute("/horarios")({
 
 function HorariosPublicos() {
   const { data: slots, isLoading } = useQuery(availableSlotsQueryOptions);
+  const thursdays = (slots ?? []).filter((s) => isThursday(s.event_date));
 
   return (
     <div className="min-h-screen">
