@@ -1,9 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { CalendarDays, MapPin } from "lucide-react";
+import { CalendarDays, MapPin, MessageCircle } from "lucide-react";
 import teamLogo from "@/assets/team-logo.png";
+import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/team-data";
-import { availableSlotsQueryOptions, formatTime } from "@/lib/agenda-data";
+import {
+  availableSlotsQueryOptions,
+  formatTime,
+  interestWhatsappLink,
+  isThursday,
+  weekdayLabel,
+} from "@/lib/agenda-data";
 
 export const Route = createFileRoute("/horarios")({
   head: () => ({
