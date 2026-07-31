@@ -383,6 +383,10 @@ function ElencoPage() {
                 />
               </div>
             </div>
+            {activeSource && !photoProcessing ? (
+              <PhotoCutoutEditor value={adjust} onChange={setAdjust} />
+            ) : null}
+
             <div className="space-y-1.5">
               <Label htmlFor="name">Nome</Label>
               <Input
