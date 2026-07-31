@@ -45,7 +45,7 @@ function Column({ rows, metric }: { rows: PlayerTotals[]; metric: ExportMetric }
                 <img
                   src={row.photo_url}
                   alt=""
-                  className="h-9 w-9 shrink-0 rounded-full border border-slate-200 object-cover"
+                  className="h-9 w-9 shrink-0 bg-transparent object-contain"
                 />
               ) : null}
               <span className="min-w-0 flex-1 truncate text-base font-semibold text-slate-800">
