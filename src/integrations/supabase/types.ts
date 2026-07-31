@@ -189,6 +189,51 @@ export type Database = {
         }
         Relationships: []
       }
+      team_events: {
+        Row: {
+          created_at: string
+          end_time: string | null
+          event_date: string
+          event_type: string
+          id: string
+          location: string | null
+          notes: string | null
+          opponent: string | null
+          start_time: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_time?: string | null
+          event_date: string
+          event_type?: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          opponent?: string | null
+          start_time?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string | null
+          event_date?: string
+          event_type?: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          opponent?: string | null
+          start_time?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
