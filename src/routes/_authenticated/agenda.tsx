@@ -89,6 +89,31 @@ function AgendaPage() {
   const isAdmin = useIsAdmin();
   const queryClient = useQueryClient();
   const { data: events, isLoading } = useQuery(eventsQueryOptions);
+  const { data: whatsappNumber } = useQuery(whatsappNumberQueryOptions);
+  const [phoneDraft, setPhoneDraft] = useState<string | null>(null);
+  const [savingPhone, setSavingPhone] = useState(false);
+  const phoneInput = phoneDraft ?? whatsappNumber ?? "";
+  const setPhoneInput = setPhoneDraft;
+
+  async function handleSavePhone() {
+    const digits = phoneInput.replace(/\D/g, "");
+    if (digits.length < 10) {
+      toast.error("Informe o número com DDI e DDD, ex.: 5511987654321.");
+      return;
+    }
+    setSavingPhone(true);
+    try {
+      await saveWhatsappNumber(digits);
+      setPhoneDraft(digits);
+      toast.success("Número de WhatsApp atualizado.");
+      queryClient.invalidateQueries({ queryKey: ["team_settings", "whatsapp_number"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Não foi possível salvar.");
+    } finally {
+      setSavingPhone(false);
+    }
+  }
+
   const [cursor, setCursor] = useState(() => {
     const now = new Date();
     return { year: now.getFullYear(), month: now.getMonth() };
