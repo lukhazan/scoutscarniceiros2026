@@ -159,9 +159,9 @@ function ElencoPage() {
   async function handlePhotoFile(file: File) {
     setPhotoProcessing(true);
     resetPhotoState();
-    setUsingCutout(false);
     try {
       const original = await fileToSourceDataUrl(file);
+      setPendingFile(file);
       setOriginalSource(original);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Falha ao ler a imagem.");
