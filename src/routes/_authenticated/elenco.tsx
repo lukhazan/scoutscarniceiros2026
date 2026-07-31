@@ -128,7 +128,8 @@ function ElencoPage() {
   function resetPhotoState() {
     setCutoutSource(null);
     setOriginalSource(null);
-    setUsingCutout(true);
+    setPendingFile(null);
+    setUsingCutout(false);
     setAdjust(DEFAULT_ADJUST);
   }
 
