@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { ImagePlus, Pencil, Plus, Trash2, UserRound, X } from "lucide-react";
+import { ImagePlus, Loader2, Pencil, Plus, RotateCcw, Trash2, UserRound, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
 import { AdminGate } from "@/components/AdminGate";
