@@ -135,27 +135,68 @@ type StatRow = {
   } | null;
 };
 
+export type SeasonStat = {
+  id: string;
+  player_id: string;
+  season: number;
+  goals: number;
+  assists: number;
+  goals_conceded: number;
+};
+
+export const seasonStatsQueryOptions = {
+  queryKey: ["player_season_stats"],
+  queryFn: async (): Promise<SeasonStat[]> => {
+    const { data, error } = await supabase
+      .from("player_season_stats")
+      .select("id, player_id, season, goals, assists, goals_conceded");
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  },
+};
+
+type SeasonStatRow = SeasonStat & {
+  players: {
+    name: string;
+    nickname: string | null;
+    position: string | null;
+    shirt_number: number | null;
+    active: boolean;
+    photo_url: string | null;
+  } | null;
+};
+
 export const statsByYearQueryOptions = {
   queryKey: ["stats_by_year"],
   queryFn: async (): Promise<Record<string, PlayerTotals[]>> => {
-    const { data, error } = await supabase
-      .from("match_stats")
-      .select(
-        "player_id, goals, assists, goals_conceded, played, matches(match_date), players(name, nickname, position, shirt_number, active, photo_url)",
-      );
-    if (error) throw new Error(error.message);
+    const [matchRes, seasonRes] = await Promise.all([
+      supabase
+        .from("match_stats")
+        .select(
+          "player_id, goals, assists, goals_conceded, played, matches(match_date), players(name, nickname, position, shirt_number, active, photo_url)",
+        ),
+      supabase
+        .from("player_season_stats")
+        .select(
+          "id, player_id, season, goals, assists, goals_conceded, players(name, nickname, position, shirt_number, active, photo_url)",
+        ),
+    ]);
+    if (matchRes.error) throw new Error(matchRes.error.message);
+    if (seasonRes.error) throw new Error(seasonRes.error.message);
 
     const byYear: Record<string, Map<string, PlayerTotals>> = {};
-    for (const row of (data ?? []) as unknown as StatRow[]) {
-      const date = row.matches?.match_date;
-      const player = row.players;
-      if (!date || !player) continue;
-      const year = date.slice(0, 4);
+
+    function bucketEntry(
+      year: string,
+      playerId: string,
+      player: SeasonStatRow["players"],
+    ): PlayerTotals | null {
+      if (!player) return null;
       const bucket = (byYear[year] ??= new Map());
-      let entry = bucket.get(row.player_id);
+      let entry = bucket.get(playerId);
       if (!entry) {
         entry = {
-          player_id: row.player_id,
+          player_id: playerId,
           name: player.name,
           nickname: player.nickname,
           position: player.position,
@@ -168,9 +209,26 @@ export const statsByYearQueryOptions = {
           goals_conceded: 0,
           contributions: 0,
         };
-        bucket.set(row.player_id, entry);
+        bucket.set(playerId, entry);
       }
+      return entry;
+    }
+
+    for (const row of (matchRes.data ?? []) as unknown as StatRow[]) {
+      const date = row.matches?.match_date;
+      if (!date) continue;
+      const entry = bucketEntry(date.slice(0, 4), row.player_id, row.players);
+      if (!entry) continue;
       if (row.played) entry.matches_played += 1;
+      entry.goals += row.goals;
+      entry.assists += row.assists;
+      entry.goals_conceded += row.goals_conceded ?? 0;
+      entry.contributions = entry.goals + entry.assists;
+    }
+
+    for (const row of (seasonRes.data ?? []) as unknown as SeasonStatRow[]) {
+      const entry = bucketEntry(String(row.season), row.player_id, row.players);
+      if (!entry) continue;
       entry.goals += row.goals;
       entry.assists += row.assists;
       entry.goals_conceded += row.goals_conceded ?? 0;
