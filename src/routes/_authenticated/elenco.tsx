@@ -35,7 +35,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { POSITIONS, playersQueryOptions, displayName, type Player } from "@/lib/team-data";
+import {
+  POSITIONS,
+  playersQueryOptions,
+  seasonStatsQueryOptions,
+  displayName,
+  type Player,
+} from "@/lib/team-data";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
 import { PhotoCutoutEditor } from "@/components/PhotoCutoutEditor";
 import {
@@ -78,12 +84,15 @@ const playerSchema = z.object({
   photo_url: z.string().nullable(),
 });
 
+const CURRENT_SEASON = String(new Date().getFullYear());
+
 const empty = {
   name: "",
   nickname: "",
   position: "",
   shirt: "",
   active: true,
+  season: CURRENT_SEASON,
   initialGoals: "0",
   initialAssists: "0",
   initialConceded: "0",
@@ -93,6 +102,7 @@ const empty = {
 function ElencoPage() {
   const queryClient = useQueryClient();
   const { data: players, isLoading } = useQuery(playersQueryOptions);
+  const { data: seasonStats } = useQuery(seasonStatsQueryOptions);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Player | null>(null);
   const [form, setForm] = useState(empty);
@@ -139,6 +149,17 @@ function ElencoPage() {
     setAdjust(DEFAULT_ADJUST);
   }
 
+  function seasonValues(playerId: string | undefined, season: string) {
+    const row = (seasonStats ?? []).find(
+      (r) => r.player_id === playerId && String(r.season) === season,
+    );
+    return {
+      initialGoals: String(row?.goals ?? 0),
+      initialAssists: String(row?.assists ?? 0),
+      initialConceded: String(row?.goals_conceded ?? 0),
+    };
+  }
+
   function openNew() {
     setEditing(null);
     setForm(empty);
@@ -155,9 +176,8 @@ function ElencoPage() {
       position: player.position ?? "",
       shirt: player.shirt_number == null ? "" : String(player.shirt_number),
       active: player.active,
-      initialGoals: String(player.initial_goals ?? 0),
-      initialAssists: String(player.initial_assists ?? 0),
-      initialConceded: String(player.initial_conceded ?? 0),
+      season: CURRENT_SEASON,
+      ...seasonValues(player.id, CURRENT_SEASON),
       photo: player.photo_url ?? null,
     });
     setOpen(true);
@@ -228,14 +248,31 @@ function ElencoPage() {
       position: parsed.data.position ?? null,
       shirt_number: parsed.data.shirt_number,
       active: parsed.data.active,
-      initial_goals: parsed.data.initial_goals,
-      initial_assists: parsed.data.initial_assists,
-      initial_conceded: parsed.data.initial_conceded,
       photo_url: parsed.data.photo_url,
     };
-    const { error } = editing
-      ? await supabase.from("players").update(payload).eq("id", editing.id)
-      : await supabase.from("players").insert(payload);
+    let playerId = editing?.id ?? "";
+    let error = null as { message: string } | null;
+    if (editing) {
+      const res = await supabase.from("players").update(payload).eq("id", editing.id);
+      error = res.error;
+    } else {
+      const res = await supabase.from("players").insert(payload).select("id").single();
+      error = res.error;
+      playerId = res.data?.id ?? "";
+    }
+    if (!error && playerId) {
+      const res = await supabase.from("player_season_stats").upsert(
+        {
+          player_id: playerId,
+          season: Number(form.season) || Number(CURRENT_SEASON),
+          goals: parsed.data.initial_goals,
+          assists: parsed.data.initial_assists,
+          goals_conceded: parsed.data.initial_conceded,
+        },
+        { onConflict: "player_id,season" },
+      );
+      error = res.error;
+    }
     setSaving(false);
     if (error) {
       toast.error(error.message);
@@ -307,9 +344,12 @@ function ElencoPage() {
                       {[
                         player.position,
                         player.active ? null : "Inativo",
-                        player.initial_goals || player.initial_assists
-                          ? `Saldo inicial: ${player.initial_goals}G / ${player.initial_assists}A`
-                          : null,
+                        (() => {
+                          const s = seasonValues(player.id, CURRENT_SEASON);
+                          return Number(s.initialGoals) || Number(s.initialAssists)
+                            ? `Importado ${CURRENT_SEASON}: ${s.initialGoals}G / ${s.initialAssists}A`
+                            : null;
+                        })(),
                       ]
                         .filter(Boolean)
                         .join(" · ") || "Sem posição"}
@@ -482,10 +522,30 @@ function ElencoPage() {
             </div>
 
             <div className="rounded-md border border-border/60 p-3">
-              <p className="text-sm font-semibold">Totais anteriores ao app</p>
+              <p className="text-sm font-semibold">Totais importados da temporada</p>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                O que o atleta já tinha registrado fora do app. Soma ao ranking geral.
+                O que o atleta já tinha registrado fora do app nesta temporada. Soma aos jogos do
+                mesmo ano e ao ranking geral.
               </p>
+              <div className="mt-3 space-y-1.5">
+                <Label htmlFor="season">Temporada</Label>
+                <Input
+                  id="season"
+                  inputMode="numeric"
+                  className="h-11 text-base"
+                  value={form.season}
+                  onChange={(e) => {
+                    const season = e.target.value.replace(/\D/g, "").slice(0, 4);
+                    setForm((f) => ({
+                      ...f,
+                      season,
+                      ...(season.length === 4
+                        ? seasonValues(editing?.id, season)
+                        : {}),
+                    }));
+                  }}
+                />
+              </div>
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="initial-goals">Gols</Label>

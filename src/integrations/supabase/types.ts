@@ -96,6 +96,54 @@ export type Database = {
         }
         Relationships: []
       }
+      player_season_stats: {
+        Row: {
+          assists: number
+          created_at: string
+          goals: number
+          goals_conceded: number
+          id: string
+          player_id: string
+          season: number
+          updated_at: string
+        }
+        Insert: {
+          assists?: number
+          created_at?: string
+          goals?: number
+          goals_conceded?: number
+          id?: string
+          player_id: string
+          season: number
+          updated_at?: string
+        }
+        Update: {
+          assists?: number
+          created_at?: string
+          goals?: number
+          goals_conceded?: number
+          id?: string
+          player_id?: string
+          season?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_season_stats_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "player_totals"
+            referencedColumns: ["player_id"]
+          },
+          {
+            foreignKeyName: "player_season_stats_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       players: {
         Row: {
           active: boolean
