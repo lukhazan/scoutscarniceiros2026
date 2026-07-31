@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
 import { RankingExportCard } from "@/components/RankingExportCard";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
+import { Podium } from "@/components/Podium";
 
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -174,6 +175,18 @@ function Index() {
       return best && best[metric] > 0 ? best : null;
     };
     return { goals: top("goals"), assists: top("assists") };
+  }, [data]);
+
+  const bestKeeper = useMemo(() => {
+    const list = (data ?? []).filter((r) => r.position === "Goleiro" && r.matches_played > 0);
+    return (
+      [...list].sort(
+        (a, b) =>
+          a.goals_conceded - b.goals_conceded ||
+          b.matches_played - a.matches_played ||
+          a.name.localeCompare(b.name),
+      )[0] ?? null
+    );
   }, [data]);
   const exportRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
@@ -343,6 +356,45 @@ function Index() {
             </div>
           ))}
         </div>
+
+        <div className="mt-2 rounded-lg border border-primary/40 bg-card px-4 py-3">
+          <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground">
+            <Shield className="size-3.5" /> Goleiro menos vazado
+          </p>
+          {bestKeeper ? (
+            <div className="mt-2 flex items-center gap-3">
+              <PlayerAvatar
+                src={bestKeeper.photo_url}
+                name={displayName(bestKeeper)}
+                className="size-14"
+              />
+              <div className="min-w-0">
+                <p className="truncate font-display text-2xl leading-none">
+                  {displayName(bestKeeper)}
+                </p>
+                <p className="mt-1 text-sm text-primary">
+                  {bestKeeper.goals_conceded} gol{bestKeeper.goals_conceded === 1 ? "" : "s"} sofrido
+                  {bestKeeper.goals_conceded === 1 ? "" : "s"} em {bestKeeper.matches_played} jogo
+                  {bestKeeper.matches_played === 1 ? "" : "s"}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <p className="mt-1 text-sm text-muted-foreground">Ainda sem lançamentos</p>
+          )}
+        </div>
+
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <Podium rows={data ?? []} metric="goals" title="Pódio · Artilharia" suffix="gols" />
+          <Podium
+            rows={data ?? []}
+            metric="assists"
+            title="Pódio · Assistências"
+            suffix="assist."
+          />
+        </div>
+
+
 
 
 
