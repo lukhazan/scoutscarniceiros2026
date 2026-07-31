@@ -53,8 +53,44 @@ function HorariosPublicos() {
           </p>
         </div>
 
+        {thursdays.length > 0 && (
+          <section className="mt-8">
+            <h2 className="font-display text-2xl">Próximas quintas-feiras disponíveis</h2>
+            <ul className="mt-3 space-y-3">
+              {thursdays.map((slot) => (
+                <li key={slot.id} className="rounded-lg border border-border/60 bg-card p-4">
+                  <p className="font-semibold">
+                    {formatDate(slot.event_date)}
+                    {formatTime(slot.start_time) ? ` · ${formatTime(slot.start_time)}` : ""}
+                    {formatTime(slot.end_time) ? ` às ${formatTime(slot.end_time)}` : ""}
+                  </p>
+                  <p className="text-xs capitalize text-muted-foreground">
+                    {weekdayLabel(slot.event_date)}
+                  </p>
+                  {slot.location && (
+                    <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
+                      <MapPin className="size-3.5" /> {slot.location}
+                    </p>
+                  )}
+                  {slot.notes && <p className="mt-1 text-sm text-muted-foreground">{slot.notes}</p>}
+                  <Button asChild className="mt-3 h-11 w-full">
+                    <a
+                      href={interestWhatsappLink(slot)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <MessageCircle className="mr-2 size-4" /> Tenho interesse
+                    </a>
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         {isLoading ? (
           <p className="py-10 text-center text-sm text-muted-foreground">Carregando…</p>
+
         ) : (slots ?? []).length === 0 ? (
           <div className="mt-8 rounded-lg border border-dashed border-border/70 p-8 text-center">
             <CalendarDays className="mx-auto size-6 text-muted-foreground" />
