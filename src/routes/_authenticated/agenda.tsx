@@ -226,6 +226,30 @@ function AgendaPage() {
           <Share2 className="mr-2 size-4" /> Compartilhar horários disponíveis
         </Button>
 
+        {isAdmin && (
+          <section className="mt-4 rounded-lg border border-border/60 bg-card p-4">
+            <Label htmlFor="whatsapp-number">WhatsApp oficial do time</Label>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Usado no botão “Tenho interesse” da página pública. Formato internacional, ex.:
+              5511987654321.
+            </p>
+            <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+              <Input
+                id="whatsapp-number"
+                inputMode="numeric"
+                placeholder="5511987654321"
+                className="h-11"
+                value={phoneInput}
+                onChange={(e) => setPhoneInput(e.target.value)}
+              />
+              <Button className="h-11 shrink-0" onClick={handleSavePhone} disabled={savingPhone}>
+                Salvar
+              </Button>
+            </div>
+          </section>
+        )}
+
+
         <section className="mt-5 rounded-lg border border-border/60 bg-card p-3">
           <div className="flex items-center justify-between">
             <Button variant="ghost" size="icon" onClick={() => shiftMonth(-1)} aria-label="Mês anterior">
