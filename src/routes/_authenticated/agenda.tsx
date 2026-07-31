@@ -217,6 +217,7 @@ function AgendaPage() {
     toast.success("Compromisso salvo.");
     setForm(null);
     queryClient.invalidateQueries({ queryKey: ["team_events"] });
+    queryClient.invalidateQueries({ queryKey: ["availability", "generated"] });
   }
 
   async function removeEvent(id: string) {
@@ -228,6 +229,7 @@ function AgendaPage() {
     setSelected(null);
     toast.success("Compromisso removido.");
     queryClient.invalidateQueries({ queryKey: ["team_events"] });
+    queryClient.invalidateQueries({ queryKey: ["availability", "generated"] });
   }
 
   return (
