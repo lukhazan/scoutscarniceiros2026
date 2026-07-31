@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      match_requests: {
+        Row: {
+          contact_name: string
+          created_at: string
+          end_time: string
+          id: string
+          location: string | null
+          notes: string | null
+          request_date: string
+          start_time: string
+          status: string
+          team_name: string
+          updated_at: string
+          whatsapp: string
+        }
+        Insert: {
+          contact_name: string
+          created_at?: string
+          end_time: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          request_date: string
+          start_time: string
+          status?: string
+          team_name: string
+          updated_at?: string
+          whatsapp: string
+        }
+        Update: {
+          contact_name?: string
+          created_at?: string
+          end_time?: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          request_date?: string
+          start_time?: string
+          status?: string
+          team_name?: string
+          updated_at?: string
+          whatsapp?: string
+        }
+        Relationships: []
+      }
       match_stats: {
         Row: {
           assists: number
