@@ -58,7 +58,7 @@ export const playersQueryOptions = {
     const { data, error } = await supabase
       .from("players")
       .select(
-        "id, name, nickname, position, shirt_number, active, initial_goals, initial_assists",
+        "id, name, nickname, position, shirt_number, active, initial_goals, initial_assists, photo_url",
       )
       .order("name");
     if (error) throw new Error(error.message);
@@ -127,6 +127,7 @@ type StatRow = {
     position: string | null;
     shirt_number: number | null;
     active: boolean;
+    photo_url: string | null;
   } | null;
 };
 
@@ -136,7 +137,7 @@ export const statsByYearQueryOptions = {
     const { data, error } = await supabase
       .from("match_stats")
       .select(
-        "player_id, goals, assists, played, matches(match_date), players(name, nickname, position, shirt_number, active)",
+        "player_id, goals, assists, played, matches(match_date), players(name, nickname, position, shirt_number, active, photo_url)",
       );
     if (error) throw new Error(error.message);
 
@@ -156,6 +157,7 @@ export const statsByYearQueryOptions = {
           position: player.position,
           shirt_number: player.shirt_number,
           active: player.active,
+          photo_url: player.photo_url,
           matches_played: 0,
           goals: 0,
           assists: 0,
