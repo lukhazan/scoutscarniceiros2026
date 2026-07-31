@@ -82,13 +82,14 @@ export function weekdayLabel(value: string) {
   return toLocalDate(value).toLocaleDateString("pt-BR", { weekday: "long" });
 }
 
-export function interestWhatsappLink(slot: TeamEvent) {
+export function interestWhatsappLink(slot: TeamEvent, phone?: string) {
   const date = toLocalDate(slot.event_date).toLocaleDateString("pt-BR");
   const time = formatTime(slot.start_time);
   const message = `Olá! Vi que a ${weekdayLabel(slot.event_date)} ${date}${
     time ? ` às ${time}` : ""
   } está disponível para amistoso e gostaria de conversar sobre essa data.`;
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+  const number = (phone ?? "").replace(/\D/g, "") || DEFAULT_WHATSAPP_NUMBER;
+  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }
 
 export const eventsQueryOptions = {
