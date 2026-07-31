@@ -78,7 +78,7 @@ function HorariosPublicos() {
                   {slot.notes && <p className="mt-1 text-sm text-muted-foreground">{slot.notes}</p>}
                   <Button asChild className="mt-3 h-11 w-full">
                     <a
-                      href={interestWhatsappLink(slot)}
+                      href={interestWhatsappLink(slot, phone)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
