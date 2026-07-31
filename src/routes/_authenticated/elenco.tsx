@@ -37,7 +37,14 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { POSITIONS, playersQueryOptions, displayName, type Player } from "@/lib/team-data";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
-import { fileToAvatarDataUrl, fileToCutoutDataUrl } from "@/lib/player-photo";
+import { PhotoCutoutEditor } from "@/components/PhotoCutoutEditor";
+import {
+  DEFAULT_ADJUST,
+  fileToCutoutSourceDataUrl,
+  fileToSourceDataUrl,
+  renderAdjustedPhoto,
+  type PhotoAdjust,
+} from "@/lib/player-photo";
 
 export const Route = createFileRoute("/_authenticated/elenco")({
   head: () => ({
