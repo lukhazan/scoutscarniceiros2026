@@ -42,8 +42,32 @@ export function formatTime(value: string | null) {
   return value ? value.slice(0, 5) : null;
 }
 
-/** Número de WhatsApp do responsável pelo time (formato internacional, só dígitos). */
-export const WHATSAPP_NUMBER = "5511999999999";
+/** Número de WhatsApp padrão, usado só enquanto o admin não configurar um. */
+export const DEFAULT_WHATSAPP_NUMBER = "5511999999999";
+
+export const whatsappNumberQueryOptions = {
+  queryKey: ["team_settings", "whatsapp_number"],
+  queryFn: async (): Promise<string> => {
+    const { data, error } = await supabase
+      .from("team_settings")
+      .select("value")
+      .eq("key", "whatsapp_number")
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    const digits = (data?.value ?? "").replace(/\D/g, "");
+    return digits || DEFAULT_WHATSAPP_NUMBER;
+  },
+};
+
+export async function saveWhatsappNumber(value: string) {
+  const digits = value.replace(/\D/g, "");
+  const { error } = await supabase
+    .from("team_settings")
+    .upsert({ key: "whatsapp_number", value: digits }, { onConflict: "key" });
+  if (error) throw new Error(error.message);
+  return digits;
+}
+
 
 export function toLocalDate(value: string) {
   const [y, m, d] = value.split("-").map(Number);
