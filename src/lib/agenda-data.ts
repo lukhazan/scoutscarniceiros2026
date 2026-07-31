@@ -42,6 +42,31 @@ export function formatTime(value: string | null) {
   return value ? value.slice(0, 5) : null;
 }
 
+/** Número de WhatsApp do responsável pelo time (formato internacional, só dígitos). */
+export const WHATSAPP_NUMBER = "5511999999999";
+
+export function toLocalDate(value: string) {
+  const [y, m, d] = value.split("-").map(Number);
+  return new Date(y, (m ?? 1) - 1, d ?? 1);
+}
+
+export function isThursday(value: string) {
+  return toLocalDate(value).getDay() === 4;
+}
+
+export function weekdayLabel(value: string) {
+  return toLocalDate(value).toLocaleDateString("pt-BR", { weekday: "long" });
+}
+
+export function interestWhatsappLink(slot: TeamEvent) {
+  const date = toLocalDate(slot.event_date).toLocaleDateString("pt-BR");
+  const time = formatTime(slot.start_time);
+  const message = `Olá! Vi que a ${weekdayLabel(slot.event_date)} ${date}${
+    time ? ` às ${time}` : ""
+  } está disponível para amistoso e gostaria de conversar sobre essa data.`;
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
+
 export const eventsQueryOptions = {
   queryKey: ["team_events"],
   queryFn: async (): Promise<TeamEvent[]> => {
