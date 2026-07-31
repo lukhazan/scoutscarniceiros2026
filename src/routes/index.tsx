@@ -168,17 +168,12 @@ function Index() {
     };
   }, [data]);
 
-  const leaders = useMemo(() => {
-    const list = data ?? [];
-    const top = (metric: Metric) => {
-      const best = [...list].sort((a, b) => b[metric] - a[metric])[0];
-      return best && best[metric] > 0 ? best : null;
-    };
-    return { goals: top("goals"), assists: top("assists") };
-  }, [data]);
-
   const bestKeeper = useMemo(() => {
-    const list = (data ?? []).filter((r) => r.position === "Goleiro" && r.matches_played > 0);
+    const list = (data ?? []).filter(
+      (r) =>
+        r.position === "Goleiro" &&
+        (r.matches_played > 0 || r.goals_conceded > 0 || r.goals > 0 || r.assists > 0),
+    );
     return (
       [...list].sort(
         (a, b) =>
