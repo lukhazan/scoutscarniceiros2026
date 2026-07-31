@@ -249,7 +249,10 @@ function AgendaPage() {
                 <button
                   key={date}
                   type="button"
-                  onClick={() => list[0] && setSelected(list[0])}
+                  onClick={() => {
+                    if (list[0]) setSelected(list[0]);
+                    else if (isAdmin) setForm(emptyForm(date));
+                  }}
                   className={`min-h-12 rounded-md border p-1 text-left text-xs ${
                     today ? "border-primary" : "border-border/50"
                   } ${list.length ? "bg-muted/40" : ""}`}
