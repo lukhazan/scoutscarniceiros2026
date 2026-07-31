@@ -70,6 +70,11 @@ const playerSchema = z.object({
     .int()
     .min(0, "Assistências anteriores não podem ser negativas")
     .max(9999),
+  initial_conceded: z
+    .number()
+    .int()
+    .min(0, "Gols sofridos anteriores não podem ser negativos")
+    .max(9999),
   photo_url: z.string().nullable(),
 });
 
@@ -81,6 +86,7 @@ const empty = {
   active: true,
   initialGoals: "0",
   initialAssists: "0",
+  initialConceded: "0",
   photo: null as string | null,
 };
 
@@ -151,6 +157,7 @@ function ElencoPage() {
       active: player.active,
       initialGoals: String(player.initial_goals ?? 0),
       initialAssists: String(player.initial_assists ?? 0),
+      initialConceded: String(player.initial_conceded ?? 0),
       photo: player.photo_url ?? null,
     });
     setOpen(true);
@@ -204,6 +211,10 @@ function ElencoPage() {
       active: form.active,
       initial_goals: form.initialGoals === "" ? 0 : Number(form.initialGoals),
       initial_assists: form.initialAssists === "" ? 0 : Number(form.initialAssists),
+      initial_conceded:
+        form.position === "Goleiro" && form.initialConceded !== ""
+          ? Number(form.initialConceded)
+          : 0,
       photo_url: finalPhoto,
     });
     if (!parsed.success) {
@@ -219,6 +230,7 @@ function ElencoPage() {
       active: parsed.data.active,
       initial_goals: parsed.data.initial_goals,
       initial_assists: parsed.data.initial_assists,
+      initial_conceded: parsed.data.initial_conceded,
       photo_url: parsed.data.photo_url,
     };
     const { error } = editing
@@ -506,6 +518,23 @@ function ElencoPage() {
                   />
                 </div>
               </div>
+              {form.position === "Goleiro" ? (
+                <div className="mt-3 space-y-1.5">
+                  <Label htmlFor="initial-conceded">Gols sofridos</Label>
+                  <Input
+                    id="initial-conceded"
+                    inputMode="numeric"
+                    className="h-11 text-base"
+                    value={form.initialConceded}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        initialConceded: e.target.value.replace(/\D/g, "").slice(0, 4),
+                      })
+                    }
+                  />
+                </div>
+              ) : null}
             </div>
             <div className="flex items-center justify-between rounded-md border border-border/60 px-3 py-2">
               <Label htmlFor="active">No elenco atual</Label>
