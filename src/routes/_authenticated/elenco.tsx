@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { ImagePlus, Loader2, Pencil, Plus, RotateCcw, Trash2, UserRound, X } from "lucide-react";
@@ -37,7 +37,14 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { POSITIONS, playersQueryOptions, displayName, type Player } from "@/lib/team-data";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
-import { fileToAvatarDataUrl, fileToCutoutDataUrl } from "@/lib/player-photo";
+import { PhotoCutoutEditor } from "@/components/PhotoCutoutEditor";
+import {
+  DEFAULT_ADJUST,
+  fileToCutoutSourceDataUrl,
+  fileToSourceDataUrl,
+  renderAdjustedPhoto,
+  type PhotoAdjust,
+} from "@/lib/player-photo";
 
 export const Route = createFileRoute("/_authenticated/elenco")({
   head: () => ({
@@ -86,7 +93,28 @@ function ElencoPage() {
   const [saving, setSaving] = useState(false);
   const [toDelete, setToDelete] = useState<Player | null>(null);
   const [photoProcessing, setPhotoProcessing] = useState(false);
-  const [originalPhoto, setOriginalPhoto] = useState<string | null>(null);
+  const [cutoutSource, setCutoutSource] = useState<string | null>(null);
+  const [originalSource, setOriginalSource] = useState<string | null>(null);
+  const [usingCutout, setUsingCutout] = useState(true);
+  const [adjust, setAdjust] = useState<PhotoAdjust>(DEFAULT_ADJUST);
+
+  const activeSource = usingCutout ? (cutoutSource ?? originalSource) : originalSource;
+
+  useEffect(() => {
+    if (!activeSource) return;
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      void renderAdjustedPhoto(activeSource, adjust)
+        .then((photo) => {
+          if (!cancelled) setForm((f) => ({ ...f, photo }));
+        })
+        .catch(() => undefined);
+    }, 80);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [activeSource, adjust]);
 
   const sorted = useMemo(
     () =>
@@ -96,16 +124,23 @@ function ElencoPage() {
     [players],
   );
 
+  function resetPhotoState() {
+    setCutoutSource(null);
+    setOriginalSource(null);
+    setUsingCutout(true);
+    setAdjust(DEFAULT_ADJUST);
+  }
+
   function openNew() {
     setEditing(null);
     setForm(empty);
-    setOriginalPhoto(null);
+    resetPhotoState();
     setOpen(true);
   }
 
   function openEdit(player: Player) {
     setEditing(player);
-    setOriginalPhoto(null);
+    resetPhotoState();
     setForm({
       name: player.name,
       nickname: player.nickname ?? "",
@@ -121,26 +156,26 @@ function ElencoPage() {
 
   async function handlePhotoFile(file: File) {
     setPhotoProcessing(true);
-    let original: string | null = null;
+    resetPhotoState();
+    let original: string;
     try {
-      original = await fileToAvatarDataUrl(file);
+      original = await fileToSourceDataUrl(file);
     } catch (err) {
       setPhotoProcessing(false);
       toast.error(err instanceof Error ? err.message : "Falha ao ler a imagem.");
       return;
     }
-    setForm((f) => ({ ...f, photo: original }));
-    setOriginalPhoto(null);
+    setOriginalSource(original);
     try {
-      const cutout = await fileToCutoutDataUrl(file);
-      setForm((f) => ({ ...f, photo: cutout }));
-      setOriginalPhoto(original);
+      const cutout = await fileToCutoutSourceDataUrl(file);
+      setCutoutSource(cutout);
     } catch {
       toast.message("Não foi possível remover o fundo. Usando a foto original.");
     } finally {
       setPhotoProcessing(false);
     }
   }
+
 
   async function save() {
     const parsed = playerSchema.safeParse({
@@ -307,18 +342,16 @@ function ElencoPage() {
                     <ImagePlus className="mr-1 size-4" />
                     {form.photo ? "Trocar" : "Enviar foto"}
                   </Button>
-                  {originalPhoto && !photoProcessing ? (
+                  {cutoutSource && originalSource && !photoProcessing ? (
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       className="h-9"
-                      onClick={() => {
-                        setForm((f) => ({ ...f, photo: originalPhoto }));
-                        setOriginalPhoto(null);
-                      }}
+                      onClick={() => setUsingCutout((v) => !v)}
                     >
-                      <RotateCcw className="mr-1 size-4" /> Usar foto original
+                      <RotateCcw className="mr-1 size-4" />
+                      {usingCutout ? "Usar foto original" : "Usar sem fundo"}
                     </Button>
                   ) : null}
                   {form.photo && !photoProcessing ? (
@@ -329,12 +362,13 @@ function ElencoPage() {
                       className="h-9"
                       onClick={() => {
                         setForm((f) => ({ ...f, photo: null }));
-                        setOriginalPhoto(null);
+                        resetPhotoState();
                       }}
                     >
                       <X className="mr-1 size-4" /> Remover
                     </Button>
                   ) : null}
+
                 </div>
                 <input
                   id="photo"
@@ -349,6 +383,10 @@ function ElencoPage() {
                 />
               </div>
             </div>
+            {activeSource && !photoProcessing ? (
+              <PhotoCutoutEditor value={adjust} onChange={setAdjust} />
+            ) : null}
+
             <div className="space-y-1.5">
               <Label htmlFor="name">Nome</Label>
               <Input
