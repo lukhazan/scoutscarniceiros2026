@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { ImagePlus, Pencil, Plus, Trash2, UserRound, X } from "lucide-react";
+import { ImagePlus, Loader2, Pencil, Plus, RotateCcw, Trash2, UserRound, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
 import { AdminGate } from "@/components/AdminGate";
@@ -37,7 +37,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { POSITIONS, playersQueryOptions, displayName, type Player } from "@/lib/team-data";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
-import { fileToAvatarDataUrl } from "@/lib/player-photo";
+import { fileToAvatarDataUrl, fileToCutoutDataUrl } from "@/lib/player-photo";
 
 export const Route = createFileRoute("/_authenticated/elenco")({
   head: () => ({
@@ -85,6 +85,8 @@ function ElencoPage() {
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);
   const [toDelete, setToDelete] = useState<Player | null>(null);
+  const [photoProcessing, setPhotoProcessing] = useState(false);
+  const [originalPhoto, setOriginalPhoto] = useState<string | null>(null);
 
   const sorted = useMemo(
     () =>
@@ -97,11 +99,13 @@ function ElencoPage() {
   function openNew() {
     setEditing(null);
     setForm(empty);
+    setOriginalPhoto(null);
     setOpen(true);
   }
 
   function openEdit(player: Player) {
     setEditing(player);
+    setOriginalPhoto(null);
     setForm({
       name: player.name,
       nickname: player.nickname ?? "",
@@ -113,6 +117,29 @@ function ElencoPage() {
       photo: player.photo_url ?? null,
     });
     setOpen(true);
+  }
+
+  async function handlePhotoFile(file: File) {
+    setPhotoProcessing(true);
+    let original: string | null = null;
+    try {
+      original = await fileToAvatarDataUrl(file);
+    } catch (err) {
+      setPhotoProcessing(false);
+      toast.error(err instanceof Error ? err.message : "Falha ao ler a imagem.");
+      return;
+    }
+    setForm((f) => ({ ...f, photo: original }));
+    setOriginalPhoto(null);
+    try {
+      const cutout = await fileToCutoutDataUrl(file);
+      setForm((f) => ({ ...f, photo: cutout }));
+      setOriginalPhoto(original);
+    } catch {
+      toast.message("Não foi possível remover o fundo. Usando a foto original.");
+    } finally {
+      setPhotoProcessing(false);
+    }
   }
 
   async function save() {
@@ -251,30 +278,59 @@ function ElencoPage() {
           </DialogHeader>
           <div className="space-y-3">
             <div className="flex items-center gap-4 rounded-md border border-border/60 p-3">
-              <PlayerAvatar src={form.photo} name={form.name || "Jogador"} className="size-16" />
+              <div className="relative">
+                <PlayerAvatar src={form.photo} name={form.name || "Jogador"} className="size-16" />
+                {photoProcessing ? (
+                  <span className="absolute inset-0 flex items-center justify-center rounded-full bg-background/70">
+                    <Loader2 className="size-5 animate-spin text-primary" />
+                  </span>
+                ) : null}
+              </div>
               <div className="min-w-0 flex-1">
                 <Label htmlFor="photo" className="text-sm font-semibold">
                   Foto do jogador
                 </Label>
-                <p className="mt-0.5 text-xs text-muted-foreground">PNG ou JPG, até 8 MB.</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {photoProcessing
+                    ? "Removendo fundo…"
+                    : "PNG ou JPG, até 8 MB. O fundo é removido automaticamente."}
+                </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     className="h-9"
+                    disabled={photoProcessing}
                     onClick={() => document.getElementById("photo")?.click()}
                   >
                     <ImagePlus className="mr-1 size-4" />
                     {form.photo ? "Trocar" : "Enviar foto"}
                   </Button>
-                  {form.photo ? (
+                  {originalPhoto && !photoProcessing ? (
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       className="h-9"
-                      onClick={() => setForm((f) => ({ ...f, photo: null }))}
+                      onClick={() => {
+                        setForm((f) => ({ ...f, photo: originalPhoto }));
+                        setOriginalPhoto(null);
+                      }}
+                    >
+                      <RotateCcw className="mr-1 size-4" /> Usar foto original
+                    </Button>
+                  ) : null}
+                  {form.photo && !photoProcessing ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-9"
+                      onClick={() => {
+                        setForm((f) => ({ ...f, photo: null }));
+                        setOriginalPhoto(null);
+                      }}
                     >
                       <X className="mr-1 size-4" /> Remover
                     </Button>
@@ -285,16 +341,10 @@ function ElencoPage() {
                   type="file"
                   accept="image/png,image/jpeg"
                   className="hidden"
-                  onChange={async (e) => {
+                  onChange={(e) => {
                     const file = e.target.files?.[0];
                     e.target.value = "";
-                    if (!file) return;
-                    try {
-                      const dataUrl = await fileToAvatarDataUrl(file);
-                      setForm((f) => ({ ...f, photo: dataUrl }));
-                    } catch (err) {
-                      toast.error(err instanceof Error ? err.message : "Falha ao ler a imagem.");
-                    }
+                    if (file) void handlePhotoFile(file);
                   }}
                 />
               </div>
@@ -403,7 +453,7 @@ function ElencoPage() {
             <Button variant="ghost" className="h-11" onClick={() => setOpen(false)}>
               Cancelar
             </Button>
-            <Button className="h-11" onClick={save} disabled={saving}>
+            <Button className="h-11" onClick={save} disabled={saving || photoProcessing}>
               Salvar
             </Button>
           </DialogFooter>
