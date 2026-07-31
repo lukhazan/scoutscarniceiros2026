@@ -188,6 +188,14 @@ function ElencoPage() {
 
 
   async function save() {
+    let finalPhoto = form.photo;
+    if (activeSource) {
+      try {
+        finalPhoto = await renderAdjustedPhoto(activeSource, adjust);
+      } catch {
+        /* mantém a prévia atual */
+      }
+    }
     const parsed = playerSchema.safeParse({
       name: form.name,
       nickname: form.nickname || undefined,
