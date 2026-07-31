@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedElencoRouteImport } from './routes/_authenticated/elenco'
 import { Route as AuthenticatedJogosIndexRouteImport } from './routes/_authenticated/jogos.index'
 import { Route as AuthenticatedJogosMatchIdRouteImport } from './routes/_authenticated/jogos.$matchId'
@@ -30,6 +31,11 @@ const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
+  id: '/agenda',
+  path: '/agenda',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedElencoRoute = AuthenticatedElencoRouteImport.update({
   id: '/elenco',
@@ -56,6 +62,7 @@ const AuthenticatedJogosNovoRoute = AuthenticatedJogosNovoRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/agenda': typeof AuthenticatedAgendaRoute
   '/elenco': typeof AuthenticatedElencoRoute
   '/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
   '/jogos/novo': typeof AuthenticatedJogosNovoRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/agenda': typeof AuthenticatedAgendaRoute
   '/elenco': typeof AuthenticatedElencoRoute
   '/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
   '/jogos/novo': typeof AuthenticatedJogosNovoRoute
@@ -74,6 +82,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/elenco': typeof AuthenticatedElencoRoute
   '/_authenticated/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
   '/_authenticated/jogos/novo': typeof AuthenticatedJogosNovoRoute
@@ -82,14 +91,28 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/elenco' | '/jogos/$matchId' | '/jogos/novo' | '/jogos/'
+    | '/'
+    | '/auth'
+    | '/agenda'
+    | '/elenco'
+    | '/jogos/$matchId'
+    | '/jogos/novo'
+    | '/jogos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/elenco' | '/jogos/$matchId' | '/jogos/novo' | '/jogos'
+  to:
+    | '/'
+    | '/auth'
+    | '/agenda'
+    | '/elenco'
+    | '/jogos/$matchId'
+    | '/jogos/novo'
+    | '/jogos'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/agenda'
     | '/_authenticated/elenco'
     | '/_authenticated/jogos/$matchId'
     | '/_authenticated/jogos/novo'
@@ -125,6 +148,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/agenda': {
+      id: '/_authenticated/agenda'
+      path: '/agenda'
+      fullPath: '/agenda'
+      preLoaderRoute: typeof AuthenticatedAgendaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/elenco': {
       id: '/_authenticated/elenco'
       path: '/elenco'
@@ -157,6 +187,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
   AuthenticatedElencoRoute: typeof AuthenticatedElencoRoute
   AuthenticatedJogosMatchIdRoute: typeof AuthenticatedJogosMatchIdRoute
   AuthenticatedJogosNovoRoute: typeof AuthenticatedJogosNovoRoute
@@ -164,6 +195,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
   AuthenticatedElencoRoute: AuthenticatedElencoRoute,
   AuthenticatedJogosMatchIdRoute: AuthenticatedJogosMatchIdRoute,
   AuthenticatedJogosNovoRoute: AuthenticatedJogosNovoRoute,
