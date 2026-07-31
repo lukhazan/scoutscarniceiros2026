@@ -252,3 +252,100 @@ export function generatedSlotWhatsappLink(slot: GeneratedSlot, fallbackPhone?: s
     DEFAULT_WHATSAPP_NUMBER;
   return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }
+
+/* ---------- Solicitações de amistoso ---------- */
+
+export type MatchRequest = {
+  id: string;
+  team_name: string;
+  contact_name: string;
+  whatsapp: string;
+  request_date: string;
+  start_time: string;
+  end_time: string;
+  location: string | null;
+  notes: string | null;
+  status: "pendente" | "confirmada" | "recusada";
+  created_at: string;
+};
+
+export const REQUEST_FIELDS =
+  "id, team_name, contact_name, whatsapp, request_date, start_time, end_time, location, notes, status, created_at";
+
+export const requestStatusLabel: Record<MatchRequest["status"], string> = {
+  pendente: "Pendente",
+  confirmada: "Confirmada",
+  recusada: "Recusada",
+};
+
+export const matchRequestsQueryOptions = {
+  queryKey: ["match_requests"],
+  queryFn: async (): Promise<MatchRequest[]> => {
+    const { data, error } = await supabase
+      .from("match_requests")
+      .select(REQUEST_FIELDS)
+      .order("request_date")
+      .order("start_time");
+    if (error) throw new Error(error.message);
+    return (data ?? []) as MatchRequest[];
+  },
+};
+
+export async function createMatchRequest(input: {
+  team_name: string;
+  contact_name: string;
+  whatsapp: string;
+  request_date: string;
+  start_time: string;
+  end_time: string;
+  location: string | null;
+  notes: string | null;
+}) {
+  const { error } = await supabase.from("match_requests").insert({ ...input, status: "pendente" });
+  if (error) throw new Error(error.message);
+}
+
+/** Confirma a solicitação: cria o jogo na agenda (sem duplicar) e marca como confirmada. */
+export async function confirmMatchRequest(request: MatchRequest) {
+  const { data: existing, error: findError } = await supabase
+    .from("team_events")
+    .select("id")
+    .eq("event_date", request.request_date)
+    .eq("start_time", request.start_time)
+    .eq("event_type", "jogo")
+    .limit(1);
+  if (findError) throw new Error(findError.message);
+
+  if (!existing || existing.length === 0) {
+    const { error } = await supabase.from("team_events").insert({
+      title: `Amistoso vs ${request.team_name}`,
+      event_type: "jogo",
+      event_date: request.request_date,
+      start_time: request.start_time,
+      end_time: request.end_time,
+      location: request.location,
+      opponent: request.team_name,
+      notes: [request.contact_name, request.whatsapp, request.notes].filter(Boolean).join(" · "),
+      status: "confirmado",
+    });
+    if (error) throw new Error(error.message);
+  }
+
+  const { error: updateError } = await supabase
+    .from("match_requests")
+    .update({ status: "confirmada" })
+    .eq("id", request.id);
+  if (updateError) throw new Error(updateError.message);
+}
+
+export async function rejectMatchRequest(id: string) {
+  const { error } = await supabase.from("match_requests").update({ status: "recusada" }).eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export function requestWhatsappLink(request: MatchRequest) {
+  const number = request.whatsapp.replace(/\D/g, "");
+  const date = toLocalDate(request.request_date).toLocaleDateString("pt-BR");
+  const message = `Olá ${request.contact_name}! Sobre a solicitação de amistoso da equipe ${request.team_name} em ${date} às ${request.start_time.slice(0, 5)}.`;
+  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+}
