@@ -99,11 +99,13 @@ function ElencoPage() {
   function openNew() {
     setEditing(null);
     setForm(empty);
+    setOriginalPhoto(null);
     setOpen(true);
   }
 
   function openEdit(player: Player) {
     setEditing(player);
+    setOriginalPhoto(null);
     setForm({
       name: player.name,
       nickname: player.nickname ?? "",
@@ -115,6 +117,29 @@ function ElencoPage() {
       photo: player.photo_url ?? null,
     });
     setOpen(true);
+  }
+
+  async function handlePhotoFile(file: File) {
+    setPhotoProcessing(true);
+    let original: string | null = null;
+    try {
+      original = await fileToAvatarDataUrl(file);
+    } catch (err) {
+      setPhotoProcessing(false);
+      toast.error(err instanceof Error ? err.message : "Falha ao ler a imagem.");
+      return;
+    }
+    setForm((f) => ({ ...f, photo: original }));
+    setOriginalPhoto(null);
+    try {
+      const cutout = await fileToCutoutDataUrl(file);
+      setForm((f) => ({ ...f, photo: cutout }));
+      setOriginalPhoto(original);
+    } catch {
+      toast.message("Não foi possível remover o fundo. Usando a foto original.");
+    } finally {
+      setPhotoProcessing(false);
+    }
   }
 
   async function save() {
