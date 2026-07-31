@@ -15,16 +15,20 @@ function initials(name: string) {
 }
 
 export function PlayerAvatar({ src, name, className = "size-10", fallback }: Props) {
-  const base = `shrink-0 overflow-hidden rounded-full bg-secondary object-cover ${className}`;
-
   if (src) {
-    return <img src={src} alt={`Foto de ${name}`} className={base} />;
+    return (
+      <img
+        src={src}
+        alt={`Foto de ${name}`}
+        className={`shrink-0 bg-transparent object-contain ${className}`}
+      />
+    );
   }
 
   return (
     <span
       aria-hidden
-      className={`${base} flex items-center justify-center font-display text-sm tabular text-muted-foreground`}
+      className={`shrink-0 overflow-hidden rounded-full bg-secondary ${className} flex items-center justify-center font-display text-sm tabular text-muted-foreground`}
     >
       {fallback ?? initials(name) ?? "–"}
     </span>

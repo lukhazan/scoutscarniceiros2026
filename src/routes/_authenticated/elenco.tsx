@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { ImagePlus, Loader2, Pencil, Plus, RotateCcw, Trash2, UserRound, X } from "lucide-react";
+import { ImagePlus, Loader2, Pencil, Plus, RotateCcw, Scissors, Trash2, UserRound, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
 import { AdminGate } from "@/components/AdminGate";
@@ -95,7 +95,8 @@ function ElencoPage() {
   const [photoProcessing, setPhotoProcessing] = useState(false);
   const [cutoutSource, setCutoutSource] = useState<string | null>(null);
   const [originalSource, setOriginalSource] = useState<string | null>(null);
-  const [usingCutout, setUsingCutout] = useState(true);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [usingCutout, setUsingCutout] = useState(false);
   const [adjust, setAdjust] = useState<PhotoAdjust>(DEFAULT_ADJUST);
 
   const activeSource = usingCutout ? (cutoutSource ?? originalSource) : originalSource;
@@ -127,7 +128,8 @@ function ElencoPage() {
   function resetPhotoState() {
     setCutoutSource(null);
     setOriginalSource(null);
-    setUsingCutout(true);
+    setPendingFile(null);
+    setUsingCutout(false);
     setAdjust(DEFAULT_ADJUST);
   }
 
@@ -157,27 +159,43 @@ function ElencoPage() {
   async function handlePhotoFile(file: File) {
     setPhotoProcessing(true);
     resetPhotoState();
-    let original: string;
     try {
-      original = await fileToSourceDataUrl(file);
+      const original = await fileToSourceDataUrl(file);
+      setPendingFile(file);
+      setOriginalSource(original);
     } catch (err) {
-      setPhotoProcessing(false);
       toast.error(err instanceof Error ? err.message : "Falha ao ler a imagem.");
-      return;
+    } finally {
+      setPhotoProcessing(false);
     }
-    setOriginalSource(original);
+  }
+
+  async function removeBackgroundNow() {
+    const file = pendingFile;
+    if (!file) return;
+    setPhotoProcessing(true);
     try {
       const cutout = await fileToCutoutSourceDataUrl(file);
       setCutoutSource(cutout);
+      setUsingCutout(true);
     } catch {
-      toast.message("Não foi possível remover o fundo. Usando a foto original.");
+      toast.message("Não foi possível remover o fundo. Mantendo a foto original.");
     } finally {
       setPhotoProcessing(false);
     }
   }
 
 
+
   async function save() {
+    let finalPhoto = form.photo;
+    if (activeSource) {
+      try {
+        finalPhoto = await renderAdjustedPhoto(activeSource, adjust);
+      } catch {
+        /* mantém a prévia atual */
+      }
+    }
     const parsed = playerSchema.safeParse({
       name: form.name,
       nickname: form.nickname || undefined,
@@ -186,7 +204,7 @@ function ElencoPage() {
       active: form.active,
       initial_goals: form.initialGoals === "" ? 0 : Number(form.initialGoals),
       initial_assists: form.initialAssists === "" ? 0 : Number(form.initialAssists),
-      photo_url: form.photo,
+      photo_url: finalPhoto,
     });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0].message);
@@ -327,8 +345,8 @@ function ElencoPage() {
                 </Label>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   {photoProcessing
-                    ? "Removendo fundo…"
-                    : "PNG ou JPG, até 8 MB. O fundo é removido automaticamente."}
+                    ? "Processando imagem…"
+                    : "PNG ou JPG, até 8 MB. Remover o fundo é opcional."}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   <Button
@@ -342,6 +360,17 @@ function ElencoPage() {
                     <ImagePlus className="mr-1 size-4" />
                     {form.photo ? "Trocar" : "Enviar foto"}
                   </Button>
+                  {pendingFile && !cutoutSource && !photoProcessing ? (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="h-9"
+                      onClick={() => void removeBackgroundNow()}
+                    >
+                      <Scissors className="mr-1 size-4" /> Remover fundo
+                    </Button>
+                  ) : null}
                   {cutoutSource && originalSource && !photoProcessing ? (
                     <Button
                       type="button"
