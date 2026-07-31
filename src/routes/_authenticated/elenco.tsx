@@ -204,7 +204,7 @@ function ElencoPage() {
       active: form.active,
       initial_goals: form.initialGoals === "" ? 0 : Number(form.initialGoals),
       initial_assists: form.initialAssists === "" ? 0 : Number(form.initialAssists),
-      photo_url: form.photo,
+      photo_url: finalPhoto,
     });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0].message);
