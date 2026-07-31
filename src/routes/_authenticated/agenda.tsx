@@ -6,6 +6,7 @@ import { CalendarDays, ChevronLeft, ChevronRight, Plus, Share2, Trash2 } from "l
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { MatchRequestsSection } from "@/components/MatchRequestsSection";
 import { RecurringSlotsSection } from "@/components/RecurringSlotsSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -250,9 +251,11 @@ function AgendaPage() {
           )}
         </div>
 
-        <Button variant="outline" className="mt-4 h-11 w-full" onClick={copyPublicLink}>
-          <Share2 className="mr-2 size-4" /> Compartilhar horários disponíveis
-        </Button>
+        {isAdmin && (
+          <Button variant="outline" className="mt-4 h-11 w-full" onClick={copyPublicLink}>
+            <Share2 className="mr-2 size-4" /> Compartilhar horários disponíveis
+          </Button>
+        )}
 
         {isAdmin && (
           <section className="mt-4 rounded-lg border border-border/60 bg-card p-4">
@@ -278,6 +281,8 @@ function AgendaPage() {
         )}
 
         {isAdmin && <RecurringSlotsSection />}
+
+        {isAdmin && <MatchRequestsSection />}
 
         <section className="mt-5 rounded-lg border border-border/60 bg-card p-3">
           <div className="flex items-center justify-between">

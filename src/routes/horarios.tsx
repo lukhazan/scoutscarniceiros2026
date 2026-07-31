@@ -26,6 +26,7 @@ import {
   typeMeta,
   weekdayLabel,
   type GeneratedSlot,
+  type TeamEvent,
 } from "@/lib/agenda-data";
 
 export const Route = createFileRoute("/horarios")({
@@ -76,7 +77,7 @@ function HorariosPublicos() {
   });
 
   const byDate = useMemo(() => {
-    const map = new Map<string, typeof events extends undefined ? never : NonNullable<typeof events>>();
+    const map = new Map<string, TeamEvent[]>();
     for (const event of events ?? []) {
       const list = map.get(event.event_date) ?? [];
       list.push(event);
