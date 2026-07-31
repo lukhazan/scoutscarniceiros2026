@@ -344,9 +344,12 @@ function ElencoPage() {
                       {[
                         player.position,
                         player.active ? null : "Inativo",
-                        player.initial_goals || player.initial_assists
-                          ? `Saldo inicial: ${player.initial_goals}G / ${player.initial_assists}A`
-                          : null,
+                        (() => {
+                          const s = seasonValues(player.id, CURRENT_SEASON);
+                          return Number(s.initialGoals) || Number(s.initialAssists)
+                            ? `Importado ${CURRENT_SEASON}: ${s.initialGoals}G / ${s.initialAssists}A`
+                            : null;
+                        })(),
                       ]
                         .filter(Boolean)
                         .join(" · ") || "Sem posição"}
