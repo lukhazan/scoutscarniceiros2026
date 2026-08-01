@@ -259,7 +259,9 @@ function FinanceiroPage() {
             <ul className="mt-4 divide-y divide-border/60 overflow-hidden rounded-lg border border-border/60 bg-card">
               {sorted.map((player) => {
                 const fee = fees?.find((f) => f.player_id === player.id) ?? null;
-                const own = (debts ?? []).filter((d) => d.player_id === player.id);
+                const own = (debts ?? []).filter(
+                  (d) => d.player_id === player.id && inCompetence(d, competence),
+                );
                 const open = own
                   .filter((d) => d.status === "pendente")
                   .reduce((sum, d) => sum + d.amount, 0);
