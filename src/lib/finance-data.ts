@@ -139,10 +139,51 @@ export async function deleteDebt(id: string) {
   if (error) throw new Error(error.message);
 }
 
-export function summarize(debts: PlayerDebt[], fees: PlayerFee[]) {
-  const pending = debts.filter((d) => d.status === "pendente");
-  const paid = debts.filter((d) => d.status === "pago");
-  const overduePlayers = new Set(debts.filter(isOverdue).map((d) => d.player_id));
+/* ---------- competência (mês/ano) ---------- */
+
+export function currentCompetence() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+export function competenceLabel(comp: string) {
+  const [year, month] = comp.split("-");
+  const date = new Date(Number(year), Number(month) - 1, 1);
+  const label = date.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+/** Lista de competências (mês/ano) para o seletor: 12 meses atrás até 3 à frente. */
+export function competenceOptions() {
+  const now = new Date();
+  const list: string[] = [];
+  for (let offset = 3; offset >= -12; offset--) {
+    const date = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+    list.push(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`);
+  }
+  return list;
+}
+
+export function inCompetence(debt: PlayerDebt, comp: string) {
+  return debt.due_date.slice(0, 7) === comp;
+}
+
+export function competenceDueDate(comp: string, dueDay: number) {
+  const [year, month] = comp.split("-").map(Number);
+  const lastDay = new Date(year, month, 0).getDate();
+  const day = Math.min(Math.max(dueDay, 1), lastDay);
+  return `${comp}-${String(day).padStart(2, "0")}`;
+}
+
+export function summarize(
+  debts: PlayerDebt[],
+  fees: PlayerFee[],
+  comp: string = currentCompetence(),
+) {
+  const scoped = debts.filter((d) => inCompetence(d, comp));
+  const pending = scoped.filter((d) => d.status === "pendente");
+  const paid = scoped.filter((d) => d.status === "pago");
+  const overduePlayers = new Set(scoped.filter(isOverdue).map((d) => d.player_id));
   return {
     toReceive: pending.reduce((sum, d) => sum + d.amount, 0),
     received: paid.reduce((sum, d) => sum + d.amount, 0),
@@ -150,6 +191,123 @@ export function summarize(debts: PlayerDebt[], fees: PlayerFee[]) {
     activeFees: fees.filter((f) => f.active).length,
   };
 }
+
+/* ---------- configuração financeira do time ---------- */
+
+export type FinanceSettings = { amount: number; dueDay: number };
+
+export const financeSettingsQueryOptions = {
+  queryKey: ["team_settings", "finance"],
+  queryFn: async (): Promise<FinanceSettings> => {
+    const { data, error } = await supabase
+      .from("team_settings")
+      .select("key, value")
+      .in("key", ["finance_default_amount", "finance_default_due_day"]);
+    if (error) throw new Error(error.message);
+    const map = new Map((data ?? []).map((row) => [row.key, row.value]));
+    return {
+      amount: Number(map.get("finance_default_amount") ?? 0) || 0,
+      dueDay: Number(map.get("finance_default_due_day") ?? 10) || 10,
+    };
+  },
+};
+
+export async function saveFinanceSettings(settings: FinanceSettings) {
+  const { error } = await supabase.from("team_settings").upsert(
+    [
+      { key: "finance_default_amount", value: String(settings.amount) },
+      { key: "finance_default_due_day", value: String(settings.dueDay) },
+    ],
+    { onConflict: "key" },
+  );
+  if (error) throw new Error(error.message);
+}
+
+/** Cria a configuração financeira padrão de um atleta (sem sobrescrever a existente). */
+export async function ensurePlayerFee(playerId: string, settings: FinanceSettings) {
+  const { data, error } = await supabase
+    .from("player_fees")
+    .select("id")
+    .eq("player_id", playerId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (data) return;
+  await saveFee({
+    player_id: playerId,
+    amount: settings.amount,
+    due_day: settings.dueDay,
+    status: "em_dia",
+    active: true,
+    notes: null,
+  });
+}
+
+/** Aplica valor e dia padrão a todos os atletas ativos (não altera lançamentos). */
+export async function syncFees(
+  activePlayerIds: string[],
+  settings: FinanceSettings,
+  fees: PlayerFee[],
+) {
+  if (activePlayerIds.length === 0) return 0;
+  const rows = activePlayerIds.map((player_id) => {
+    const current = fees.find((f) => f.player_id === player_id);
+    return {
+      player_id,
+      amount: settings.amount,
+      due_day: settings.dueDay,
+      status: current?.status ?? "em_dia",
+      active: true,
+      notes: current?.notes ?? null,
+    };
+  });
+  const { error } = await supabase
+    .from("player_fees")
+    .upsert(rows, { onConflict: "player_id" });
+  if (error) throw new Error(error.message);
+  return rows.length;
+}
+
+/** Gera a mensalidade da competência para atletas ativos, sem duplicar lançamentos. */
+export async function generateMonthlyDebts(
+  comp: string,
+  activePlayerIds: string[],
+  fees: PlayerFee[],
+  debts: PlayerDebt[],
+  settings: FinanceSettings,
+) {
+  const rows = activePlayerIds
+    .filter((player_id) => {
+      const fee = fees.find((f) => f.player_id === player_id);
+      if (fee && !fee.active) return false;
+      const exists = debts.some(
+        (d) =>
+          d.player_id === player_id &&
+          d.category === "Mensalidade" &&
+          inCompetence(d, comp),
+      );
+      return !exists;
+    })
+    .map((player_id) => {
+      const fee = fees.find((f) => f.player_id === player_id);
+      const amount = fee?.amount ?? settings.amount;
+      const dueDay = fee?.due_day ?? settings.dueDay;
+      return {
+        player_id,
+        description: "Mensalidade",
+        category: "Mensalidade",
+        amount,
+        due_date: competenceDueDate(comp, dueDay),
+        status: "pendente" as const,
+        notes: null,
+      };
+    })
+    .filter((row) => row.amount > 0);
+  if (rows.length === 0) return 0;
+  const { error } = await supabase.from("player_debts").insert(rows);
+  if (error) throw new Error(error.message);
+  return rows.length;
+}
+
 
 export type OverdueSummary = {
   player_id: string;
