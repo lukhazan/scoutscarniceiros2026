@@ -46,6 +46,11 @@ export function AppHeader() {
               <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
                 <Link to="/agenda">Agenda</Link>
               </Button>
+              {isAdmin ? (
+                <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                  <Link to="/financeiro">Financeiro</Link>
+                </Button>
+              ) : null}
               <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sair">
                 <LogOut className="size-4" />
               </Button>
