@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { ImagePlus, Loader2, Pencil, Plus, RotateCcw, Scissors, Trash2, UserRound, Wallet, X } from "lucide-react";
 import { PlayerFinanceDialog } from "@/components/PlayerFinanceDialog";
 import { supabase } from "@/integrations/supabase/client";
+import { ensurePlayerFee, financeSettingsQueryOptions } from "@/lib/finance-data";
 import { AppHeader } from "@/components/AppHeader";
 import { AdminGate } from "@/components/AdminGate";
 import { Button } from "@/components/ui/button";
@@ -261,6 +262,14 @@ function ElencoPage() {
       const res = await supabase.from("players").insert(payload).select("id").single();
       error = res.error;
       playerId = res.data?.id ?? "";
+    }
+    if (!error && playerId && !editing) {
+      try {
+        const settings = await queryClient.fetchQuery(financeSettingsQueryOptions);
+        await ensurePlayerFee(playerId, settings);
+      } catch {
+        // configuração financeira é opcional no cadastro
+      }
     }
     if (!error && playerId) {
       const res = await supabase.from("player_season_stats").upsert(

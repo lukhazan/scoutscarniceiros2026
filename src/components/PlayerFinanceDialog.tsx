@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type KeyboardEvent } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
@@ -113,7 +113,7 @@ export function PlayerFinanceDialog({
 
   /** Enter salva, fecha o modal e volta para a lista principal. */
   function onEnter(handler: () => Promise<void>) {
-    return (event: React.KeyboardEvent) => {
+    return (event: KeyboardEvent) => {
       if (event.key !== "Enter" || event.shiftKey) return;
       const target = event.target as HTMLElement;
       if (target.tagName === "TEXTAREA") return;
