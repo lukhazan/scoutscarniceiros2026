@@ -109,6 +109,7 @@ function ElencoPage() {
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);
   const [toDelete, setToDelete] = useState<Player | null>(null);
+  const [financePlayer, setFinancePlayer] = useState<{ id: string; name: string } | null>(null);
   const [photoProcessing, setPhotoProcessing] = useState(false);
   const [cutoutSource, setCutoutSource] = useState<string | null>(null);
   const [originalSource, setOriginalSource] = useState<string | null>(null);
