@@ -1,22 +1,41 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Wallet } from "lucide-react";
+import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
 import { AdminGate } from "@/components/AdminGate";
 import { OverdueAlert } from "@/components/OverdueAlert";
 import { PlayerFinanceDialog } from "@/components/PlayerFinanceDialog";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { displayName, playersQueryOptions } from "@/lib/team-data";
 import {
+  competenceLabel,
+  competenceOptions,
+  currentCompetence,
   debtsQueryOptions,
   feeStatusLabel,
   feesQueryOptions,
+  financeSettingsQueryOptions,
   formatMoney,
+  generateMonthlyDebts,
+  inCompetence,
   isOverdue,
+  saveFinanceSettings,
   summarize,
+  syncFees,
 } from "@/lib/finance-data";
+
 
 export const Route = createFileRoute("/_authenticated/financeiro")({
   head: () => ({
