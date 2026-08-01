@@ -643,6 +643,15 @@ function ElencoPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <PlayerFinanceDialog
+        playerId={financePlayer?.id ?? null}
+        playerName={financePlayer?.name ?? ""}
+        open={financePlayer !== null}
+        onOpenChange={(next) => {
+          if (!next) setFinancePlayer(null);
+        }}
+      />
     </div>
   );
 }
