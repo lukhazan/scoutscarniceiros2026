@@ -141,6 +141,114 @@ export type Database = {
         }
         Relationships: []
       }
+      player_debts: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          description: string
+          due_date: string
+          id: string
+          notes: string | null
+          paid_at: string | null
+          player_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string
+          description: string
+          due_date?: string
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          player_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          description?: string
+          due_date?: string
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          player_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_debts_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "player_totals"
+            referencedColumns: ["player_id"]
+          },
+          {
+            foreignKeyName: "player_debts_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      player_fees: {
+        Row: {
+          active: boolean
+          amount: number
+          created_at: string
+          due_day: number
+          id: string
+          notes: string | null
+          player_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          amount?: number
+          created_at?: string
+          due_day?: number
+          id?: string
+          notes?: string | null
+          player_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          amount?: number
+          created_at?: string
+          due_day?: number
+          id?: string
+          notes?: string | null
+          player_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_fees_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: true
+            referencedRelation: "player_totals"
+            referencedColumns: ["player_id"]
+          },
+          {
+            foreignKeyName: "player_fees_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: true
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       player_season_stats: {
         Row: {
           assists: number

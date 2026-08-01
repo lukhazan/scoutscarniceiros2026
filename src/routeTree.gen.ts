@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedElencoRouteImport } from './routes/_authenticated/elenco'
+import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
 import { Route as AuthenticatedJogosIndexRouteImport } from './routes/_authenticated/jogos.index'
 import { Route as AuthenticatedJogosMatchIdRouteImport } from './routes/_authenticated/jogos.$matchId'
 import { Route as AuthenticatedJogosNovoRouteImport } from './routes/_authenticated/jogos.novo'
@@ -48,6 +49,11 @@ const AuthenticatedElencoRoute = AuthenticatedElencoRouteImport.update({
   path: '/elenco',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedFinanceiroRoute = AuthenticatedFinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedJogosIndexRoute = AuthenticatedJogosIndexRouteImport.update({
   id: '/jogos/',
   path: '/jogos/',
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/horarios': typeof HorariosRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/elenco': typeof AuthenticatedElencoRoute
+  '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
   '/jogos/novo': typeof AuthenticatedJogosNovoRoute
   '/jogos/': typeof AuthenticatedJogosIndexRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/horarios': typeof HorariosRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/elenco': typeof AuthenticatedElencoRoute
+  '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
   '/jogos/novo': typeof AuthenticatedJogosNovoRoute
   '/jogos': typeof AuthenticatedJogosIndexRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/horarios': typeof HorariosRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/elenco': typeof AuthenticatedElencoRoute
+  '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
   '/_authenticated/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
   '/_authenticated/jogos/novo': typeof AuthenticatedJogosNovoRoute
   '/_authenticated/jogos/': typeof AuthenticatedJogosIndexRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/horarios'
     | '/agenda'
     | '/elenco'
+    | '/financeiro'
     | '/jogos/$matchId'
     | '/jogos/novo'
     | '/jogos/'
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
     | '/horarios'
     | '/agenda'
     | '/elenco'
+    | '/financeiro'
     | '/jogos/$matchId'
     | '/jogos/novo'
     | '/jogos'
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '/horarios'
     | '/_authenticated/agenda'
     | '/_authenticated/elenco'
+    | '/_authenticated/financeiro'
     | '/_authenticated/jogos/$matchId'
     | '/_authenticated/jogos/novo'
     | '/_authenticated/jogos/'
@@ -182,6 +194,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedElencoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/financeiro': {
+      id: '/_authenticated/financeiro'
+      path: '/financeiro'
+      fullPath: '/financeiro'
+      preLoaderRoute: typeof AuthenticatedFinanceiroRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/jogos/': {
       id: '/_authenticated/jogos/'
       path: '/jogos'
@@ -209,6 +228,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
   AuthenticatedElencoRoute: typeof AuthenticatedElencoRoute
+  AuthenticatedFinanceiroRoute: typeof AuthenticatedFinanceiroRoute
   AuthenticatedJogosMatchIdRoute: typeof AuthenticatedJogosMatchIdRoute
   AuthenticatedJogosNovoRoute: typeof AuthenticatedJogosNovoRoute
   AuthenticatedJogosIndexRoute: typeof AuthenticatedJogosIndexRoute
@@ -217,6 +237,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
   AuthenticatedElencoRoute: AuthenticatedElencoRoute,
+  AuthenticatedFinanceiroRoute: AuthenticatedFinanceiroRoute,
   AuthenticatedJogosMatchIdRoute: AuthenticatedJogosMatchIdRoute,
   AuthenticatedJogosNovoRoute: AuthenticatedJogosNovoRoute,
   AuthenticatedJogosIndexRoute: AuthenticatedJogosIndexRoute,
@@ -234,13 +255,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

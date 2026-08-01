@@ -3,7 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { ImagePlus, Loader2, Pencil, Plus, RotateCcw, Scissors, Trash2, UserRound, X } from "lucide-react";
+import { ImagePlus, Loader2, Pencil, Plus, RotateCcw, Scissors, Trash2, UserRound, Wallet, X } from "lucide-react";
+import { PlayerFinanceDialog } from "@/components/PlayerFinanceDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
 import { AdminGate } from "@/components/AdminGate";
@@ -108,6 +109,7 @@ function ElencoPage() {
   const [form, setForm] = useState(empty);
   const [saving, setSaving] = useState(false);
   const [toDelete, setToDelete] = useState<Player | null>(null);
+  const [financePlayer, setFinancePlayer] = useState<{ id: string; name: string } | null>(null);
   const [photoProcessing, setPhotoProcessing] = useState(false);
   const [cutoutSource, setCutoutSource] = useState<string | null>(null);
   const [originalSource, setOriginalSource] = useState<string | null>(null);
@@ -355,6 +357,16 @@ function ElencoPage() {
                         .join(" · ") || "Sem posição"}
                     </p>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Financeiro"
+                    onClick={() =>
+                      setFinancePlayer({ id: player.id, name: displayName(player) })
+                    }
+                  >
+                    <Wallet className="size-4" />
+                  </Button>
                   <Button variant="ghost" size="icon" onClick={() => openEdit(player)}>
                     <Pencil className="size-4" />
                     <span className="sr-only">Editar</span>
@@ -631,6 +643,15 @@ function ElencoPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <PlayerFinanceDialog
+        playerId={financePlayer?.id ?? null}
+        playerName={financePlayer?.name ?? ""}
+        open={financePlayer !== null}
+        onOpenChange={(next) => {
+          if (!next) setFinancePlayer(null);
+        }}
+      />
     </div>
   );
 }

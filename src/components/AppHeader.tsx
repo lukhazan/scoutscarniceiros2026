@@ -5,9 +5,11 @@ import teamLogo from "@/assets/team-logo.png";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/hooks/useSession";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 export function AppHeader() {
   const { session, loading } = useSession();
+  const isAdmin = useIsAdmin();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -46,6 +48,11 @@ export function AppHeader() {
               <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
                 <Link to="/agenda">Agenda</Link>
               </Button>
+              {isAdmin ? (
+                <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                  <Link to="/financeiro">Financeiro</Link>
+                </Button>
+              ) : null}
               <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sair">
                 <LogOut className="size-4" />
               </Button>
