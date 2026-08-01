@@ -355,6 +355,16 @@ function ElencoPage() {
                         .join(" · ") || "Sem posição"}
                     </p>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Financeiro"
+                    onClick={() =>
+                      setFinancePlayer({ id: player.id, name: displayName(player) })
+                    }
+                  >
+                    <Wallet className="size-4" />
+                  </Button>
                   <Button variant="ghost" size="icon" onClick={() => openEdit(player)}>
                     <Pencil className="size-4" />
                     <span className="sr-only">Editar</span>
