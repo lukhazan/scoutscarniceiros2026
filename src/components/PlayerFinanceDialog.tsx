@@ -111,7 +111,18 @@ export function PlayerFinanceDialog({
     .filter((d) => d.status === "pendente")
     .reduce((sum, d) => sum + d.amount, 0);
 
-  async function handleSaveFee() {
+  /** Enter salva, fecha o modal e volta para a lista principal. */
+  function onEnter(handler: () => Promise<void>) {
+    return (event: React.KeyboardEvent) => {
+      if (event.key !== "Enter" || event.shiftKey) return;
+      const target = event.target as HTMLElement;
+      if (target.tagName === "TEXTAREA") return;
+      event.preventDefault();
+      void handler().then(() => onOpenChange(false));
+    };
+  }
+
+  async function handleSaveFee(close = false) {
     if (!playerId) return;
     const amount = Number(feeForm.amount.replace(",", "."));
     const dueDay = Number(feeForm.due_day);
@@ -135,6 +146,7 @@ export function PlayerFinanceDialog({
       });
       toast.success("Mensalidade atualizada.");
       refresh();
+      if (close) onOpenChange(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não foi possível salvar.");
     } finally {
@@ -142,7 +154,7 @@ export function PlayerFinanceDialog({
     }
   }
 
-  async function handleSaveDebt() {
+  async function handleSaveDebt(close = false) {
     if (!playerId || !debtForm) return;
     const description = debtForm.description.trim();
     const amount = Number(debtForm.amount.replace(",", "."));
@@ -169,6 +181,7 @@ export function PlayerFinanceDialog({
       toast.success(debtForm.id ? "Lançamento atualizado." : "Lançamento criado.");
       setDebtForm(null);
       refresh();
+      if (close) onOpenChange(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não foi possível salvar.");
     } finally {
@@ -226,7 +239,10 @@ export function PlayerFinanceDialog({
             </div>
 
             {debtForm ? (
-              <div className="space-y-3 rounded-md border border-border/60 p-3">
+              <div
+                className="space-y-3 rounded-md border border-border/60 p-3"
+                onKeyDown={onEnter(() => handleSaveDebt())}
+              >
                 <div className="space-y-1.5">
                   <Label htmlFor="debt-desc">Descrição</Label>
                   <Input
@@ -401,7 +417,11 @@ export function PlayerFinanceDialog({
             )}
           </TabsContent>
 
-          <TabsContent value="mensalidade" className="space-y-3 pt-3">
+          <TabsContent
+            value="mensalidade"
+            className="space-y-3 pt-3"
+            onKeyDown={onEnter(() => handleSaveFee())}
+          >
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="fee-amount">Valor (R$)</Label>
