@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 
 export type TeamEvent = {
@@ -291,6 +292,20 @@ export const matchRequestsQueryOptions = {
   },
 };
 
+const matchRequestSchema = z.object({
+  team_name: z.string().trim().min(2, "Informe o nome da equipe").max(80),
+  contact_name: z.string().trim().min(2, "Informe o responsável").max(80),
+  whatsapp: z
+    .string()
+    .trim()
+    .regex(/^[0-9 ()+-]{8,20}$/, "WhatsApp inválido"),
+  request_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida"),
+  start_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, "Horário inválido"),
+  end_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, "Horário inválido"),
+  location: z.string().trim().max(120).nullable(),
+  notes: z.string().trim().max(500, "Observações muito longas").nullable(),
+});
+
 export async function createMatchRequest(input: {
   team_name: string;
   contact_name: string;
@@ -301,9 +316,18 @@ export async function createMatchRequest(input: {
   location: string | null;
   notes: string | null;
 }) {
-  const { error } = await supabase.from("match_requests").insert({ ...input, status: "pendente" });
+  const parsed = matchRequestSchema.safeParse(input);
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message ?? "Dados inválidos");
+  }
+  const value = parsed.data;
+  if (value.end_time <= value.start_time) {
+    throw new Error("O horário final deve ser maior que o inicial");
+  }
+  const { error } = await supabase.from("match_requests").insert({ ...value, status: "pendente" });
   if (error) throw new Error(error.message);
 }
+
 
 /** Confirma a solicitação: cria o jogo na agenda (sem duplicar) e marca como confirmada. */
 export async function confirmMatchRequest(request: MatchRequest) {
