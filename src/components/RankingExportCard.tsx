@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import teamLogo from "@/assets/team-logo.png";
+const teamLogo = "/team-logo.png";
 import { displayName, type PlayerTotals } from "@/lib/team-data";
 
 export type ExportMetric = "goals" | "assists";
