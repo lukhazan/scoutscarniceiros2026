@@ -324,6 +324,8 @@ function FinanceiroPage() {
           if (!next) setSelected(null);
         }}
       />
+
+      <BulkDebtDialog open={bulkOpen} onOpenChange={setBulkOpen} />
     </div>
   );
 }
