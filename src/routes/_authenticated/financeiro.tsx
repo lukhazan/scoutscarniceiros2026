@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
 import { AdminGate } from "@/components/AdminGate";
 import { OverdueAlert } from "@/components/OverdueAlert";
+import { BulkDebtDialog } from "@/components/BulkDebtDialog";
 import { PlayerFinanceDialog } from "@/components/PlayerFinanceDialog";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
 import { Button } from "@/components/ui/button";
