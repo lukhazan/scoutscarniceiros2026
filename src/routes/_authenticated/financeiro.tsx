@@ -240,6 +240,14 @@ function FinanceiroPage() {
               >
                 Sincronizar mensalidades
               </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                className="h-11"
+                onClick={() => setBulkOpen(true)}
+              >
+                Novo lançamento coletivo
+              </Button>
             </div>
           </form>
 
