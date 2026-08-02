@@ -332,3 +332,58 @@ export function overdueByPlayer(debts: PlayerDebt[]): OverdueSummary[] {
   }
   return [...map.values()].sort((a, b) => b.maxDaysLate - a.maxDaysLate);
 }
+
+/* ---------- lançamentos coletivos ---------- */
+
+export const BULK_TYPES = [
+  "Jogo",
+  "Arbitragem",
+  "Campeonato",
+  "Uniforme",
+  "Churrasco",
+  "Outro",
+] as const;
+
+export type BulkEntry = { player_id: string; amount: number };
+
+export type BulkDebtInput = {
+  category: string;
+  description: string;
+  due_date: string;
+  reference_date?: string;
+  notes?: string | null;
+  entries: BulkEntry[];
+};
+
+/** Divide um valor total entre N atletas, ajustando os centavos na primeira parcela. */
+export function splitEvenly(total: number, count: number): number[] {
+  if (count <= 0) return [];
+  const cents = Math.round(total * 100);
+  const base = Math.floor(cents / count);
+  const rest = cents - base * count;
+  return Array.from({ length: count }, (_, i) => (base + (i < rest ? 1 : 0)) / 100);
+}
+
+/**
+ * Cria um lançamento individual (pendente) para cada atleta informado.
+ * Reutilizável por outros módulos (ex.: Jogos) para gerar cobranças coletivas.
+ */
+export async function createBulkDebts(input: BulkDebtInput) {
+  const rows = input.entries
+    .filter((entry) => entry.amount > 0)
+    .map((entry) => ({
+      player_id: entry.player_id,
+      description: input.description,
+      category: input.category,
+      amount: entry.amount,
+      due_date: input.due_date,
+      status: "pendente" as const,
+      notes: [input.reference_date ? `Data: ${input.reference_date}` : null, input.notes]
+        .filter(Boolean)
+        .join(" · ") || null,
+    }));
+  if (rows.length === 0) return 0;
+  const { error } = await supabase.from("player_debts").insert(rows);
+  if (error) throw new Error(error.message);
+  return rows.length;
+}
