@@ -67,6 +67,7 @@ function FinanceiroPage() {
   const [competence, setCompetence] = useState(currentCompetence());
   const [settingsForm, setSettingsForm] = useState({ amount: "", dueDay: "" });
   const [busy, setBusy] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
   const generatedFor = useRef<string | null>(null);
 
   useEffect(() => {
