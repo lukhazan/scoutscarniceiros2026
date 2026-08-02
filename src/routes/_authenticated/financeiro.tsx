@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
 import { AdminGate } from "@/components/AdminGate";
 import { OverdueAlert } from "@/components/OverdueAlert";
+import { BulkDebtDialog } from "@/components/BulkDebtDialog";
 import { PlayerFinanceDialog } from "@/components/PlayerFinanceDialog";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
 import { Button } from "@/components/ui/button";
@@ -67,6 +68,7 @@ function FinanceiroPage() {
   const [competence, setCompetence] = useState(currentCompetence());
   const [settingsForm, setSettingsForm] = useState({ amount: "", dueDay: "" });
   const [busy, setBusy] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
   const generatedFor = useRef<string | null>(null);
 
   useEffect(() => {
@@ -240,6 +242,14 @@ function FinanceiroPage() {
               >
                 Sincronizar mensalidades
               </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                className="h-11"
+                onClick={() => setBulkOpen(true)}
+              >
+                Novo lançamento coletivo
+              </Button>
             </div>
           </form>
 
@@ -314,6 +324,8 @@ function FinanceiroPage() {
           if (!next) setSelected(null);
         }}
       />
+
+      <BulkDebtDialog open={bulkOpen} onOpenChange={setBulkOpen} />
     </div>
   );
 }
