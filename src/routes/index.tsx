@@ -11,6 +11,7 @@ import {
   Shield,
 } from "lucide-react";
 import { toPng } from "html-to-image";
+import { saveFile } from "@/lib/download-file";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
 import { RankingExportCard } from "@/components/RankingExportCard";
