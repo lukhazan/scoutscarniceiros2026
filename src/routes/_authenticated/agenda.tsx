@@ -166,15 +166,24 @@ function AgendaPage() {
     });
   }
 
+  /** Site publicado: links de preview/editor exigem login, então sempre usamos o domínio público. */
+  const PUBLIC_SITE_URL = "https://scoutscarniceiros2026.lovable.app";
+
   async function copyPublicLink() {
-    const url = `${window.location.origin}/horarios`;
+    const origin = window.location.origin;
+    const isPreview = /lovable\.(app|dev)$/.test(new URL(origin).hostname)
+      ? /preview|lovableproject|-dev\./.test(origin)
+      : false;
+    const base = isPreview || origin.includes("localhost") ? PUBLIC_SITE_URL : origin;
+    const url = `${base}/horarios`;
     try {
       await navigator.clipboard.writeText(url);
-      toast.success("Link dos horários disponíveis copiado!");
+      toast.success("Link público dos horários copiado!");
     } catch {
       toast.error(url);
     }
   }
+
 
   function openEdit(event: TeamEvent) {
     setSelected(null);
