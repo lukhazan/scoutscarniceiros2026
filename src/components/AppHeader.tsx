@@ -74,7 +74,7 @@ export function AppHeader() {
                   <Link to="/">Estatísticas</Link>
                 </Button>
                 <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
-                  <Link to="/horarios">Agenda</Link>
+                  <Link to="/agenda-time">Agenda</Link>
                 </Button>
                 <Button asChild size="sm">
                   <Link to="/auth">Entrar</Link>

@@ -13,7 +13,7 @@ import {
   type TeamEvent,
 } from "@/lib/agenda-data";
 
-export const Route = createFileRoute("/_authenticated/agenda-time")({
+export const Route = createFileRoute("/agenda-time")({
   head: () => ({
     meta: [
       { title: "Agenda do time — Carniceiros Fut 7" },
