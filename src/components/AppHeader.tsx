@@ -23,7 +23,7 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 pt-[env(safe-area-inset-top)] backdrop-blur">
       <div className="mx-auto grid max-w-3xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 py-3">
-        <Link to="/" className="flex min-w-0 items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           <img
             src={teamLogo}
             alt="Escudo do Carniceiros Fut 7"
@@ -34,30 +34,40 @@ export function AppHeader() {
           <span className="truncate font-display text-lg leading-none sm:text-xl">
             Carniceiros Fut 7
           </span>
-        </Link>
+        </div>
 
         <nav className="flex shrink-0 items-center gap-1">
           {!loading && session ? (
             <>
               <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
-                <Link to="/elenco">Elenco</Link>
-              </Button>
-              <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
-                <Link to="/jogos">Jogos</Link>
-              </Button>
-              <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
-                <Link to="/agenda">Agenda</Link>
+                <Link to="/">Estatísticas</Link>
               </Button>
               {isAdmin ? (
+                <>
+                  <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                    <Link to="/elenco">Elenco</Link>
+                  </Button>
+                  <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                    <Link to="/jogos">Jogos</Link>
+                  </Button>
+                  <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                    <Link to="/agenda">Agenda</Link>
+                  </Button>
+                  <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                    <Link to="/financeiro">Financeiro</Link>
+                  </Button>
+                </>
+              ) : (
                 <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
-                  <Link to="/financeiro">Financeiro</Link>
+                  <Link to="/agenda-time">Agenda</Link>
                 </Button>
-              ) : null}
+              )}
               <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sair">
                 <LogOut className="size-4" />
               </Button>
             </>
           ) : (
+
             !loading && (
               <Button asChild size="sm">
                 <Link to="/auth">Entrar</Link>
