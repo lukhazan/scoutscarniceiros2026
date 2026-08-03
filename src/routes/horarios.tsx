@@ -263,16 +263,32 @@ function HorariosPublicos() {
         ) : (
           <ul className="mt-3 divide-y divide-border/60 overflow-hidden rounded-lg border border-border/60 bg-card">
             {upcoming.map((event) => (
-              <li key={event.id} className="flex items-center gap-3 px-3 py-3">
-                <span className={`size-2 shrink-0 rounded-full ${typeMeta(event.event_type).dot}`} />
+              <li key={event.id} className="flex gap-3 px-3 py-3">
+                <span
+                  className={`mt-1.5 size-2 shrink-0 rounded-full ${typeMeta(event.event_type).dot}`}
+                />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-semibold leading-tight">{event.title}</span>
                   <span className="block text-xs text-muted-foreground">
-                    {formatDate(event.event_date)}
+                    {typeMeta(event.event_type).label}
+                    {` · ${formatDate(event.event_date)}`}
                     {formatTime(event.start_time) ? ` · ${formatTime(event.start_time)}` : ""}
-                    {` · ${typeMeta(event.event_type).label}`}
+                    {formatTime(event.end_time) ? ` às ${formatTime(event.end_time)}` : ""}
                     {` · ${statusLabel(event.status)}`}
                   </span>
+                  {event.location && (
+                    <span className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                      <MapPin className="size-3" /> {event.location}
+                    </span>
+                  )}
+                  {event.opponent && (
+                    <span className="block text-xs text-muted-foreground">
+                      Adversário: {event.opponent}
+                    </span>
+                  )}
+                  {event.notes && (
+                    <span className="block text-xs text-muted-foreground">{event.notes}</span>
+                  )}
                 </span>
               </li>
             ))}
