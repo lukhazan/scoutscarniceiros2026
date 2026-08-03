@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
@@ -71,6 +72,7 @@ type FormState = {
   opponent: string;
   notes: string;
   status: TeamEvent["status"];
+  public_visible: boolean;
 };
 
 function emptyForm(date?: string): FormState {
@@ -84,6 +86,7 @@ function emptyForm(date?: string): FormState {
     opponent: "",
     notes: "",
     status: "pendente",
+    public_visible: true,
   };
 }
 
@@ -186,6 +189,7 @@ function AgendaPage() {
       opponent: event.opponent ?? "",
       notes: event.notes ?? "",
       status: event.status,
+      public_visible: event.public_visible ?? true,
     });
   }
 
@@ -206,6 +210,7 @@ function AgendaPage() {
       opponent: form.opponent.trim() || null,
       notes: form.notes.trim() || null,
       status: form.status,
+      public_visible: form.public_visible,
     };
     const { error } = form.id
       ? await supabase.from("team_events").update(payload).eq("id", form.id)
@@ -536,6 +541,19 @@ function AgendaPage() {
                     onChange={(e) => setForm({ ...form, opponent: e.target.value })}
                   />
                 </div>
+              </div>
+              <div className="flex items-center justify-between rounded-md border border-border/60 p-3">
+                <div className="pr-3">
+                  <Label htmlFor="public-visible">Visível na agenda pública</Label>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Desative para compromissos internos (reuniões, diretoria).
+                  </p>
+                </div>
+                <Switch
+                  id="public-visible"
+                  checked={form.public_visible}
+                  onCheckedChange={(v) => setForm({ ...form, public_visible: v })}
+                />
               </div>
               <div>
                 <Label htmlFor="obs">Observações</Label>
