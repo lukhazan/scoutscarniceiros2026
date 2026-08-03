@@ -11,10 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AgendaTimeRouteImport } from './routes/agenda-time'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
-import { Route as AuthenticatedAgendaTimeRouteImport } from './routes/_authenticated/agenda-time'
 import { Route as AuthenticatedElencoRouteImport } from './routes/_authenticated/elenco'
 import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
 import { Route as AuthenticatedJogosIndexRouteImport } from './routes/_authenticated/jogos.index'
@@ -30,6 +30,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgendaTimeRoute = AgendaTimeRouteImport.update({
+  id: '/agenda-time',
+  path: '/agenda-time',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -43,11 +48,6 @@ const HorariosRoute = HorariosRouteImport.update({
 const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
   id: '/agenda',
   path: '/agenda',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedAgendaTimeRoute = AuthenticatedAgendaTimeRouteImport.update({
-  id: '/agenda-time',
-  path: '/agenda-time',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedElencoRoute = AuthenticatedElencoRouteImport.update({
@@ -79,10 +79,10 @@ const AuthenticatedJogosNovoRoute = AuthenticatedJogosNovoRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/agenda-time': typeof AgendaTimeRoute
   '/auth': typeof AuthRoute
   '/horarios': typeof HorariosRoute
   '/agenda': typeof AuthenticatedAgendaRoute
-  '/agenda-time': typeof AuthenticatedAgendaTimeRoute
   '/elenco': typeof AuthenticatedElencoRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
@@ -91,10 +91,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/agenda-time': typeof AgendaTimeRoute
   '/auth': typeof AuthRoute
   '/horarios': typeof HorariosRoute
   '/agenda': typeof AuthenticatedAgendaRoute
-  '/agenda-time': typeof AuthenticatedAgendaTimeRoute
   '/elenco': typeof AuthenticatedElencoRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
@@ -105,10 +105,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/agenda-time': typeof AgendaTimeRoute
   '/auth': typeof AuthRoute
   '/horarios': typeof HorariosRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
-  '/_authenticated/agenda-time': typeof AuthenticatedAgendaTimeRoute
   '/_authenticated/elenco': typeof AuthenticatedElencoRoute
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
   '/_authenticated/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
@@ -119,10 +119,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/agenda-time'
     | '/auth'
     | '/horarios'
     | '/agenda'
-    | '/agenda-time'
     | '/elenco'
     | '/financeiro'
     | '/jogos/$matchId'
@@ -131,10 +131,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/agenda-time'
     | '/auth'
     | '/horarios'
     | '/agenda'
-    | '/agenda-time'
     | '/elenco'
     | '/financeiro'
     | '/jogos/$matchId'
@@ -144,10 +144,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/agenda-time'
     | '/auth'
     | '/horarios'
     | '/_authenticated/agenda'
-    | '/_authenticated/agenda-time'
     | '/_authenticated/elenco'
     | '/_authenticated/financeiro'
     | '/_authenticated/jogos/$matchId'
@@ -158,6 +158,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AgendaTimeRoute: typeof AgendaTimeRoute
   AuthRoute: typeof AuthRoute
   HorariosRoute: typeof HorariosRoute
 }
@@ -176,6 +177,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agenda-time': {
+      id: '/agenda-time'
+      path: '/agenda-time'
+      fullPath: '/agenda-time'
+      preLoaderRoute: typeof AgendaTimeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -197,13 +205,6 @@ declare module '@tanstack/react-router' {
       path: '/agenda'
       fullPath: '/agenda'
       preLoaderRoute: typeof AuthenticatedAgendaRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/agenda-time': {
-      id: '/_authenticated/agenda-time'
-      path: '/agenda-time'
-      fullPath: '/agenda-time'
-      preLoaderRoute: typeof AuthenticatedAgendaTimeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/elenco': {
@@ -246,7 +247,6 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
-  AuthenticatedAgendaTimeRoute: typeof AuthenticatedAgendaTimeRoute
   AuthenticatedElencoRoute: typeof AuthenticatedElencoRoute
   AuthenticatedFinanceiroRoute: typeof AuthenticatedFinanceiroRoute
   AuthenticatedJogosMatchIdRoute: typeof AuthenticatedJogosMatchIdRoute
@@ -256,7 +256,6 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
-  AuthenticatedAgendaTimeRoute: AuthenticatedAgendaTimeRoute,
   AuthenticatedElencoRoute: AuthenticatedElencoRoute,
   AuthenticatedFinanceiroRoute: AuthenticatedFinanceiroRoute,
   AuthenticatedJogosMatchIdRoute: AuthenticatedJogosMatchIdRoute,
@@ -270,9 +269,20 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AgendaTimeRoute: AgendaTimeRoute,
   AuthRoute: AuthRoute,
   HorariosRoute: HorariosRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
