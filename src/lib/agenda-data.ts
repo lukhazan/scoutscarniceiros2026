@@ -12,10 +12,11 @@ export type TeamEvent = {
   opponent: string | null;
   notes: string | null;
   status: "confirmado" | "pendente" | "disponivel";
+  public_visible: boolean;
 };
 
 export const EVENT_FIELDS =
-  "id, title, event_type, event_date, start_time, end_time, location, opponent, notes, status";
+  "id, title, event_type, event_date, start_time, end_time, location, opponent, notes, status, public_visible";
 
 export const EVENT_TYPES = [
   { value: "jogo", label: "Jogo", dot: "bg-primary" },
