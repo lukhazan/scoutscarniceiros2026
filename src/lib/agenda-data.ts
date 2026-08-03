@@ -12,10 +12,11 @@ export type TeamEvent = {
   opponent: string | null;
   notes: string | null;
   status: "confirmado" | "pendente" | "disponivel";
+  public_visible: boolean;
 };
 
 export const EVENT_FIELDS =
-  "id, title, event_type, event_date, start_time, end_time, location, opponent, notes, status";
+  "id, title, event_type, event_date, start_time, end_time, location, opponent, notes, status, public_visible";
 
 export const EVENT_TYPES = [
   { value: "jogo", label: "Jogo", dot: "bg-primary" },
@@ -105,6 +106,23 @@ export const eventsQueryOptions = {
     return (data ?? []) as TeamEvent[];
   },
 };
+
+/** Agenda pública: só compromissos marcados como visíveis (sem horários disponíveis). */
+export const publicAgendaQueryOptions = {
+  queryKey: ["team_events", "public-agenda"],
+  queryFn: async (): Promise<TeamEvent[]> => {
+    const { data, error } = await supabase
+      .from("team_events")
+      .select(EVENT_FIELDS)
+      .eq("public_visible", true)
+      .neq("event_type", "disponivel")
+      .order("event_date")
+      .order("start_time", { nullsFirst: true });
+    if (error) throw new Error(error.message);
+    return (data ?? []) as TeamEvent[];
+  },
+};
+
 
 export const availableSlotsQueryOptions = {
   queryKey: ["team_events", "disponivel"],

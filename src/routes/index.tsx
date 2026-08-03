@@ -11,6 +11,7 @@ import {
   Shield,
 } from "lucide-react";
 import { toPng } from "html-to-image";
+import { saveFile } from "@/lib/download-file";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
 import { RankingExportCard } from "@/components/RankingExportCard";
@@ -198,10 +199,8 @@ function Index() {
     try {
       const dataUrl = await renderCard();
       if (!dataUrl) return;
-      const link = document.createElement("a");
-      link.download = `ranking-${new Date().toISOString().slice(0, 10)}.png`;
-      link.href = dataUrl;
-      link.click();
+      const blob = await (await fetch(dataUrl)).blob();
+      await saveFile(blob, `ranking-${new Date().toISOString().slice(0, 10)}.png`);
       toast.success("Imagem gerada!");
     } catch {
       toast.error("Não foi possível gerar a imagem.");
@@ -225,7 +224,10 @@ function Index() {
         format: [width, height],
       });
       pdf.addImage(dataUrl, "PNG", 0, 0, width, height);
-      pdf.save(`ranking-${new Date().toISOString().slice(0, 10)}.pdf`);
+      await saveFile(
+        pdf.output("blob"),
+        `ranking-${new Date().toISOString().slice(0, 10)}.pdf`,
+      );
       toast.success("PDF gerado!");
     } catch {
       toast.error("Não foi possível gerar o PDF.");

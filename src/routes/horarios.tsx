@@ -16,12 +16,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDate } from "@/lib/team-data";
 import {
   createMatchRequest,
-  eventsQueryOptions,
   formatTime,
   generatedAvailabilityQueryOptions,
+  publicAgendaQueryOptions,
   statusLabel,
   typeMeta,
   weekdayLabel,
@@ -61,7 +62,7 @@ type RequestForm = {
 function HorariosPublicos() {
   const queryClient = useQueryClient();
   const { data: slots, isLoading } = useQuery(generatedAvailabilityQueryOptions);
-  const { data: events } = useQuery(eventsQueryOptions);
+  const { data: events } = useQuery(publicAgendaQueryOptions);
   const [slot, setSlot] = useState<GeneratedSlot | null>(null);
   const [form, setForm] = useState<RequestForm>({
     team_name: "",
@@ -170,6 +171,13 @@ function HorariosPublicos() {
           </p>
         </div>
 
+        <Tabs defaultValue="horarios" className="mt-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="horarios">Horários</TabsTrigger>
+            <TabsTrigger value="agenda">Agenda</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="horarios">
         {isLoading ? (
           <p className="py-10 text-center text-sm text-muted-foreground">Carregando…</p>
         ) : (slots ?? []).length === 0 ? (
@@ -246,22 +254,41 @@ function HorariosPublicos() {
           </div>
         </section>
 
+          </TabsContent>
+
+          <TabsContent value="agenda">
         <h2 className="mt-6 font-display text-2xl">Próximos compromissos</h2>
         {upcoming.length === 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">Nenhum compromisso agendado.</p>
         ) : (
           <ul className="mt-3 divide-y divide-border/60 overflow-hidden rounded-lg border border-border/60 bg-card">
             {upcoming.map((event) => (
-              <li key={event.id} className="flex items-center gap-3 px-3 py-3">
-                <span className={`size-2 shrink-0 rounded-full ${typeMeta(event.event_type).dot}`} />
+              <li key={event.id} className="flex gap-3 px-3 py-3">
+                <span
+                  className={`mt-1.5 size-2 shrink-0 rounded-full ${typeMeta(event.event_type).dot}`}
+                />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-semibold leading-tight">{event.title}</span>
                   <span className="block text-xs text-muted-foreground">
-                    {formatDate(event.event_date)}
+                    {typeMeta(event.event_type).label}
+                    {` · ${formatDate(event.event_date)}`}
                     {formatTime(event.start_time) ? ` · ${formatTime(event.start_time)}` : ""}
-                    {` · ${typeMeta(event.event_type).label}`}
+                    {formatTime(event.end_time) ? ` às ${formatTime(event.end_time)}` : ""}
                     {` · ${statusLabel(event.status)}`}
                   </span>
+                  {event.location && (
+                    <span className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                      <MapPin className="size-3" /> {event.location}
+                    </span>
+                  )}
+                  {event.opponent && (
+                    <span className="block text-xs text-muted-foreground">
+                      Adversário: {event.opponent}
+                    </span>
+                  )}
+                  {event.notes && (
+                    <span className="block text-xs text-muted-foreground">{event.notes}</span>
+                  )}
                 </span>
               </li>
             ))}
@@ -287,6 +314,9 @@ function HorariosPublicos() {
             </ul>
           </>
         )}
+          </TabsContent>
+        </Tabs>
+
       </main>
 
       <Dialog open={!!slot} onOpenChange={(o) => !o && setSlot(null)}>
