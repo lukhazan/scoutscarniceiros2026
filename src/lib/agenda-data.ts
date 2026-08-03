@@ -107,6 +107,23 @@ export const eventsQueryOptions = {
   },
 };
 
+/** Agenda pública: só compromissos marcados como visíveis (sem horários disponíveis). */
+export const publicAgendaQueryOptions = {
+  queryKey: ["team_events", "public-agenda"],
+  queryFn: async (): Promise<TeamEvent[]> => {
+    const { data, error } = await supabase
+      .from("team_events")
+      .select(EVENT_FIELDS)
+      .eq("public_visible", true)
+      .neq("event_type", "disponivel")
+      .order("event_date")
+      .order("start_time", { nullsFirst: true });
+    if (error) throw new Error(error.message);
+    return (data ?? []) as TeamEvent[];
+  },
+};
+
+
 export const availableSlotsQueryOptions = {
   queryKey: ["team_events", "disponivel"],
   queryFn: async (): Promise<TeamEvent[]> => {
