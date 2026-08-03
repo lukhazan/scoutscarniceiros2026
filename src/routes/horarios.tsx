@@ -16,12 +16,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDate } from "@/lib/team-data";
 import {
   createMatchRequest,
-  eventsQueryOptions,
   formatTime,
   generatedAvailabilityQueryOptions,
+  publicAgendaQueryOptions,
   statusLabel,
   typeMeta,
   weekdayLabel,
@@ -61,7 +62,7 @@ type RequestForm = {
 function HorariosPublicos() {
   const queryClient = useQueryClient();
   const { data: slots, isLoading } = useQuery(generatedAvailabilityQueryOptions);
-  const { data: events } = useQuery(eventsQueryOptions);
+  const { data: events } = useQuery(publicAgendaQueryOptions);
   const [slot, setSlot] = useState<GeneratedSlot | null>(null);
   const [form, setForm] = useState<RequestForm>({
     team_name: "",
@@ -170,6 +171,13 @@ function HorariosPublicos() {
           </p>
         </div>
 
+        <Tabs defaultValue="horarios" className="mt-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="horarios">Horários</TabsTrigger>
+            <TabsTrigger value="agenda">Agenda</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="horarios">
         {isLoading ? (
           <p className="py-10 text-center text-sm text-muted-foreground">Carregando…</p>
         ) : (slots ?? []).length === 0 ? (
@@ -246,6 +254,9 @@ function HorariosPublicos() {
           </div>
         </section>
 
+          </TabsContent>
+
+          <TabsContent value="agenda">
         <h2 className="mt-6 font-display text-2xl">Próximos compromissos</h2>
         {upcoming.length === 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">Nenhum compromisso agendado.</p>
@@ -287,6 +298,9 @@ function HorariosPublicos() {
             </ul>
           </>
         )}
+          </TabsContent>
+        </Tabs>
+
       </main>
 
       <Dialog open={!!slot} onOpenChange={(o) => !o && setSlot(null)}>
