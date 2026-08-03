@@ -388,6 +388,7 @@ export type Database = {
           location: string | null
           notes: string | null
           opponent: string | null
+          public_visible: boolean
           start_time: string | null
           status: string
           title: string
@@ -402,6 +403,7 @@ export type Database = {
           location?: string | null
           notes?: string | null
           opponent?: string | null
+          public_visible?: boolean
           start_time?: string | null
           status?: string
           title: string
@@ -416,6 +418,7 @@ export type Database = {
           location?: string | null
           notes?: string | null
           opponent?: string | null
+          public_visible?: boolean
           start_time?: string | null
           status?: string
           title?: string
