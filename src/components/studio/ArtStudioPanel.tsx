@@ -230,16 +230,16 @@ export function ArtStudioPanel() {
         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Pré-visualização
         </p>
-        <div className="relative w-full overflow-hidden rounded-xl border border-border/60 bg-secondary [aspect-ratio:9/16]">
+        <div
+          className="relative w-full overflow-hidden rounded-xl border border-border/60 bg-secondary [aspect-ratio:9/16]"
+          style={{ containerType: "inline-size" }}
+        >
           <div
             className="absolute left-0 top-0 origin-top-left"
             style={{
               width: STORY_WIDTH,
               height: STORY_HEIGHT,
-              transform: "scale(var(--story-scale))",
-              // escala responsiva: largura do contêiner / 1080
-              ["--story-scale" as string]: "calc(100cqw / 1080)",
-              containerType: "inline-size",
+              transform: "scale(calc(100cqw / 1080))",
             }}
           >
             {art}
