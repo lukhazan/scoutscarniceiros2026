@@ -14,6 +14,99 @@ export type Database = {
   }
   public: {
     Tables: {
+      art_templates: {
+        Row: {
+          category: string
+          created_at: string
+          default_background_url: string | null
+          fields: Json
+          id: string
+          name: string
+          preview_url: string | null
+          slug: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          default_background_url?: string | null
+          fields?: Json
+          id?: string
+          name: string
+          preview_url?: string | null
+          slug: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          default_background_url?: string | null
+          fields?: Json
+          id?: string
+          name?: string
+          preview_url?: string | null
+          slug?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      brand_identity: {
+        Row: {
+          accent_color: string
+          created_at: string
+          crest_black_url: string | null
+          crest_url: string | null
+          crest_white_url: string | null
+          font_primary: string
+          font_secondary: string
+          footer_logo_url: string | null
+          id: string
+          primary_color: string
+          secondary_color: string
+          sponsors: Json
+          team_name: string
+          updated_at: string
+          watermark_url: string | null
+        }
+        Insert: {
+          accent_color?: string
+          created_at?: string
+          crest_black_url?: string | null
+          crest_url?: string | null
+          crest_white_url?: string | null
+          font_primary?: string
+          font_secondary?: string
+          footer_logo_url?: string | null
+          id?: string
+          primary_color?: string
+          secondary_color?: string
+          sponsors?: Json
+          team_name?: string
+          updated_at?: string
+          watermark_url?: string | null
+        }
+        Update: {
+          accent_color?: string
+          created_at?: string
+          crest_black_url?: string | null
+          crest_url?: string | null
+          crest_white_url?: string | null
+          font_primary?: string
+          font_secondary?: string
+          footer_logo_url?: string | null
+          id?: string
+          primary_color?: string
+          secondary_color?: string
+          sponsors?: Json
+          team_name?: string
+          updated_at?: string
+          watermark_url?: string | null
+        }
+        Relationships: []
+      }
       match_requests: {
         Row: {
           contact_name: string
@@ -138,6 +231,36 @@ export type Database = {
           notes?: string | null
           opponent?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      media_assets: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          name: string
+          storage_path: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          name: string
+          storage_path?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          name?: string
+          storage_path?: string | null
+          updated_at?: string
+          url?: string
         }
         Relationships: []
       }
