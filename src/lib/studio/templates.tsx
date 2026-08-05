@@ -2,7 +2,13 @@ import type { ComponentType } from "react";
 import type { BrandIdentity } from "@/lib/studio-data";
 
 /** Campos que um template pode pedir ao administrador. */
-export type StudioField = "player" | "goals" | "title" | "subtitle" | "background";
+export type StudioField =
+  | "player"
+  | "goals"
+  | "title"
+  | "subtitle"
+  | "background"
+  | "playerPhoto";
 
 export type ArtData = {
   playerId: string | null;
@@ -10,6 +16,7 @@ export type ArtData = {
   title: string;
   subtitle: string;
   backgroundUrl: string | null;
+  playerPhotoUrl: string | null;
 };
 
 export type ArtPlayer = {
@@ -186,8 +193,9 @@ function StoryFrame({
   );
 }
 
-/** Foto do atleta com enquadramento automático (sem distorção, centralizada). */
-function PlayerFigure({ player }: { player: ArtPlayer | null }) {
+/** Foto enviada pelo admin, com enquadramento automático (sem distorção). */
+function PlayerFigure({ photoUrl }: { photoUrl: string | null }) {
+  if (!photoUrl) return null;
   return (
     <div
       style={{
@@ -201,36 +209,18 @@ function PlayerFigure({ player }: { player: ArtPlayer | null }) {
         justifyContent: "center",
       }}
     >
-      {player?.photo_url ? (
-        <img
-          src={player.photo_url}
-          alt=""
-          style={{
-            maxWidth: 900,
-            maxHeight: 980,
-            width: "auto",
-            height: "auto",
-            objectFit: "contain",
-            filter: "drop-shadow(0 40px 60px rgba(0,0,0,0.55))",
-          }}
-        />
-      ) : (
-        <div
-          style={{
-            width: 560,
-            height: 560,
-            borderRadius: 9999,
-            background: "rgba(255,255,255,0.08)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 160,
-            fontWeight: 800,
-          }}
-        >
-          {artPlayerName(player).slice(0, 1)}
-        </div>
-      )}
+      <img
+        src={photoUrl}
+        alt=""
+        style={{
+          maxWidth: 900,
+          maxHeight: 980,
+          width: "auto",
+          height: "auto",
+          objectFit: "contain",
+          filter: "drop-shadow(0 40px 60px rgba(0,0,0,0.55))",
+        }}
+      />
     </div>
   );
 }
@@ -266,7 +256,7 @@ function BaseArt(props: TemplateRenderProps & { headline: string }) {
   const c = brandColors(brand);
   return (
     <StoryFrame {...props} backgroundUrl={data.backgroundUrl}>
-      <PlayerFigure player={player} />
+      <PlayerFigure photoUrl={data.playerPhotoUrl} />
       <div
         style={{
           position: "absolute",
@@ -315,7 +305,7 @@ export const STUDIO_TEMPLATES: StudioTemplate[] = [
     name: "Gol",
     emoji: "⚽",
     category: "partida",
-    fields: ["player", "goals", "title", "subtitle", "background"],
+    fields: ["player", "goals", "title", "subtitle", "background", "playerPhoto"],
     autoTitle: (data) => goalsHeadline(data.goals),
     defaults: { goals: 1, subtitle: "" },
     Render: (props) => <BaseArt {...props} headline={props.data.title} />,
@@ -325,7 +315,7 @@ export const STUDIO_TEMPLATES: StudioTemplate[] = [
     name: "Craque da Partida",
     emoji: "⭐",
     category: "partida",
-    fields: ["player", "subtitle", "background"],
+    fields: ["player", "subtitle", "background", "playerPhoto"],
     autoTitle: () => "CRAQUE DA PARTIDA",
     defaults: { subtitle: "" },
     Render: (props) => <BaseArt {...props} headline="CRAQUE DA PARTIDA" />,
