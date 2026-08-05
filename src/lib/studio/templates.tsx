@@ -1,5 +1,9 @@
 import type { ComponentType } from "react";
 import type { BrandIdentity } from "@/lib/studio-data";
+import { STORY_HEIGHT, STORY_WIDTH } from "@/lib/studio/constants";
+import { DEFAULT_PLAYER_SCALE, PlayerFrame } from "@/lib/studio/PlayerFrame";
+
+export { STORY_HEIGHT, STORY_WIDTH };
 
 /** Campos que um template pode pedir ao administrador. */
 export type StudioField =
@@ -17,7 +21,9 @@ export type ArtData = {
   subtitle: string;
   backgroundUrl: string | null;
   playerPhotoUrl: string | null;
+  playerScale: number;
 };
+
 
 export type ArtPlayer = {
   id: string;
@@ -46,8 +52,6 @@ export type StudioTemplate = {
   Render: ComponentType<TemplateRenderProps>;
 };
 
-export const STORY_WIDTH = 1080;
-export const STORY_HEIGHT = 1920;
 
 export function goalsHeadline(goals: number) {
   if (goals <= 1) return "GOL";
@@ -194,36 +198,16 @@ function StoryFrame({
 }
 
 /** Foto enviada pelo admin, com enquadramento automático (sem distorção). */
-function PlayerFigure({ photoUrl }: { photoUrl: string | null }) {
-  if (!photoUrl) return null;
-  return (
-    <div
-      style={{
-        position: "absolute",
-        left: 0,
-        right: 0,
-        top: 300,
-        height: 980,
-        display: "flex",
-        alignItems: "flex-end",
-        justifyContent: "center",
-      }}
-    >
-      <img
-        src={photoUrl}
-        alt=""
-        style={{
-          maxWidth: 900,
-          maxHeight: 980,
-          width: "auto",
-          height: "auto",
-          objectFit: "contain",
-          filter: "drop-shadow(0 40px 60px rgba(0,0,0,0.55))",
-        }}
-      />
-    </div>
-  );
+function PlayerFigure({
+  photoUrl,
+  scale,
+}: {
+  photoUrl: string | null;
+  scale?: number;
+}) {
+  return <PlayerFrame photoUrl={photoUrl} scale={scale} />;
 }
+
 
 function Headline({
   text,
@@ -256,7 +240,11 @@ function BaseArt(props: TemplateRenderProps & { headline: string }) {
   const c = brandColors(brand);
   return (
     <StoryFrame {...props} backgroundUrl={data.backgroundUrl}>
-      <PlayerFigure photoUrl={data.playerPhotoUrl} />
+      <PlayerFigure
+        photoUrl={data.playerPhotoUrl}
+        scale={data.playerScale ?? DEFAULT_PLAYER_SCALE}
+      />
+
       <div
         style={{
           position: "absolute",

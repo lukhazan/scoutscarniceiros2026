@@ -14,7 +14,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MediaPicker } from "@/components/studio/MediaPicker";
+import { Slider } from "@/components/ui/slider";
+import { DEFAULT_PLAYER_SCALE, PLAYER_SCALES } from "@/lib/studio/PlayerFrame";
 import { saveFile } from "@/lib/download-file";
+
 import { displayName, playersQueryOptions } from "@/lib/team-data";
 import { brandIdentityQueryOptions } from "@/lib/studio-data";
 import {
@@ -50,7 +53,9 @@ export function ArtStudioPanel() {
     subtitle: "",
     backgroundUrl: null,
     playerPhotoUrl: null,
+    playerScale: DEFAULT_PLAYER_SCALE,
   });
+
 
   const previewBoxRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.25);
@@ -223,10 +228,38 @@ export function ArtStudioPanel() {
               onChange={(v) => set({ playerPhotoUrl: v })}
             />
           </div>
-          <p className="text-xs text-muted-foreground">
+          {data.playerPhotoUrl ? (
+            <div className="mt-4 space-y-1.5">
+              <div className="flex items-baseline justify-between gap-2">
+                <Label className="text-xs font-semibold uppercase tracking-wide">
+                  Escala do atleta
+                </Label>
+                <span className="text-[11px] text-muted-foreground">
+                  {(data.playerScale ?? DEFAULT_PLAYER_SCALE).toFixed(2)}x
+                </span>
+              </div>
+              <Slider
+                min={0}
+                max={PLAYER_SCALES.length - 1}
+                step={1}
+                value={[
+                  Math.max(
+                    0,
+                    PLAYER_SCALES.indexOf(
+                      (data.playerScale ?? DEFAULT_PLAYER_SCALE) as never,
+                    ),
+                  ),
+                ]}
+                onValueChange={([i]) => set({ playerScale: PLAYER_SCALES[i] })}
+              />
+            </div>
+          ) : null}
+          <p className="mt-4 text-xs text-muted-foreground">
             Envie a foto do atleta (PNG sem fundo fica melhor). O enquadramento é
-            automático e sem distorção. Sem foto, a arte fica apenas com o fundo.
+            automático, centralizado e sem distorção. Sem foto, a arte fica apenas
+            com o fundo.
           </p>
+
         </Block>
 
         <Block title="Aparência">
