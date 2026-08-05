@@ -52,8 +52,6 @@ export type StudioTemplate = {
   Render: ComponentType<TemplateRenderProps>;
 };
 
-export const STORY_WIDTH = 1080;
-export const STORY_HEIGHT = 1920;
 
 export function goalsHeadline(goals: number) {
   if (goals <= 1) return "GOL";
