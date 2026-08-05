@@ -49,7 +49,21 @@ export function ArtStudioPanel() {
     title: "GOL",
     subtitle: "",
     backgroundUrl: null,
+    playerPhotoUrl: null,
   });
+
+  const previewBoxRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.25);
+
+  useEffect(() => {
+    const el = previewBoxRef.current;
+    if (!el) return;
+    const update = () => setScale(el.clientWidth / STORY_WIDTH);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   const template = getTemplate(slug);
   const set = (patch: Partial<ArtData>) => setData((prev) => ({ ...prev, ...patch }));
@@ -201,9 +215,17 @@ export function ArtStudioPanel() {
             value={data.backgroundUrl}
             onChange={(v) => set({ backgroundUrl: v })}
           />
+          <div className="mt-4">
+            <MediaPicker
+              label="Foto do atleta"
+              category="foto"
+              value={data.playerPhotoUrl}
+              onChange={(v) => set({ playerPhotoUrl: v })}
+            />
+          </div>
           <p className="text-xs text-muted-foreground">
-            A foto do atleta é carregada automaticamente do elenco, com enquadramento
-            automático e sem distorção.
+            Envie a foto do atleta (PNG sem fundo fica melhor). O enquadramento é
+            automático e sem distorção. Sem foto, a arte fica apenas com o fundo.
           </p>
         </Block>
 
@@ -231,18 +253,18 @@ export function ArtStudioPanel() {
           Pré-visualização
         </p>
         <div
+          ref={previewBoxRef}
           className="relative w-full overflow-hidden rounded-xl border border-border/60 bg-secondary [aspect-ratio:9/16]"
-          style={{ containerType: "inline-size" }}
         >
           <div
             className="absolute left-0 top-0 origin-top-left"
             style={{
               width: STORY_WIDTH,
               height: STORY_HEIGHT,
-              transform: "scale(calc(100cqw / 1080))",
+              transform: `scale(${scale})`,
             }}
           >
-            {art}
+            <Render data={data} brand={brand} player={player} />
           </div>
         </div>
       </div>
