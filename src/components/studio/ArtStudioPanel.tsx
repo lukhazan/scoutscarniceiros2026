@@ -14,7 +14,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MediaPicker } from "@/components/studio/MediaPicker";
+import { Slider } from "@/components/ui/slider";
+import { DEFAULT_PLAYER_SCALE, PLAYER_SCALES } from "@/lib/studio/PlayerFrame";
 import { saveFile } from "@/lib/download-file";
+
 import { displayName, playersQueryOptions } from "@/lib/team-data";
 import { brandIdentityQueryOptions } from "@/lib/studio-data";
 import {
