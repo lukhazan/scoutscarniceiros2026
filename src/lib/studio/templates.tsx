@@ -1,5 +1,9 @@
 import type { ComponentType } from "react";
 import type { BrandIdentity } from "@/lib/studio-data";
+import { STORY_HEIGHT, STORY_WIDTH } from "@/lib/studio/constants";
+import { DEFAULT_PLAYER_SCALE, PlayerFrame } from "@/lib/studio/PlayerFrame";
+
+export { STORY_HEIGHT, STORY_WIDTH };
 
 /** Campos que um template pode pedir ao administrador. */
 export type StudioField =
@@ -17,7 +21,9 @@ export type ArtData = {
   subtitle: string;
   backgroundUrl: string | null;
   playerPhotoUrl: string | null;
+  playerScale: number;
 };
+
 
 export type ArtPlayer = {
   id: string;
