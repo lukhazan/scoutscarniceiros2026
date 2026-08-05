@@ -50,7 +50,9 @@ export function ArtStudioPanel() {
     subtitle: "",
     backgroundUrl: null,
     playerPhotoUrl: null,
+    playerScale: DEFAULT_PLAYER_SCALE,
   });
+
 
   const previewBoxRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.25);
