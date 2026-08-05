@@ -198,36 +198,16 @@ function StoryFrame({
 }
 
 /** Foto enviada pelo admin, com enquadramento automático (sem distorção). */
-function PlayerFigure({ photoUrl }: { photoUrl: string | null }) {
-  if (!photoUrl) return null;
-  return (
-    <div
-      style={{
-        position: "absolute",
-        left: 0,
-        right: 0,
-        top: 300,
-        height: 980,
-        display: "flex",
-        alignItems: "flex-end",
-        justifyContent: "center",
-      }}
-    >
-      <img
-        src={photoUrl}
-        alt=""
-        style={{
-          maxWidth: 900,
-          maxHeight: 980,
-          width: "auto",
-          height: "auto",
-          objectFit: "contain",
-          filter: "drop-shadow(0 40px 60px rgba(0,0,0,0.55))",
-        }}
-      />
-    </div>
-  );
+function PlayerFigure({
+  photoUrl,
+  scale,
+}: {
+  photoUrl: string | null;
+  scale?: number;
+}) {
+  return <PlayerFrame photoUrl={photoUrl} scale={scale} />;
 }
+
 
 function Headline({
   text,
