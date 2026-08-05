@@ -240,7 +240,11 @@ function BaseArt(props: TemplateRenderProps & { headline: string }) {
   const c = brandColors(brand);
   return (
     <StoryFrame {...props} backgroundUrl={data.backgroundUrl}>
-      <PlayerFigure photoUrl={data.playerPhotoUrl} />
+      <PlayerFigure
+        photoUrl={data.playerPhotoUrl}
+        scale={data.playerScale ?? DEFAULT_PLAYER_SCALE}
+      />
+
       <div
         style={{
           position: "absolute",
