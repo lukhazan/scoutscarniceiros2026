@@ -15,11 +15,11 @@ export type TemplateZones = {
 
 /** Zonas padrão (referência visual do briefing). */
 export const DEFAULT_ZONES: TemplateZones = {
-  photoArea: { x: 160, y: 250, width: 760, height: 980 },
-  nameArea: { x: 90, y: 1330, width: 900, height: 80 },
-  titleArea: { x: 90, y: 1430, width: 900, height: 160 },
-  subtitleArea: { x: 90, y: 1600, width: 900, height: 60 },
-  sponsorArea: { x: 90, y: 1700, width: 900, height: 120 },
+  photoArea: { x: 150, y: 260, width: 780, height: 1020 },
+  nameArea: { x: 90, y: 1310, width: 400, height: 70 },
+  titleArea: { x: 90, y: 1410, width: 900, height: 230 },
+  subtitleArea: { x: 90, y: 1660, width: 900, height: 60 },
+  sponsorArea: { x: 90, y: 1750, width: 900, height: 110 },
   crestArea: { x: 64, y: 64, width: 150, height: 150 },
   logoArea: { x: 640, y: 84, width: 376, height: 60 },
 };
