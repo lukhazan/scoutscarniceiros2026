@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 import type { BrandIdentity } from "@/lib/studio-data";
 import { STORY_HEIGHT, STORY_WIDTH } from "@/lib/studio/constants";
 import { DEFAULT_PLAYER_SCALE, PlayerFrame } from "@/lib/studio/PlayerFrame";
+import { FitText } from "@/lib/studio/FitText";
 import { DEFAULT_ZONES, zoneStyle, type TemplateZones } from "@/lib/studio/zones";
 
 export { STORY_HEIGHT, STORY_WIDTH };
