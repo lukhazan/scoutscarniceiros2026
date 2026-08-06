@@ -28,9 +28,6 @@ export function PlayerFrame({
     <div
       style={{
         ...zoneStyle(zone),
-        display: "flex",
-        alignItems: "flex-end",
-        justifyContent: "center",
         overflow: "hidden",
       }}
     >
@@ -38,10 +35,14 @@ export function PlayerFrame({
         src={photoUrl}
         alt=""
         style={{
+          position: "absolute",
+          left: "50%",
+          bottom: 0,
           width: zone.width * scale,
           height: zone.height * scale,
-          objectFit: "contain",
-          objectPosition: "bottom center",
+          transform: "translateX(-50%)",
+          objectFit: "cover",
+          objectPosition: "center top",
           filter: "drop-shadow(0 40px 60px rgba(0,0,0,0.55))",
         }}
       />
