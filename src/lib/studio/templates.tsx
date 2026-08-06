@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 import type { BrandIdentity } from "@/lib/studio-data";
 import { STORY_HEIGHT, STORY_WIDTH } from "@/lib/studio/constants";
 import { DEFAULT_PLAYER_SCALE, PlayerFrame } from "@/lib/studio/PlayerFrame";
+import { DEFAULT_ZONES, zoneStyle, type TemplateZones } from "@/lib/studio/zones";
 
 export { STORY_HEIGHT, STORY_WIDTH };
 
@@ -46,6 +47,8 @@ export type StudioTemplate = {
   emoji: string;
   category: string;
   fields: StudioField[];
+  /** Zonas (safe areas) configuráveis do template. */
+  zones: TemplateZones;
   /** Título automático calculado a partir dos dados (editável pelo admin). */
   autoTitle: (data: ArtData) => string;
   defaults: Partial<ArtData>;
@@ -74,12 +77,17 @@ function brandColors(brand: BrandIdentity | null) {
   };
 }
 
-/** Moldura comum a todos os templates: fundo, escudo, marca d'água, patrocinadores. */
+/** Moldura comum: fundo em resolução original, escudo, marca d'água, patrocinadores. */
 function StoryFrame({
   brand,
   backgroundUrl,
+  zones,
   children,
-}: TemplateRenderProps & { backgroundUrl: string | null; children: React.ReactNode }) {
+}: TemplateRenderProps & {
+  backgroundUrl: string | null;
+  zones: TemplateZones;
+  children: React.ReactNode;
+}) {
   const c = brandColors(brand);
   const crest = brand?.crest_white_url || brand?.crest_url || "/team-logo.png";
   return (
@@ -100,10 +108,11 @@ function StoryFrame({
           alt=""
           style={{
             position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
+            left: 0,
+            top: 0,
+            width: STORY_WIDTH,
+            height: STORY_HEIGHT,
+            objectFit: "contain",
             objectPosition: "center",
           }}
         />
@@ -134,20 +143,14 @@ function StoryFrame({
       <img
         src={crest}
         alt=""
-        style={{
-          position: "absolute",
-          top: 64,
-          left: 64,
-          width: 150,
-          height: 150,
-          objectFit: "contain",
-        }}
+        style={{ ...zoneStyle(zones.crestArea), objectFit: "contain" }}
       />
       <div
         style={{
-          position: "absolute",
-          top: 96,
-          right: 64,
+          ...zoneStyle(zones.logoArea),
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-end",
           textAlign: "right",
           fontSize: 34,
           letterSpacing: 6,
@@ -163,10 +166,7 @@ function StoryFrame({
 
       <div
         style={{
-          position: "absolute",
-          left: 64,
-          right: 64,
-          bottom: 56,
+          ...zoneStyle(zones.sponsorArea),
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -177,10 +177,10 @@ function StoryFrame({
           <img
             src={brand.footer_logo_url}
             alt=""
-            style={{ height: 74, objectFit: "contain" }}
+            style={{ maxHeight: zones.sponsorArea.height * 0.7, objectFit: "contain" }}
           />
         ) : (
-          <span style={{ height: 74 }} />
+          <span />
         )}
         <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
           {(brand?.sponsors ?? []).slice(0, 4).map((src, i) => (
@@ -188,7 +188,7 @@ function StoryFrame({
               key={i}
               src={src}
               alt=""
-              style={{ height: 62, objectFit: "contain" }}
+              style={{ maxHeight: zones.sponsorArea.height * 0.6, objectFit: "contain" }}
             />
           ))}
         </div>
@@ -197,63 +197,27 @@ function StoryFrame({
   );
 }
 
-/** Foto enviada pelo admin, com enquadramento automático (sem distorção). */
-function PlayerFigure({
-  photoUrl,
-  scale,
-}: {
-  photoUrl: string | null;
-  scale?: number;
-}) {
-  return <PlayerFrame photoUrl={photoUrl} scale={scale} />;
-}
-
-
-function Headline({
-  text,
-  color,
-  font,
-}: {
-  text: string;
-  color: string;
-  font: string;
-}) {
-  return (
-    <div
-      style={{
-        fontFamily: font,
-        fontSize: text.length > 12 ? 118 : 156,
-        lineHeight: 0.92,
-        fontWeight: 900,
-        letterSpacing: -2,
-        textTransform: "uppercase",
-        color,
-      }}
-    >
-      {text}
-    </div>
-  );
-}
-
-function BaseArt(props: TemplateRenderProps & { headline: string }) {
-  const { data, brand, player, headline } = props;
+function BaseArt(
+  props: TemplateRenderProps & { headline: string; zones: TemplateZones },
+) {
+  const { data, brand, player, headline, zones } = props;
   const c = brandColors(brand);
   return (
-    <StoryFrame {...props} backgroundUrl={data.backgroundUrl}>
-      <PlayerFigure
+    <StoryFrame {...props} backgroundUrl={data.backgroundUrl} zones={zones}>
+      <PlayerFrame
         photoUrl={data.playerPhotoUrl}
         scale={data.playerScale ?? DEFAULT_PLAYER_SCALE}
+        zone={zones.photoArea}
       />
 
       <div
         style={{
-          position: "absolute",
-          left: 64,
-          right: 64,
-          bottom: 220,
+          ...zoneStyle(zones.nameArea),
+          display: "flex",
+          alignItems: "flex-end",
         }}
       >
-        <div
+        <span
           style={{
             display: "inline-block",
             padding: "10px 26px",
@@ -263,26 +227,50 @@ function BaseArt(props: TemplateRenderProps & { headline: string }) {
             fontWeight: 800,
             letterSpacing: 8,
             textTransform: "uppercase",
-            marginBottom: 24,
           }}
         >
           {artPlayerName(player)}
-        </div>
-        <Headline text={headline} color={c.accent} font={c.fontPrimary} />
-        {data.subtitle ? (
-          <div
-            style={{
-              marginTop: 22,
-              fontSize: 42,
-              fontWeight: 600,
-              opacity: 0.92,
-              maxWidth: 900,
-            }}
-          >
-            {data.subtitle}
-          </div>
-        ) : null}
+        </span>
       </div>
+
+      <div
+        style={{
+          ...zoneStyle(zones.titleArea),
+          display: "flex",
+          alignItems: "center",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            fontFamily: c.fontPrimary,
+            fontSize: headline.length > 12 ? 118 : 156,
+            lineHeight: 0.92,
+            fontWeight: 900,
+            letterSpacing: -2,
+            textTransform: "uppercase",
+            color: c.accent,
+          }}
+        >
+          {headline}
+        </div>
+      </div>
+
+      {data.subtitle ? (
+        <div
+          style={{
+            ...zoneStyle(zones.subtitleArea),
+            display: "flex",
+            alignItems: "center",
+            fontSize: 42,
+            fontWeight: 600,
+            opacity: 0.92,
+            overflow: "hidden",
+          }}
+        >
+          {data.subtitle}
+        </div>
+      ) : null}
     </StoryFrame>
   );
 }
@@ -294,9 +282,12 @@ export const STUDIO_TEMPLATES: StudioTemplate[] = [
     emoji: "⚽",
     category: "partida",
     fields: ["player", "goals", "title", "subtitle", "background", "playerPhoto"],
+    zones: DEFAULT_ZONES,
     autoTitle: (data) => goalsHeadline(data.goals),
     defaults: { goals: 1, subtitle: "" },
-    Render: (props) => <BaseArt {...props} headline={props.data.title} />,
+    Render: (props) => (
+      <BaseArt {...props} headline={props.data.title} zones={DEFAULT_ZONES} />
+    ),
   },
   {
     slug: "craque",
@@ -304,9 +295,12 @@ export const STUDIO_TEMPLATES: StudioTemplate[] = [
     emoji: "⭐",
     category: "partida",
     fields: ["player", "subtitle", "background", "playerPhoto"],
+    zones: DEFAULT_ZONES,
     autoTitle: () => "CRAQUE DA PARTIDA",
     defaults: { subtitle: "" },
-    Render: (props) => <BaseArt {...props} headline="CRAQUE DA PARTIDA" />,
+    Render: (props) => (
+      <BaseArt {...props} headline="CRAQUE DA PARTIDA" zones={DEFAULT_ZONES} />
+    ),
   },
 ];
 
