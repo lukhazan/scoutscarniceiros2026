@@ -215,61 +215,56 @@ function BaseArt(
           ...zoneStyle(zones.nameArea),
           display: "flex",
           alignItems: "flex-end",
-        }}
-      >
-        <span
-          style={{
-            display: "inline-block",
-            padding: "10px 26px",
-            background: c.primary,
-            color: c.accent,
-            fontSize: 34,
-            fontWeight: 800,
-            letterSpacing: 8,
-            textTransform: "uppercase",
-          }}
-        >
-          {artPlayerName(player)}
-        </span>
-      </div>
-
-      <div
-        style={{
-          ...zoneStyle(zones.titleArea),
-          display: "flex",
-          alignItems: "center",
           overflow: "hidden",
         }}
       >
-        <div
+        <FitText
+          text={artPlayerName(player)}
+          zone={{ ...zones.nameArea, x: 0, y: 0 }}
+          maxFontSize={34}
+          maxLines={1}
+          charRatio={0.72}
           style={{
-            fontFamily: c.fontPrimary,
-            fontSize: headline.length > 12 ? 118 : 156,
-            lineHeight: 0.92,
-            fontWeight: 900,
-            letterSpacing: -2,
-            textTransform: "uppercase",
+            position: "relative",
+            padding: "10px 26px",
+            background: c.primary,
             color: c.accent,
+            fontWeight: 800,
+            letterSpacing: 8,
+            textTransform: "uppercase",
+            width: "auto",
+            height: "auto",
           }}
-        >
-          {headline}
-        </div>
+        />
       </div>
 
+      <FitText
+        text={headline}
+        zone={zones.titleArea}
+        maxFontSize={156}
+        charRatio={0.54}
+        lineHeight={0.94}
+        maxLines={2}
+        align="center"
+        style={{
+          fontFamily: c.fontPrimary,
+          fontWeight: 900,
+          letterSpacing: -2,
+          textTransform: "uppercase",
+          color: c.accent,
+        }}
+      />
+
       {data.subtitle ? (
-        <div
-          style={{
-            ...zoneStyle(zones.subtitleArea),
-            display: "flex",
-            alignItems: "center",
-            fontSize: 42,
-            fontWeight: 600,
-            opacity: 0.92,
-            overflow: "hidden",
-          }}
-        >
-          {data.subtitle}
-        </div>
+        <FitText
+          text={data.subtitle}
+          zone={zones.subtitleArea}
+          maxFontSize={42}
+          charRatio={0.52}
+          maxLines={1}
+          align="center"
+          style={{ fontWeight: 600, opacity: 0.92 }}
+        />
       ) : null}
     </StoryFrame>
   );
