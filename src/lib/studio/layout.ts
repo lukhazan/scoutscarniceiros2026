@@ -79,7 +79,7 @@ export const BASE_LAYOUT: TemplateLayout = {
   text: {
     teamName: {
       maxFontSize: 34,
-      charRatio: 0.72,
+      charRatio: 0.95,
       maxLines: 1,
       align: "flex-end",
       weight: 700,
