@@ -140,3 +140,8 @@ export async function saveMediaAsset(input: {
   const { error } = await supabase.from("media_assets").insert(input);
   if (error) throw error;
 }
+
+export async function deleteMediaAsset(id: string) {
+  const { error } = await supabase.from("media_assets").delete().eq("id", id);
+  if (error) throw error;
+}
