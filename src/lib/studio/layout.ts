@@ -148,10 +148,15 @@ export const BASE_LAYOUT: TemplateLayout = {
 
 /** Cria um layout novo a partir do base, sobrescrevendo apenas o necessário. */
 export function makeLayout(patch: Partial<TemplateLayout> = {}): TemplateLayout {
+  const areas = { ...BASE_LAYOUT.areas, ...(patch.areas ?? {}) };
+  const safeAreas = Object.fromEntries(
+    Object.entries(areas).map(([k, v]) => [k, clampToSafeArea(v)]),
+  ) as TemplateLayout["areas"];
   return {
     ...BASE_LAYOUT,
     ...patch,
-    areas: { ...BASE_LAYOUT.areas, ...(patch.areas ?? {}) },
+    areas: safeAreas,
     text: { ...BASE_LAYOUT.text, ...(patch.text ?? {}) },
+
   };
 }
