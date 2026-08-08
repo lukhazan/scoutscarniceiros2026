@@ -1,6 +1,7 @@
 import { memo } from "react";
 import type { BrandIdentity } from "@/lib/studio-data";
 import { FitText } from "@/lib/studio/FitText";
+import { StudioCanvas } from "@/lib/studio/Canvas";
 import { PlayerFrame } from "@/lib/studio/PlayerFrame";
 import {
   STORY_HEIGHT,
@@ -43,11 +44,36 @@ const BackgroundLayer = memo(function BackgroundLayer({ url }: { url: string | n
         top: 0,
         width: STORY_WIDTH,
         height: STORY_HEIGHT,
-        objectFit: "fill",
+        objectFit: "contain",
+        objectPosition: "center",
       }}
     />
   );
 });
+
+const GraphicsLayer = memo(function GraphicsLayer({ urls }: { urls: string[] }) {
+  if (!urls.length) return null;
+  return (
+    <>
+      {urls.map((src, i) => (
+        <img
+          key={i}
+          src={src}
+          alt=""
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: STORY_WIDTH,
+            height: STORY_HEIGHT,
+            objectFit: "contain",
+          }}
+        />
+      ))}
+    </>
+  );
+});
+
 
 const OverlayLayer = memo(function OverlayLayer({
   color,
@@ -231,6 +257,8 @@ export function TemplateRenderer({
     switch (id) {
       case "background":
         return <BackgroundLayer key={id} url={data.backgroundUrl} />;
+      case "graphics":
+        return <GraphicsLayer key={id} urls={layout.graphics ?? []} />;
       case "overlay":
         return (
           <OverlayLayer key={id} color={c.secondary} strength={layout.overlayStrength ?? 1} />
@@ -326,19 +354,18 @@ export function TemplateRenderer({
     : null;
 
   return (
-    <div
-      style={{
-        position: "relative",
-        width: STORY_WIDTH,
-        height: STORY_HEIGHT,
-        overflow: "hidden",
-        background: c.secondary,
-        fontFamily: c.fontSecondary,
-        color: c.accent,
-      }}
-    >
-      {layout.layers.map(node)}
-      {hotspots}
-    </div>
+    <StudioCanvas background={c.secondary}>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          fontFamily: c.fontSecondary,
+          color: c.accent,
+        }}
+      >
+        {layout.layers.map(node)}
+        {hotspots}
+      </div>
+    </StudioCanvas>
   );
 }
