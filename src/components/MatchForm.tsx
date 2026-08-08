@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -68,7 +68,7 @@ export function MatchForm({ match }: { match?: Match }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: players, isLoading } = useQuery(playersQueryOptions);
-  const { data: existing } = useQuery({
+  const { data: existing, isLoading: loadingStats } = useQuery({
     ...matchStatsQueryOptions(match?.id ?? ""),
     enabled: !!match?.id,
   });
@@ -78,27 +78,33 @@ export function MatchForm({ match }: { match?: Match }) {
   const [search, setSearch] = useState("");
   const [rows, setRows] = useState<Record<string, Row>>({});
   const [saving, setSaving] = useState(false);
+  const hydrated = useRef(false);
 
+  // Só monta as linhas quando os dados salvos do jogo já chegaram,
+  // para nunca sobrescrever estatísticas existentes com zeros.
   useEffect(() => {
     if (!players) return;
+    if (match?.id && !existing) return;
     setRows((current) => {
       const next: Record<string, Row> = {};
       for (const player of players) {
         const saved = existing?.find((s) => s.player_id === player.id);
-        next[player.id] =
-          current[player.id] ??
-          (saved
+        next[player.id] = hydrated.current
+          ? (current[player.id] ?? EMPTY_ROW)
+          : saved
             ? {
                 played: saved.played,
                 goals: saved.goals,
                 assists: saved.assists,
                 goals_conceded: saved.goals_conceded ?? 0,
               }
-            : EMPTY_ROW);
+            : (current[player.id] ?? EMPTY_ROW);
       }
       return next;
     });
-  }, [players, existing]);
+    hydrated.current = true;
+  }, [players, existing, match?.id]);
+
 
   const visible = useMemo(() => {
     const list = (players ?? []).filter((p) => p.active || rows[p.id]?.played);
@@ -253,7 +259,7 @@ export function MatchForm({ match }: { match?: Match }) {
       </div>
 
 
-      {isLoading ? (
+      {isLoading || loadingStats ? (
         <p className="py-8 text-center text-sm text-muted-foreground">Carregando elenco…</p>
       ) : visible.length === 0 ? (
         <p className="py-8 text-center text-sm text-muted-foreground">
