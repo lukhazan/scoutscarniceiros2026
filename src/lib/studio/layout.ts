@@ -66,9 +66,11 @@ export type TextLayerConfig = {
  */
 export type TemplateLayout = {
   resolution: { width: number; height: number };
-  areas: Record<Exclude<LayerId, "background" | "overlay">, Zone>;
+  areas: Record<Exclude<LayerId, "background" | "overlay" | "graphics">, Zone>;
   /** camadas ativas, na ordem de empilhamento */
   layers: LayerId[];
+  /** elementos gráficos fixos do template (molduras, linhas, texturas) */
+  graphics?: string[];
   text: Record<"teamName" | "playerName" | "title" | "subtitle", TextLayerConfig>;
   /** intensidade do gradiente de leitura sobre o fundo (0 desliga) */
   overlayStrength?: number;
@@ -80,6 +82,7 @@ export const BASE_LAYOUT: TemplateLayout = {
   resolution: FULL,
   layers: [
     "background",
+    "graphics",
     "overlay",
     "watermark",
     "photo",
@@ -91,15 +94,16 @@ export const BASE_LAYOUT: TemplateLayout = {
     "sponsors",
   ],
   areas: {
-    watermark: { x: 160, y: 580, width: 760, height: 760 },
-    crest: { x: 64, y: 64, width: 150, height: 150 },
-    teamName: { x: 640, y: 84, width: 376, height: 60 },
-    photo: { x: 150, y: 260, width: 780, height: 1020 },
-    playerName: { x: 90, y: 1310, width: 500, height: 70 },
-    title: { x: 90, y: 1410, width: 900, height: 230 },
-    subtitle: { x: 90, y: 1660, width: 900, height: 60 },
-    sponsors: { x: 90, y: 1750, width: 900, height: 110 },
+    watermark: { x: 160, y: 500, width: 760, height: 760 },
+    crest: { x: 60, y: 80, width: 150, height: 150 },
+    teamName: { x: 620, y: 100, width: 400, height: 60 },
+    photo: { x: 150, y: 80, width: 780, height: 1140 },
+    playerName: { x: 60, y: 1240, width: 500, height: 70 },
+    title: { x: 60, y: 1330, width: 960, height: 220 },
+    subtitle: { x: 60, y: 1570, width: 960, height: 60 },
+    sponsors: { x: 60, y: 1660, width: 960, height: 110 },
   },
+
   text: {
     teamName: {
       maxFontSize: 34,
