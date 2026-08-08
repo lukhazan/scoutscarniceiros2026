@@ -43,11 +43,36 @@ const BackgroundLayer = memo(function BackgroundLayer({ url }: { url: string | n
         top: 0,
         width: STORY_WIDTH,
         height: STORY_HEIGHT,
-        objectFit: "fill",
+        objectFit: "contain",
+        objectPosition: "center",
       }}
     />
   );
 });
+
+const GraphicsLayer = memo(function GraphicsLayer({ urls }: { urls: string[] }) {
+  if (!urls.length) return null;
+  return (
+    <>
+      {urls.map((src, i) => (
+        <img
+          key={i}
+          src={src}
+          alt=""
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: STORY_WIDTH,
+            height: STORY_HEIGHT,
+            objectFit: "contain",
+          }}
+        />
+      ))}
+    </>
+  );
+});
+
 
 const OverlayLayer = memo(function OverlayLayer({
   color,
