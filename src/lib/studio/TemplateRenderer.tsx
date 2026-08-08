@@ -1,6 +1,7 @@
 import { memo } from "react";
 import type { BrandIdentity } from "@/lib/studio-data";
 import { FitText } from "@/lib/studio/FitText";
+import { StudioCanvas } from "@/lib/studio/Canvas";
 import { PlayerFrame } from "@/lib/studio/PlayerFrame";
 import {
   STORY_HEIGHT,
@@ -256,6 +257,8 @@ export function TemplateRenderer({
     switch (id) {
       case "background":
         return <BackgroundLayer key={id} url={data.backgroundUrl} />;
+      case "graphics":
+        return <GraphicsLayer key={id} urls={layout.graphics ?? []} />;
       case "overlay":
         return (
           <OverlayLayer key={id} color={c.secondary} strength={layout.overlayStrength ?? 1} />
@@ -351,19 +354,18 @@ export function TemplateRenderer({
     : null;
 
   return (
-    <div
-      style={{
-        position: "relative",
-        width: STORY_WIDTH,
-        height: STORY_HEIGHT,
-        overflow: "hidden",
-        background: c.secondary,
-        fontFamily: c.fontSecondary,
-        color: c.accent,
-      }}
-    >
-      {layout.layers.map(node)}
-      {hotspots}
-    </div>
+    <StudioCanvas background={c.secondary}>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          fontFamily: c.fontSecondary,
+          color: c.accent,
+        }}
+      >
+        {layout.layers.map(node)}
+        {hotspots}
+      </div>
+    </StudioCanvas>
   );
 }
