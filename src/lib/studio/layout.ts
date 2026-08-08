@@ -6,6 +6,7 @@ export { STORY_HEIGHT, STORY_WIDTH };
 /** Identificador de cada camada independente do motor de renderização. */
 export type LayerId =
   | "background"
+  | "graphics"
   | "overlay"
   | "watermark"
   | "crest"
@@ -15,6 +16,29 @@ export type LayerId =
   | "title"
   | "subtitle"
   | "sponsors";
+
+/** Margens internas do canvas fixo 1080x1920. */
+export const SAFE_AREA = { top: 80, bottom: 120, left: 60, right: 60 } as const;
+
+/** Grid invisível apenas para alinhamento (não é renderizado). */
+export const GRID = { columns: 12, rows: 24 } as const;
+
+export const SAFE_BOX = {
+  x: SAFE_AREA.left,
+  y: SAFE_AREA.top,
+  width: STORY_WIDTH - SAFE_AREA.left - SAFE_AREA.right,
+  height: STORY_HEIGHT - SAFE_AREA.top - SAFE_AREA.bottom,
+};
+
+/** Garante que uma zona nunca ultrapasse a área segura. */
+export function clampToSafeArea(zone: Zone): Zone {
+  const width = Math.min(zone.width, SAFE_BOX.width);
+  const height = Math.min(zone.height, SAFE_BOX.height);
+  const x = Math.min(Math.max(zone.x, SAFE_BOX.x), SAFE_BOX.x + SAFE_BOX.width - width);
+  const y = Math.min(Math.max(zone.y, SAFE_BOX.y), SAFE_BOX.y + SAFE_BOX.height - height);
+  return { x, y, width, height };
+}
+
 
 /** Camadas que o usuário pode selecionar e editar no painel de propriedades. */
 export type SelectableLayerId = "photo" | "playerName" | "title" | "subtitle";
