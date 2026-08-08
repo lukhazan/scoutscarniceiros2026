@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toPng } from "html-to-image";
+import { ScaledCanvas } from "@/lib/studio/Canvas";
 import { toast } from "sonner";
 import { Download, ImagePlus, Loader2, Minus, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -114,21 +115,10 @@ export function ArtStudioPanel() {
   const [titleEdited, setTitleEdited] = useState(false);
   const [selected, setSelected] = useState<SelectableLayerId>("photo");
   const [zoom, setZoom] = useState(1);
-  const [fitScale, setFitScale] = useState(0.25);
   const [data, setData] = useState<ArtData>(() => ({
     ...EMPTY_ART_DATA,
     backgroundUrl: readDefaultBackground(),
   }));
-
-  useEffect(() => {
-    const el = previewBoxRef.current;
-    if (!el) return;
-    const update = () => setFitScale(el.clientWidth / STORY_WIDTH);
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
 
   const template = getTemplate(slug);
   const set = (patch: Partial<ArtData>) => setData((prev) => ({ ...prev, ...patch }));
@@ -425,29 +415,17 @@ export function ArtStudioPanel() {
           </div>
         </div>
 
-        <div className="w-full max-w-[420px] overflow-auto">
-          <div
-            ref={previewBoxRef}
-            className="relative w-full overflow-hidden rounded-xl border border-border/60 bg-background [aspect-ratio:9/16]"
-          >
-            <div
-              className="absolute left-0 top-0 origin-top-left transition-transform duration-150"
-              style={{
-                width: STORY_WIDTH,
-                height: STORY_HEIGHT,
-                transform: `scale(${fitScale * zoom})`,
-              }}
-            >
-              <TemplateArt
-                template={template}
-                data={data}
-                brand={brand}
-                player={artPlayer}
-                selected={selected}
-                onSelect={setSelected}
-              />
-            </div>
-          </div>
+        <div className="w-full max-w-[420px]">
+          <ScaledCanvas zoom={zoom}>
+            <TemplateArt
+              template={template}
+              data={data}
+              brand={brand}
+              player={artPlayer}
+              selected={selected}
+              onSelect={setSelected}
+            />
+          </ScaledCanvas>
         </div>
         <p className="text-xs text-muted-foreground">
           Clique em uma área da arte para editar suas propriedades. O zoom é apenas visual.
