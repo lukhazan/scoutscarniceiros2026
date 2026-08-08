@@ -259,7 +259,7 @@ export function MatchForm({ match }: { match?: Match }) {
       </div>
 
 
-      {isLoading ? (
+      {isLoading || loadingStats ? (
         <p className="py-8 text-center text-sm text-muted-foreground">Carregando elenco…</p>
       ) : visible.length === 0 ? (
         <p className="py-8 text-center text-sm text-muted-foreground">
