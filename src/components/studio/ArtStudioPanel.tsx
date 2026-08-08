@@ -106,7 +106,6 @@ export function ArtStudioPanel() {
   const { data: players = [] } = useQuery(playersQueryOptions);
   const { data: brand = null } = useQuery(brandIdentityQueryOptions);
   const exportRef = useRef<HTMLDivElement>(null);
-  const previewBoxRef = useRef<HTMLDivElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
 
   const [exporting, setExporting] = useState(false);
