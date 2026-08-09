@@ -152,6 +152,14 @@ export function MatchForm({ match }: { match?: Match }) {
   }
 
   async function save() {
+    if (
+      mode === "edit" &&
+      (!match || fetchingStats || loadingStats || hydratedMatchId.current !== match.id)
+    ) {
+      toast.error("Aguarde o carregamento completo do jogo antes de salvar.");
+      return;
+    }
+
     const parsed = headerSchema.safeParse({
       match_date: date,
       opponent: opponent.trim() || undefined,
@@ -354,7 +362,16 @@ export function MatchForm({ match }: { match?: Match }) {
       )}
 
       <div className="sticky bottom-0 -mx-4 border-t border-border/70 bg-background/90 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur">
-        <Button className="h-12 w-full text-base" size="lg" onClick={save} disabled={saving}>
+        <Button
+          className="h-12 w-full text-base"
+          size="lg"
+          onClick={save}
+          disabled={
+            saving ||
+            (mode === "edit" &&
+              (fetchingStats || loadingStats || hydratedMatchId.current !== match?.id))
+          }
+        >
           {saving ? "Salvando…" : match ? "Salvar alterações" : "Salvar jogo"}
         </Button>
 
