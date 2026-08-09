@@ -93,6 +93,22 @@ export const matchesQueryOptions = {
   },
 };
 
+export function matchQueryOptions(matchId: string) {
+  return {
+    queryKey: ["matches", matchId],
+    queryFn: async (): Promise<Match> => {
+      const { data, error } = await supabase
+        .from("matches")
+        .select("id, match_date, opponent, notes")
+        .eq("id", matchId)
+        .single();
+      if (error) throw new Error(error.message);
+      return data;
+    },
+    refetchOnMount: "always" as const,
+  };
+}
+
 export function matchStatsQueryOptions(matchId: string) {
   return {
     queryKey: ["match_stats", matchId],
@@ -104,6 +120,7 @@ export function matchStatsQueryOptions(matchId: string) {
       if (error) throw new Error(error.message);
       return data ?? [];
     },
+    refetchOnMount: "always" as const,
   };
 }
 
