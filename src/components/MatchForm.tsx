@@ -65,10 +65,15 @@ function Stepper({
 }
 
 export function MatchForm({ match }: { match?: Match }) {
+  const mode = match ? "edit" : "create";
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: players, isLoading } = useQuery(playersQueryOptions);
-  const { data: existing, isLoading: loadingStats } = useQuery({
+  const {
+    data: existing,
+    isLoading: loadingStats,
+    isFetching: fetchingStats,
+  } = useQuery({
     ...matchStatsQueryOptions(match?.id ?? ""),
     enabled: !!match?.id,
   });
@@ -78,32 +83,38 @@ export function MatchForm({ match }: { match?: Match }) {
   const [search, setSearch] = useState("");
   const [rows, setRows] = useState<Record<string, Row>>({});
   const [saving, setSaving] = useState(false);
-  const hydrated = useRef(false);
+  const hydratedMatchId = useRef<string | null>(null);
 
   // Só monta as linhas quando os dados salvos do jogo já chegaram,
   // para nunca sobrescrever estatísticas existentes com zeros.
   useEffect(() => {
     if (!players) return;
-    if (match?.id && !existing) return;
-    setRows((current) => {
+    if (mode === "edit") {
+      if (!match || fetchingStats || !existing) return;
+      if (hydratedMatchId.current === match.id) return;
+
+      const savedByPlayer = new Map(existing.map((stat) => [stat.player_id, stat]));
       const next: Record<string, Row> = {};
       for (const player of players) {
-        const saved = existing?.find((s) => s.player_id === player.id);
-        next[player.id] = hydrated.current
-          ? (current[player.id] ?? EMPTY_ROW)
-          : saved
-            ? {
-                played: saved.played,
-                goals: saved.goals,
-                assists: saved.assists,
-                goals_conceded: saved.goals_conceded ?? 0,
-              }
-            : (current[player.id] ?? EMPTY_ROW);
+        const saved = savedByPlayer.get(player.id);
+        next[player.id] = saved
+          ? {
+              played: saved.played,
+              goals: saved.goals,
+              assists: saved.assists,
+              goals_conceded: saved.goals_conceded,
+            }
+          : { ...EMPTY_ROW };
       }
-      return next;
-    });
-    hydrated.current = true;
-  }, [players, existing, match?.id]);
+      setRows(next);
+      hydratedMatchId.current = match.id;
+      return;
+    }
+
+    if (hydratedMatchId.current === "create") return;
+    setRows(Object.fromEntries(players.map((player) => [player.id, { ...EMPTY_ROW }])));
+    hydratedMatchId.current = "create";
+  }, [players, existing, fetchingStats, match, mode]);
 
 
   const visible = useMemo(() => {
@@ -158,14 +169,10 @@ export function MatchForm({ match }: { match?: Match }) {
         opponent: parsed.data.opponent ?? null,
       };
 
-      if (matchId) {
+      if (mode === "edit") {
+        if (!matchId) throw new Error("Jogo inválido para edição.");
         const { error } = await supabase.from("matches").update(payload).eq("id", matchId);
         if (error) throw error;
-        const { error: delError } = await supabase
-          .from("match_stats")
-          .delete()
-          .eq("match_id", matchId);
-        if (delError) throw delError;
       } else {
         const { data, error } = await supabase
           .from("matches")
@@ -176,20 +183,36 @@ export function MatchForm({ match }: { match?: Match }) {
         matchId = data.id;
       }
 
-      const inserts = Object.entries(rows)
+      if (!matchId) throw new Error("Não foi possível identificar o jogo.");
+
+      const statsToSave = Object.entries(rows)
         .filter(([, row]) => row.played || row.goals > 0 || row.assists > 0 || row.goals_conceded > 0)
         .map(([player_id, row]) => ({
-          match_id: matchId!,
+          match_id: matchId,
           player_id,
           goals: row.goals,
           assists: row.assists,
           goals_conceded: row.goals_conceded,
-          played: true,
+          played: row.played,
         }));
 
-      if (inserts.length > 0) {
-        const { error } = await supabase.from("match_stats").insert(inserts);
+      if (statsToSave.length > 0) {
+        const { error } = await supabase
+          .from("match_stats")
+          .upsert(statsToSave, { onConflict: "match_id,player_id" });
         if (error) throw error;
+      }
+
+
+      if (mode === "edit" && existing) {
+        const savedPlayerIds = new Set(statsToSave.map((row) => row.player_id));
+        const removedIds = existing
+          .filter((row) => !savedPlayerIds.has(row.player_id))
+          .map((row) => row.id);
+        if (removedIds.length > 0) {
+          const { error } = await supabase.from("match_stats").delete().in("id", removedIds);
+          if (error) throw error;
+        }
       }
 
       await queryClient.invalidateQueries({ refetchType: "all" });
@@ -259,7 +282,7 @@ export function MatchForm({ match }: { match?: Match }) {
       </div>
 
 
-      {isLoading || loadingStats ? (
+      {isLoading || loadingStats || (mode === "edit" && fetchingStats) ? (
         <p className="py-8 text-center text-sm text-muted-foreground">Carregando elenco…</p>
       ) : visible.length === 0 ? (
         <p className="py-8 text-center text-sm text-muted-foreground">

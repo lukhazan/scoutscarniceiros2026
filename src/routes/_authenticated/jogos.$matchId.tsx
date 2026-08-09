@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AppHeader } from "@/components/AppHeader";
 import { AdminGate } from "@/components/AdminGate";
 import { MatchForm } from "@/components/MatchForm";
-import { matchesQueryOptions, formatDate } from "@/lib/team-data";
+import { matchQueryOptions, formatDate } from "@/lib/team-data";
 
 export const Route = createFileRoute("/_authenticated/jogos/$matchId")({
   head: () => ({
@@ -22,15 +22,14 @@ export const Route = createFileRoute("/_authenticated/jogos/$matchId")({
 
 function EditarJogoPage() {
   const { matchId } = Route.useParams();
-  const { data: matches, isLoading } = useQuery(matchesQueryOptions);
-  const match = matches?.find((m) => m.id === matchId);
+  const { data: match, isLoading, isFetching } = useQuery(matchQueryOptions(matchId));
 
   return (
     <div className="min-h-screen">
       <AppHeader />
       <main className="mx-auto max-w-3xl px-4 pb-10 pt-6">
         <AdminGate>
-          {isLoading ? (
+          {isLoading || isFetching ? (
             <p className="py-10 text-center text-sm text-muted-foreground">Carregando…</p>
           ) : !match ? (
             <p className="py-10 text-center text-sm text-muted-foreground">
