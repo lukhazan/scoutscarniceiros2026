@@ -294,6 +294,7 @@ export function TemplateRenderer({
             scale={data.playerScale}
             offsetX={data.playerOffsetX}
             offsetY={data.playerOffsetY}
+            rotation={data.playerRotation}
             zone={a.photo}
           />
         );
@@ -344,20 +345,28 @@ export function TemplateRenderer({
     }
   };
 
+  const hidden = data.hiddenLayers ?? [];
+  const locked = data.lockedLayers ?? [];
+  const order = (data.layerOrder ?? layout.layers).filter((id) =>
+    layout.layers.includes(id),
+  );
+
   const hotspots = onSelect
-    ? (["photo", "playerName", "title", "subtitle"] as const).map((id) => (
-        <div
-          key={`hs-${id}`}
-          onClick={() => onSelect(id)}
-          style={{
-            ...zoneStyle(a[id]),
-            cursor: "pointer",
-            border:
-              selected === id ? `4px dashed ${c.primary}` : "4px dashed rgba(255,255,255,0.12)",
-            borderRadius: 12,
-          }}
-        />
-      ))
+    ? (["photo", "playerName", "title", "subtitle"] as const)
+        .filter((id) => !hidden.includes(id) && !locked.includes(id))
+        .map((id) => (
+          <div
+            key={`hs-${id}`}
+            onClick={() => onSelect(id)}
+            style={{
+              ...zoneStyle(a[id]),
+              cursor: "pointer",
+              border:
+                selected === id ? `4px dashed ${c.primary}` : "4px dashed rgba(255,255,255,0.12)",
+              borderRadius: 12,
+            }}
+          />
+        ))
     : null;
 
   return (
@@ -370,7 +379,7 @@ export function TemplateRenderer({
           color: c.accent,
         }}
       >
-        {layout.layers.map(node)}
+        {order.filter((id) => !hidden.includes(id)).map(node)}
         {hotspots}
       </div>
     </StudioCanvas>
