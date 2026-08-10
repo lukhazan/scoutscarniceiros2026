@@ -1,12 +1,20 @@
 import type { BrandIdentity } from "@/lib/studio-data";
-import type { SelectableLayerId } from "@/lib/studio/layout";
+import type { LayerId, SelectableLayerId } from "@/lib/studio/layout";
 
 export type TextOverride = {
   color?: string;
   font?: "primary" | "secondary";
+  /** família tipográfica explícita (ex.: "Bebas Neue") */
+  fontFamily?: string;
+  /** tamanho máximo em px definido pelo usuário */
+  fontSize?: number;
   /** multiplicador do tamanho máximo definido pelo template (0.5 a 1.3) */
   sizeScale?: number;
   align?: "flex-start" | "center" | "flex-end";
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  uppercase?: boolean;
 };
 
 export type ArtData = {
@@ -20,6 +28,13 @@ export type ArtData = {
   playerScale: number;
   playerOffsetX: number;
   playerOffsetY: number;
+  playerRotation: number;
+  /** camadas ocultas pelo usuário */
+  hiddenLayers: LayerId[];
+  /** camadas bloqueadas (não selecionáveis no canvas) */
+  lockedLayers: LayerId[];
+  /** ordem personalizada das camadas (de baixo para cima) */
+  layerOrder: LayerId[] | null;
   textStyles: Partial<Record<"playerName" | "title" | "subtitle", TextOverride>>;
 };
 
@@ -52,5 +67,9 @@ export const EMPTY_ART_DATA: ArtData = {
   playerScale: 1,
   playerOffsetX: 0,
   playerOffsetY: 0,
+  playerRotation: 0,
+  hiddenLayers: [],
+  lockedLayers: [],
+  layerOrder: null,
   textStyles: {},
 };
