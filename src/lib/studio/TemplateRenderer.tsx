@@ -167,19 +167,26 @@ const TextLayer = memo(function TextLayer({
   colors: ReturnType<typeof brandColors>;
 }) {
   if (!text) return null;
-  const font =
+  const themeFont =
     (override?.font ?? config.font ?? "secondary") === "primary"
       ? colors.fontPrimary
       : colors.fontSecondary;
+  const font = override?.fontFamily
+    ? `"${override.fontFamily}", ${themeFont}`
+    : themeFont;
   const palette = { accent: colors.accent, primary: colors.primary, secondary: colors.secondary };
   const color = override?.color ?? palette[config.color ?? "accent"];
-  const value = config.uppercase ? text.toUpperCase() : text;
-  const maxFontSize = config.maxFontSize * (override?.sizeScale ?? 1);
+  const uppercase = override?.uppercase ?? config.uppercase;
+  const value = uppercase ? text.toUpperCase() : text;
+  const maxFontSize =
+    override?.fontSize ?? config.maxFontSize * (override?.sizeScale ?? 1);
   const align = override?.align ?? config.align ?? "flex-start";
 
   const common = {
     fontFamily: font,
-    fontWeight: config.weight ?? 600,
+    fontWeight: override?.bold ? 900 : (config.weight ?? 600),
+    fontStyle: override?.italic ? "italic" : "normal",
+    textDecoration: override?.underline ? "underline" : "none",
     letterSpacing: config.letterSpacing ?? 0,
     color,
   } as React.CSSProperties;
