@@ -97,7 +97,12 @@ const MAX_IMAGE_BYTES = 12 * 1024 * 1024;
  * reduz para no máximo `maxSide` px e devolve um data URL.
  * PNG mantém transparência; demais formatos viram JPEG leve.
  */
-export async function fileToStudioImage(file: File, maxSide = 1600): Promise<string> {
+/**
+ * Lê a imagem preservando o arquivo original. Só reduz quando o arquivo é
+ * gigantesco (acima de `maxSide`), para não estourar memória no celular —
+ * nunca gera thumbnail nem recomprime imagens dentro do limite.
+ */
+export async function fileToStudioImage(file: File, maxSide = 4096): Promise<string> {
   if (!file.type.startsWith("image/")) {
     throw new Error("Selecione uma imagem PNG, JPG ou WEBP.");
   }
