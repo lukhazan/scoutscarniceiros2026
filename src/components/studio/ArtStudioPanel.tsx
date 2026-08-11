@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toJpeg, toPng } from "html-to-image";
 import { ScaledCanvas } from "@/lib/studio/Canvas";
 import { toast } from "sonner";
@@ -23,6 +23,9 @@ import {
   Redo2,
   Share2,
   Shapes,
+  RefreshCw,
+  Trash2,
+  CalendarDays,
   Type,
   Underline,
   Undo2,
@@ -52,6 +55,14 @@ import {
   readDefaultBackground,
 } from "@/components/studio/BackgroundGallery";
 import { saveFile } from "@/lib/download-file";
+import { publicAgendaQueryOptions } from "@/lib/agenda-data";
+import {
+  MAX_AGENDA_ITEMS,
+  emptyAgendaItem,
+  eventsToAgendaItems,
+  weekRangeLabel,
+  type AgendaArtItem,
+} from "@/lib/studio/agenda-art";
 import { displayName, playersQueryOptions } from "@/lib/team-data";
 import {
   ACCEPTED_IMAGE_TYPES,
@@ -71,11 +82,12 @@ import {
 } from "@/lib/studio/templates";
 import type { TextOverride } from "@/lib/studio/types";
 
-type ToolId = "template" | "foto" | "fundo" | "textos" | "elementos" | "camadas";
+type ToolId = "template" | "agenda" | "foto" | "fundo" | "textos" | "elementos" | "camadas";
 type TextLayerKey = "playerName" | "title" | "subtitle";
 
 const TOOLS: { id: ToolId; label: string; icon: typeof Type }[] = [
   { id: "template", label: "Template", icon: LayoutTemplate },
+  { id: "agenda", label: "Agenda", icon: CalendarDays },
   { id: "foto", label: "Foto", icon: ImageIcon },
   { id: "fundo", label: "Fundo", icon: ImagePlus },
   { id: "textos", label: "Textos", icon: Type },
@@ -94,6 +106,7 @@ const LAYER_LABELS: Record<LayerId, string> = {
   playerName: "Nome do atleta",
   title: "Título principal",
   subtitle: "Subtítulo",
+  agenda: "Compromissos",
   sponsors: "Patrocinadores",
 };
 
@@ -176,6 +189,10 @@ const HANDLES = [
 export function ArtStudioPanel() {
   const { data: players = [] } = useQuery(playersQueryOptions);
   const { data: brand = null } = useQuery(brandIdentityQueryOptions);
+  const queryClient = useQueryClient();
+  const { data: agendaEvents = [], isFetching: agendaFetching } = useQuery(
+    publicAgendaQueryOptions,
+  );
   const exportRef = useRef<HTMLDivElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
 
@@ -197,6 +214,7 @@ export function ArtStudioPanel() {
   const [historyTick, setHistoryTick] = useState(0);
 
   const template = getTemplate(slug);
+  const isAgendaTemplate = template.fields.includes("agenda");
 
   const commit = useCallback((updater: (prev: ArtData) => ArtData) => {
     setData((prev) => {
@@ -245,6 +263,29 @@ export function ArtStudioPanel() {
       return prev.title === title ? prev : { ...prev, title };
     });
   }, [template, data.goals, titleEdited]);
+
+  const autoAgendaItems = useMemo(
+    () => eventsToAgendaItems(agendaEvents, data.agendaWeekOffset ?? 0),
+    [agendaEvents, data.agendaWeekOffset],
+  );
+
+  // Modo automático: só copia (leitura) os compromissos da Agenda para a arte.
+  useEffect(() => {
+    if (!isAgendaTemplate || data.agendaMode !== "auto") return;
+    setData((prev) =>
+      JSON.stringify(prev.agendaItems) === JSON.stringify(autoAgendaItems)
+        ? prev
+        : { ...prev, agendaItems: autoAgendaItems },
+    );
+  }, [isAgendaTemplate, data.agendaMode, autoAgendaItems]);
+
+  function setAgendaItem(id: string, patch: Partial<AgendaArtItem>) {
+    set({
+      agendaItems: (data.agendaItems ?? []).map((it) =>
+        it.id === id ? { ...it, ...patch } : it,
+      ),
+    });
+  }
 
   const player = useMemo(
     () => players.find((p) => p.id === data.playerId) ?? null,
@@ -455,7 +496,11 @@ export function ArtStudioPanel() {
         {/* --------------------------- coluna esquerda --------------------------- */}
         <div className="grid grid-cols-[68px_minmax(0,1fr)] gap-2 rounded-xl border border-border/60 bg-background/40 p-2">
           <nav className="flex flex-col gap-1">
-            {TOOLS.map((t) => {
+            {TOOLS.filter(
+              (t) =>
+                (t.id !== "agenda" || isAgendaTemplate) &&
+                (t.id !== "foto" || !isAgendaTemplate),
+            ).map((t) => {
               const Icon = t.icon;
               const active = tool === t.id;
               return (
@@ -503,6 +548,7 @@ export function ArtStudioPanel() {
                         onClick={() => {
                           setSlug(t.slug);
                           setTitleEdited(false);
+                          setSelected(t.fields.includes("agenda") ? "title" : "photo");
                           set({ ...t.defaults });
                         }}
                         className={`flex w-full items-center gap-2 rounded-lg border p-2 text-left transition-colors ${
@@ -520,6 +566,182 @@ export function ArtStudioPanel() {
                   </div>
                 </section>
               </>
+            ) : null}
+
+            {tool === "agenda" && isAgendaTemplate ? (
+              <div className="space-y-3">
+                <Field label="Modo">
+                  <div className="grid grid-cols-2 gap-1 rounded-lg border border-border/60 p-1">
+                    {(["auto", "manual"] as const).map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() =>
+                          set({
+                            agendaMode: m,
+                            agendaItems:
+                              m === "manual" && (data.agendaItems ?? []).length === 0
+                                ? [emptyAgendaItem()]
+                                : data.agendaItems,
+                          })
+                        }
+                        className={`rounded-md px-2 py-1.5 text-xs font-semibold ${
+                          (data.agendaMode ?? "auto") === m
+                            ? "bg-primary/15 text-primary"
+                            : "text-muted-foreground hover:bg-secondary"
+                        }`}
+                      >
+                        {m === "auto" ? "Automático" : "Manual"}
+                      </button>
+                    ))}
+                  </div>
+                </Field>
+
+                {(data.agendaMode ?? "auto") === "auto" ? (
+                  <>
+                    <Field label="Semana">
+                      <Select
+                        value={String(data.agendaWeekOffset ?? 0)}
+                        onValueChange={(v) => set({ agendaWeekOffset: Number(v) })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="-1">Semana anterior</SelectItem>
+                          <SelectItem value="0">Semana atual</SelectItem>
+                          <SelectItem value="1">Próxima semana</SelectItem>
+                          <SelectItem value="2">Daqui a 2 semanas</SelectItem>
+                          <SelectItem value="3">Daqui a 3 semanas</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                    <p className="text-[11px] text-muted-foreground">
+                      {weekRangeLabel(data.agendaWeekOffset ?? 0)}
+                    </p>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="w-full"
+                      disabled={agendaFetching}
+                      onClick={() =>
+                        queryClient.invalidateQueries({ queryKey: ["team_events"] })
+                      }
+                    >
+                      {agendaFetching ? (
+                        <Loader2 className="mr-1 size-4 animate-spin" />
+                      ) : (
+                        <RefreshCw className="mr-1 size-4" />
+                      )}
+                      Atualizar da Agenda
+                    </Button>
+                    {autoAgendaItems.length === 0 ? (
+                      <p className="rounded-lg border border-border/60 p-2 text-xs text-muted-foreground">
+                        Nenhum compromisso público encontrado nesta semana. Escolha outra semana ou
+                        use o modo Manual.
+                      </p>
+                    ) : (
+                      <div className="space-y-1">
+                        {autoAgendaItems.map((it) => (
+                          <p key={it.id} className="truncate text-xs text-muted-foreground">
+                            {it.weekday} • {it.date} {it.time} — {it.opponent || it.title}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="space-y-3">
+                    {(data.agendaItems ?? []).map((item, idx) => (
+                      <div key={item.id} className="space-y-2 rounded-lg border border-border/60 p-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-semibold uppercase text-muted-foreground">
+                            Compromisso {idx + 1}
+                          </span>
+                          <button
+                            type="button"
+                            className="rounded p-1 text-muted-foreground hover:bg-secondary"
+                            onClick={() =>
+                              set({
+                                agendaItems: (data.agendaItems ?? []).filter(
+                                  (i) => i.id !== item.id,
+                                ),
+                              })
+                            }
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </div>
+                        <Select
+                          value={item.type}
+                          onValueChange={(v) =>
+                            setAgendaItem(item.id, { type: v as AgendaArtItem["type"] })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="jogo">Jogo</SelectItem>
+                            <SelectItem value="evento">Evento</SelectItem>
+                            <SelectItem value="festa">Festa</SelectItem>
+                            <SelectItem value="outro">Outro</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Input
+                            value={item.weekday}
+                            placeholder="QUINTA"
+                            onChange={(e) => setAgendaItem(item.id, { weekday: e.target.value })}
+                          />
+                          <Input
+                            value={item.date}
+                            placeholder="06 AGO"
+                            onChange={(e) => setAgendaItem(item.id, { date: e.target.value })}
+                          />
+                        </div>
+                        <Input
+                          value={item.time}
+                          placeholder="20:30"
+                          onChange={(e) => setAgendaItem(item.id, { time: e.target.value })}
+                        />
+                        {item.type === "jogo" ? (
+                          <Input
+                            value={item.opponent}
+                            placeholder="Adversário"
+                            onChange={(e) => setAgendaItem(item.id, { opponent: e.target.value })}
+                          />
+                        ) : (
+                          <Input
+                            value={item.title}
+                            placeholder="Título do compromisso"
+                            onChange={(e) => setAgendaItem(item.id, { title: e.target.value })}
+                          />
+                        )}
+                        <Input
+                          value={item.location}
+                          placeholder="Local"
+                          onChange={(e) => setAgendaItem(item.id, { location: e.target.value })}
+                        />
+                      </div>
+                    ))}
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="w-full"
+                      disabled={(data.agendaItems ?? []).length >= MAX_AGENDA_ITEMS}
+                      onClick={() =>
+                        set({ agendaItems: [...(data.agendaItems ?? []), emptyAgendaItem()] })
+                      }
+                    >
+                      <Plus className="mr-1 size-4" /> Adicionar compromisso
+                    </Button>
+                  </div>
+                )}
+                <p className="text-[11px] text-muted-foreground">
+                  A arte não altera a Agenda — os dados são apenas lidos.
+                </p>
+              </div>
             ) : null}
 
             {tool === "foto" ? (
