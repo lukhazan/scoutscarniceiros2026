@@ -3,6 +3,7 @@ import type { BrandIdentity } from "@/lib/studio-data";
 import { FitText } from "@/lib/studio/FitText";
 import { StudioCanvas } from "@/lib/studio/Canvas";
 import { PlayerFrame } from "@/lib/studio/PlayerFrame";
+import { AgendaLayer } from "@/lib/studio/AgendaLayer";
 import {
   STORY_HEIGHT,
   STORY_WIDTH,
@@ -328,6 +329,16 @@ export function TemplateRenderer({
             zone={a.subtitle}
             config={layout.text.subtitle}
             override={data.textStyles.subtitle}
+            colors={c}
+          />
+        );
+      case "agenda":
+        return (
+          <AgendaLayer
+            key={id}
+            zone={a.agenda}
+            items={data.agendaItems ?? []}
+            teamName={brand?.team_name || "Carniceiros Fut 7"}
             colors={c}
           />
         );

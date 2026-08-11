@@ -1,4 +1,4 @@
-import { BASE_LAYOUT, STORY_HEIGHT, STORY_WIDTH, type TemplateLayout } from "@/lib/studio/layout";
+import { AGENDA_LAYOUT, BASE_LAYOUT, STORY_HEIGHT, STORY_WIDTH, type TemplateLayout } from "@/lib/studio/layout";
 import { TemplateRenderer, artPlayerName } from "@/lib/studio/TemplateRenderer";
 import { EMPTY_ART_DATA, type ArtData, type ArtPlayer, type TemplateRenderProps } from "@/lib/studio/types";
 
@@ -12,7 +12,8 @@ export type StudioField =
   | "title"
   | "subtitle"
   | "background"
-  | "playerPhoto";
+  | "playerPhoto"
+  | "agenda";
 
 export type StudioTemplate = {
   slug: string;
@@ -57,6 +58,16 @@ export const STUDIO_TEMPLATES: StudioTemplate[] = [
     layout: BASE_LAYOUT,
     autoTitle: () => "CRAQUE DA PARTIDA",
     defaults: { subtitle: "", title: "CRAQUE DA PARTIDA" },
+  },
+  {
+    slug: "agenda-semana",
+    name: "Agenda da Semana",
+    emoji: "🗓️",
+    category: "equipe",
+    fields: ["agenda", "title", "subtitle", "background"],
+    layout: AGENDA_LAYOUT,
+    autoTitle: () => "AGENDA DA SEMANA",
+    defaults: { title: "AGENDA DA SEMANA", subtitle: "", agendaMode: "auto", agendaWeekOffset: 0 },
   },
 ];
 
