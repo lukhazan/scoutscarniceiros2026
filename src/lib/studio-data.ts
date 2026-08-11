@@ -97,7 +97,12 @@ const MAX_IMAGE_BYTES = 12 * 1024 * 1024;
  * reduz para no máximo `maxSide` px e devolve um data URL.
  * PNG mantém transparência; demais formatos viram JPEG leve.
  */
-export async function fileToStudioImage(file: File, maxSide = 1600): Promise<string> {
+/**
+ * Lê a imagem preservando o arquivo original. Só reduz quando o arquivo é
+ * gigantesco (acima de `maxSide`), para não estourar memória no celular —
+ * nunca gera thumbnail nem recomprime imagens dentro do limite.
+ */
+export async function fileToStudioImage(file: File, maxSide = 4096): Promise<string> {
   if (!file.type.startsWith("image/")) {
     throw new Error("Selecione uma imagem PNG, JPG ou WEBP.");
   }
@@ -120,16 +125,20 @@ export async function fileToStudioImage(file: File, maxSide = 1600): Promise<str
   });
 
   const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
-  if (scale === 1 && file.size < 900 * 1024) return source;
+  // Dentro do limite: mantém o arquivo original (resolução, proporção,
+  // transparência e qualidade intactas).
+  if (scale === 1) return source;
 
   const canvas = document.createElement("canvas");
   canvas.width = Math.round(img.naturalWidth * scale);
   canvas.height = Math.round(img.naturalHeight * scale);
   const ctx = canvas.getContext("2d");
   if (!ctx) return source;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   const transparent = file.type === "image/png" || file.type === "image/webp";
-  return canvas.toDataURL(transparent ? "image/png" : "image/jpeg", 0.92);
+  return canvas.toDataURL(transparent ? "image/png" : "image/jpeg", 1);
 }
 
 export async function saveMediaAsset(input: {
