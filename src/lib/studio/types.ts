@@ -1,5 +1,6 @@
 import type { BrandIdentity } from "@/lib/studio-data";
 import type { LayerId, SelectableLayerId } from "@/lib/studio/layout";
+import type { AgendaArtItem } from "@/lib/studio/agenda-art";
 
 export type TextOverride = {
   color?: string;
@@ -36,6 +37,12 @@ export type ArtData = {
   /** ordem personalizada das camadas (de baixo para cima) */
   layerOrder: LayerId[] | null;
   textStyles: Partial<Record<"playerName" | "title" | "subtitle", TextOverride>>;
+  /** Template Agenda da Semana: modo de preenchimento */
+  agendaMode: "auto" | "manual";
+  /** Semana selecionada (0 = atual, -1 = anterior, 1 = próxima) */
+  agendaWeekOffset: number;
+  /** Compromissos usados na arte (cópia somente de leitura da Agenda) */
+  agendaItems: AgendaArtItem[];
 };
 
 export type ArtPlayer = {
@@ -72,4 +79,7 @@ export const EMPTY_ART_DATA: ArtData = {
   lockedLayers: [],
   layerOrder: null,
   textStyles: {},
+  agendaMode: "auto",
+  agendaWeekOffset: 0,
+  agendaItems: [],
 };

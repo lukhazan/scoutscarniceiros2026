@@ -15,6 +15,7 @@ export type LayerId =
   | "playerName"
   | "title"
   | "subtitle"
+  | "agenda"
   | "sponsors";
 
 /** Margens internas do canvas fixo 1080x1920. */
@@ -101,6 +102,7 @@ export const BASE_LAYOUT: TemplateLayout = {
     playerName: { x: 60, y: 1240, width: 500, height: 70 },
     title: { x: 60, y: 1330, width: 960, height: 220 },
     subtitle: { x: 60, y: 1570, width: 960, height: 60 },
+    agenda: { x: 60, y: 470, width: 960, height: 1170 },
     sponsors: { x: 60, y: 1660, width: 960, height: 110 },
   },
 
@@ -160,3 +162,35 @@ export function makeLayout(patch: Partial<TemplateLayout> = {}): TemplateLayout 
 
   };
 }
+
+/** Layout do template "Agenda da Semana" (mesmo canvas 1080x1920). */
+export const AGENDA_LAYOUT: TemplateLayout = makeLayout({
+  layers: [
+    "background",
+    "graphics",
+    "overlay",
+    "watermark",
+    "crest",
+    "teamName",
+    "title",
+    "agenda",
+    "subtitle",
+    "sponsors",
+  ],
+  areas: {
+    ...BASE_LAYOUT.areas,
+    title: { x: 60, y: 250, width: 960, height: 180 },
+    agenda: { x: 60, y: 470, width: 960, height: 1120 },
+    subtitle: { x: 60, y: 1600, width: 960, height: 60 },
+  },
+  text: {
+    ...BASE_LAYOUT.text,
+    title: {
+      ...BASE_LAYOUT.text.title,
+      maxFontSize: 120,
+      maxLines: 2,
+      align: "center",
+    },
+    subtitle: { ...BASE_LAYOUT.text.subtitle, align: "center" },
+  },
+});
