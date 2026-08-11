@@ -284,31 +284,50 @@ export function ArtStudioPanel() {
       height: STORY_HEIGHT,
       pixelRatio: 1,
       cacheBust: true,
+      skipFonts: false,
     };
+    // Duas passadas: a primeira aquece o cache de imagens/fontes, evitando
+    // camadas em branco ou borradas na exportação.
+    if (format === "png") await toPng(exportRef.current, options);
     const dataUrl =
       format === "png"
         ? await toPng(exportRef.current, options)
-        : await toJpeg(exportRef.current, { ...options, quality: 0.95 });
+        : await toJpeg(exportRef.current, { ...options, quality: 1 });
     return (await fetch(dataUrl)).blob();
   }
 
   async function handleExport(format: "png" | "jpg" | "share") {
     setExporting(true);
+    const toastId = toast.loading("Gerando arte...");
     try {
       const blob = await renderBlob(format === "jpg" ? "jpg" : "png");
-      if (!blob) return;
+      if (!blob) {
+        toast.error("Não foi possível gerar a imagem. Tente novamente.", { id: toastId });
+        return;
+      }
       const ext = format === "jpg" ? "jpg" : "png";
       const file = new File([blob], `${template.slug}-${Date.now()}.${ext}`, {
         type: blob.type,
       });
       if (format === "share" && navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], title: template.name });
-      } else {
-        await saveFile(blob, file.name);
+        toast.success("Arte pronta para compartilhar!", { id: toastId });
+        return;
       }
-      toast.success("Arte gerada!");
-    } catch {
-      toast.error("Não foi possível gerar a arte.");
+      const result = await saveFile(blob, file.name);
+      if (result === "shared") {
+        toast.success("Escolha onde salvar ou compartilhar a arte.", { id: toastId });
+      } else if (result === "opened") {
+        toast.success("Arte aberta em nova aba — toque e segure para salvar.", { id: toastId });
+      } else {
+        toast.success("Arte baixada!", { id: toastId });
+      }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        toast.dismiss(toastId);
+        return;
+      }
+      toast.error("Não foi possível gerar a imagem. Tente novamente.", { id: toastId });
     } finally {
       setExporting(false);
     }
