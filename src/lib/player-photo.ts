@@ -100,6 +100,29 @@ async function renderSquare(
   return canvas.toDataURL("image/png");
 }
 
+/**
+ * Versão de armazenamento da FOTO ORIGINAL: mantém proporção e enquadramento
+ * completos (nunca corta). Só reduz a escala se o lado maior passar de `maxSide`.
+ */
+export async function renderOriginalPhoto(
+  sourceDataUrl: string,
+  maxSide = 2048,
+): Promise<string> {
+  const img = await loadImage(sourceDataUrl);
+  const w = img.naturalWidth;
+  const h = img.naturalHeight;
+  const ratio = Math.min(1, maxSide / Math.max(w, h));
+  if (ratio >= 1) return sourceDataUrl;
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(w * ratio);
+  canvas.height = Math.round(h * ratio);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return sourceDataUrl;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/png");
+}
+
 /** Converte um Blob em data URL (mantém transparência do PNG). */
 export function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {

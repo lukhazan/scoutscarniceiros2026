@@ -300,8 +300,31 @@ export function ArtStudioPanel() {
         position: player.position,
         shirt_number: player.shirt_number,
         photo_url: player.photo_url,
+        photo_original_url: player.photo_original_url,
       }
     : null;
+
+  /** Ao escolher um atleta, carrega a FOTO ORIGINAL (nunca o avatar recortado). */
+  function selectPlayer(id: string) {
+    const p = players.find((x) => x.id === id) ?? null;
+    const original = p?.photo_original_url ?? null;
+    if (original) {
+      set({
+        playerId: id,
+        playerPhotoUrl: original,
+        playerOffsetX: 0,
+        playerOffsetY: 0,
+        playerRotation: 0,
+      });
+    } else {
+      set({ playerId: id });
+      if (p && !p.photo_original_url) {
+        toast.message(
+          "Este atleta ainda não tem foto original. Cadastre no Elenco ou envie uma foto aqui.",
+        );
+      }
+    }
+  }
 
   async function handlePhoto(file: File | undefined) {
     if (!file) return;
@@ -747,7 +770,7 @@ export function ArtStudioPanel() {
             {tool === "foto" ? (
               <div className="space-y-3">
                 <Field label="Atleta">
-                  <Select value={data.playerId ?? ""} onValueChange={(v) => set({ playerId: v })}>
+                  <Select value={data.playerId ?? ""} onValueChange={selectPlayer}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecionar atleta" />
                     </SelectTrigger>

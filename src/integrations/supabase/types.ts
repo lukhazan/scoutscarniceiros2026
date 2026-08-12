@@ -430,6 +430,7 @@ export type Database = {
           initial_goals: number
           name: string
           nickname: string | null
+          photo_original_url: string | null
           photo_url: string | null
           position: string | null
           shirt_number: number | null
@@ -444,6 +445,7 @@ export type Database = {
           initial_goals?: number
           name: string
           nickname?: string | null
+          photo_original_url?: string | null
           photo_url?: string | null
           position?: string | null
           shirt_number?: number | null
@@ -458,6 +460,7 @@ export type Database = {
           initial_goals?: number
           name?: string
           nickname?: string | null
+          photo_original_url?: string | null
           photo_url?: string | null
           position?: string | null
           shirt_number?: number | null

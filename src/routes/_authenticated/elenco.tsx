@@ -51,6 +51,7 @@ import {
   fileToCutoutSourceDataUrl,
   fileToSourceDataUrl,
   renderAdjustedPhoto,
+  renderOriginalPhoto,
   type PhotoAdjust,
 } from "@/lib/player-photo";
 
@@ -84,6 +85,7 @@ const playerSchema = z.object({
     .min(0, "Gols sofridos anteriores não podem ser negativos")
     .max(9999),
   photo_url: z.string().nullable(),
+  photo_original_url: z.string().nullable(),
 });
 
 const CURRENT_SEASON = String(new Date().getFullYear());
@@ -99,6 +101,7 @@ const empty = {
   initialAssists: "0",
   initialConceded: "0",
   photo: null as string | null,
+  photoOriginal: null as string | null,
 };
 
 function ElencoPage() {
@@ -182,6 +185,7 @@ function ElencoPage() {
       season: CURRENT_SEASON,
       ...seasonValues(player.id, CURRENT_SEASON),
       photo: player.photo_url ?? null,
+      photoOriginal: player.photo_original_url ?? null,
     });
     setOpen(true);
   }
@@ -219,11 +223,18 @@ function ElencoPage() {
 
   async function save() {
     let finalPhoto = form.photo;
+    let finalOriginal = form.photoOriginal;
     if (activeSource) {
       try {
         finalPhoto = await renderAdjustedPhoto(activeSource, adjust);
       } catch {
         /* mantém a prévia atual */
+      }
+      try {
+        // FOTO ORIGINAL: mantida inteira, sem corte (só reduz escala se enorme)
+        finalOriginal = await renderOriginalPhoto(activeSource);
+      } catch {
+        finalOriginal = activeSource;
       }
     }
     const parsed = playerSchema.safeParse({
@@ -239,6 +250,7 @@ function ElencoPage() {
           ? Number(form.initialConceded)
           : 0,
       photo_url: finalPhoto,
+      photo_original_url: finalOriginal,
     });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0].message);
@@ -252,6 +264,7 @@ function ElencoPage() {
       shirt_number: parsed.data.shirt_number,
       active: parsed.data.active,
       photo_url: parsed.data.photo_url,
+      photo_original_url: parsed.data.photo_original_url,
     };
     let playerId = editing?.id ?? "";
     let error = null as { message: string } | null;
@@ -419,7 +432,7 @@ function ElencoPage() {
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   {photoProcessing
                     ? "Processando imagem…"
-                    : "PNG ou JPG, até 8 MB. Remover o fundo é opcional."}
+                    : "PNG ou JPG, até 8 MB. A foto original é guardada inteira; o recorte vale só para o avatar."}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   <Button
@@ -456,6 +469,23 @@ function ElencoPage() {
                       {usingCutout ? "Usar foto original" : "Usar sem fundo"}
                     </Button>
                   ) : null}
+                  {form.photoOriginal && !originalSource && !photoProcessing ? (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="h-9"
+                      onClick={() => {
+                        setPendingFile(null);
+                        setCutoutSource(null);
+                        setUsingCutout(false);
+                        setAdjust(DEFAULT_ADJUST);
+                        setOriginalSource(form.photoOriginal);
+                      }}
+                    >
+                      <ImagePlus className="mr-1 size-4" /> Ajustar avatar
+                    </Button>
+                  ) : null}
                   {form.photo && !photoProcessing ? (
                     <Button
                       type="button"
@@ -463,7 +493,7 @@ function ElencoPage() {
                       size="sm"
                       className="h-9"
                       onClick={() => {
-                        setForm((f) => ({ ...f, photo: null }));
+                        setForm((f) => ({ ...f, photo: null, photoOriginal: null }));
                         resetPhotoState();
                       }}
                     >

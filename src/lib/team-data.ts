@@ -10,7 +10,10 @@ export type Player = {
   initial_goals: number;
   initial_assists: number;
   initial_conceded: number;
+  /** avatar recortado usado no elenco/rankings */
   photo_url: string | null;
+  /** foto original completa, sem corte, usada na Central de Artes */
+  photo_original_url: string | null;
 };
 
 export type PlayerTotals = {
@@ -61,7 +64,7 @@ export const playersQueryOptions = {
     const { data, error } = await supabase
       .from("players")
       .select(
-        "id, name, nickname, position, shirt_number, active, initial_goals, initial_assists, initial_conceded, photo_url",
+        "id, name, nickname, position, shirt_number, active, initial_goals, initial_assists, initial_conceded, photo_url, photo_original_url",
       )
       .order("name");
     if (error) throw new Error(error.message);

@@ -52,6 +52,7 @@ export type ArtPlayer = {
   position: string | null;
   shirt_number: number | null;
   photo_url: string | null;
+  photo_original_url?: string | null;
 };
 
 export type TemplateRenderProps = {
