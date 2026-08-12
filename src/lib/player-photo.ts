@@ -103,27 +103,54 @@ async function renderSquare(
   return canvas.toDataURL("image/png");
 }
 
+function dataUrlBytes(dataUrl: string) {
+  const i = dataUrl.indexOf(",");
+  return Math.round(((dataUrl.length - i - 1) * 3) / 4);
+}
+
+function hasAlpha(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const { data } = ctx.getImageData(0, 0, w, h);
+  for (let i = 3; i < data.length; i += 4) {
+    if (data[i] < 250) return true;
+  }
+  return false;
+}
+
 /**
  * Versão de armazenamento da FOTO ORIGINAL: mantém proporção e enquadramento
- * completos (nunca corta). Só reduz a escala se o lado maior passar de `maxSide`.
+ * completos (nunca corta). A otimização acontece DEPOIS do upload e só quando
+ * a imagem é maior que `maxSide` ou pesada demais para o armazenamento.
  */
 export async function renderOriginalPhoto(
   sourceDataUrl: string,
-  maxSide = 2048,
+  maxSide = 3200,
 ): Promise<string> {
   const img = await loadImage(sourceDataUrl);
   const w = img.naturalWidth;
   const h = img.naturalHeight;
-  const ratio = Math.min(1, maxSide / Math.max(w, h));
-  if (ratio >= 1) return sourceDataUrl;
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(w * ratio);
-  canvas.height = Math.round(h * ratio);
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return sourceDataUrl;
-  ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-  return canvas.toDataURL("image/png");
+  const tooBig = Math.max(w, h) > maxSide;
+  const tooHeavy = dataUrlBytes(sourceDataUrl) > MAX_STORED_BYTES;
+  if (!tooBig && !tooHeavy) return sourceDataUrl;
+
+  let ratio = tooBig ? maxSide / Math.max(w, h) : 1;
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(w * ratio));
+    canvas.height = Math.max(1, Math.round(h * ratio));
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return sourceDataUrl;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    // PNG só quando há transparência (recorte); senão JPEG de alta qualidade.
+    const transparent = hasAlpha(ctx, canvas.width, canvas.height);
+    const out = transparent
+      ? canvas.toDataURL("image/png")
+      : canvas.toDataURL("image/jpeg", 0.95);
+    if (dataUrlBytes(out) <= MAX_STORED_BYTES || ratio <= 0.35) return out;
+    ratio *= 0.8;
+  }
+  return sourceDataUrl;
 }
 
 /** Converte um Blob em data URL (mantém transparência do PNG). */
