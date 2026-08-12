@@ -10,7 +10,10 @@ export type Player = {
   initial_goals: number;
   initial_assists: number;
   initial_conceded: number;
+  /** avatar recortado usado no elenco/rankings */
   photo_url: string | null;
+  /** foto original completa, sem corte, usada na Central de Artes */
+  photo_original_url: string | null;
 };
 
 export type PlayerTotals = {
