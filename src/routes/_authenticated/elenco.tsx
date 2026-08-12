@@ -432,7 +432,7 @@ function ElencoPage() {
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   {photoProcessing
                     ? "Processando imagem…"
-                    : "PNG ou JPG, até 8 MB. A foto original é guardada inteira; o recorte vale só para o avatar."}
+                    : "PNG, JPG ou WebP, até 25 MB. Não precisa comprimir: a foto original é guardada inteira; o recorte vale só para o avatar."}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   <Button
