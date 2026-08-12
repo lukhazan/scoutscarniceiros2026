@@ -505,7 +505,7 @@ function ElencoPage() {
                 <input
                   id="photo"
                   type="file"
-                  accept="image/png,image/jpeg"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
