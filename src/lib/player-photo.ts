@@ -26,10 +26,10 @@ export const DEFAULT_ADJUST: PhotoAdjust = {
 
 function validate(file: File) {
   if (!file.type.startsWith("image/")) {
-    throw new Error("Selecione um arquivo de imagem (PNG ou JPG).");
+    throw new Error("Selecione um arquivo de imagem (PNG, JPG ou WebP).");
   }
   if (file.size > MAX_UPLOAD_BYTES) {
-    throw new Error("Imagem muito grande. Envie um arquivo de até 8 MB.");
+    throw new Error("Imagem muito grande. Envie um arquivo de até 25 MB.");
   }
 }
 
