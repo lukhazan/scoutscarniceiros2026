@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { toJpeg, toPng } from "html-to-image";
+import { renderStoryBlob } from "@/lib/studio/export-image";
 import { ScaledCanvas } from "@/lib/studio/Canvas";
 import { toast } from "sonner";
 import {
@@ -343,22 +343,9 @@ export function ArtStudioPanel() {
 
   async function renderBlob(format: "png" | "jpg") {
     if (!exportRef.current) return null;
-    const options = {
-      width: STORY_WIDTH,
-      height: STORY_HEIGHT,
-      pixelRatio: 1,
-      cacheBust: true,
-      skipFonts: false,
-    };
-    // Duas passadas: a primeira aquece o cache de imagens/fontes, evitando
-    // camadas em branco ou borradas na exportação.
-    if (format === "png") await toPng(exportRef.current, options);
-    const dataUrl =
-      format === "png"
-        ? await toPng(exportRef.current, options)
-        : await toJpeg(exportRef.current, { ...options, quality: 1 });
-    return (await fetch(dataUrl)).blob();
+    return renderStoryBlob(exportRef.current, format);
   }
+
 
   async function handleExport(format: "png" | "jpg" | "share") {
     setExporting(true);
