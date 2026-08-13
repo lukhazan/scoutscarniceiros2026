@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { toJpeg, toPng } from "html-to-image";
+import { renderStoryBlob } from "@/lib/studio/export-image";
 import { ScaledCanvas } from "@/lib/studio/Canvas";
 import { toast } from "sonner";
 import {
