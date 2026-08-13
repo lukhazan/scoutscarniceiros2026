@@ -1233,9 +1233,28 @@ export function ArtStudioPanel() {
         </aside>
       </div>
 
-      {/* nó oculto em resolução real, usado apenas na exportação */}
-      <div className="pointer-events-none fixed -left-[10000px] top-0" aria-hidden>
-        <div ref={exportRef} style={{ width: STORY_WIDTH, height: STORY_HEIGHT }}>
+      {/* nó em resolução real usado apenas na exportação.
+          Fica dentro da viewport (invisível e reduzido) porque navegadores
+          móveis não decodificam imagens de nós posicionados muito fora da tela. */}
+      <div
+        className="pointer-events-none fixed left-0 top-0 overflow-hidden"
+        style={{
+          width: 1,
+          height: 1,
+          opacity: 0.01,
+          zIndex: -1,
+        }}
+        aria-hidden
+      >
+        <div
+          ref={exportRef}
+          style={{
+            width: STORY_WIDTH,
+            height: STORY_HEIGHT,
+            transform: "scale(0.001)",
+            transformOrigin: "top left",
+          }}
+        >
           <TemplateArt template={template} data={data} brand={brand} player={artPlayer} />
         </div>
       </div>
