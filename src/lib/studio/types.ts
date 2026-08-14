@@ -2,6 +2,34 @@ import type { BrandIdentity } from "@/lib/studio-data";
 import type { LayerId, SelectableLayerId } from "@/lib/studio/layout";
 import type { AgendaArtItem } from "@/lib/studio/agenda-art";
 
+/** Caixa de fundo reutilizável por qualquer camada de texto. */
+export type TextBackground = {
+  enabled: boolean;
+  /** auto = acompanha o texto; manual = tamanho definido pelo usuário */
+  mode: "auto" | "manual";
+  color: string;
+  opacity: number;
+  radius: number;
+  paddingX: number;
+  paddingY: number;
+  width?: number;
+  height?: number;
+  offsetX: number;
+  offsetY: number;
+};
+
+export const DEFAULT_TEXT_BACKGROUND: TextBackground = {
+  enabled: false,
+  mode: "auto",
+  color: "#e11d2e",
+  opacity: 1,
+  radius: 0,
+  paddingX: 26,
+  paddingY: 10,
+  offsetX: 0,
+  offsetY: 0,
+};
+
 export type TextOverride = {
   color?: string;
   font?: "primary" | "secondary";
@@ -16,7 +44,10 @@ export type TextOverride = {
   italic?: boolean;
   underline?: boolean;
   uppercase?: boolean;
+  /** fundo próprio deste texto (independente das outras camadas) */
+  background?: TextBackground;
 };
+
 
 export type ArtData = {
   playerId: string | null;
