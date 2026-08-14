@@ -1223,6 +1223,13 @@ export function ArtStudioPanel() {
                     onCheckedChange={(v) => setStyle(section.key, { uppercase: v })}
                   />
                 </div>
+
+                <TextBackgroundControls
+                  value={style.background}
+                  primaryColor={brand?.primary_color ?? "#e11d2e"}
+                  onChange={(bg) => setStyle(section.key, { background: bg })}
+                />
+
               </section>
             );
           })}
