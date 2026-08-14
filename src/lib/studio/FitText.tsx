@@ -17,7 +17,12 @@ export type FitTextProps = {
   align?: "flex-start" | "center" | "flex-end";
   justify?: "flex-start" | "center" | "flex-end";
   style?: React.CSSProperties;
+  /** caixa de fundo desenhada atrás das linhas de texto */
+  box?: React.CSSProperties;
+  /** alinhamento do texto dentro da caixa */
+  boxTextAlign?: "left" | "center" | "right";
 };
+
 
 function balanceLines(text: string, lines: number) {
   const words = text.trim().split(/\s+/);
