@@ -45,18 +45,30 @@ export function FitText({
   align = "center",
   justify = "flex-start",
   style,
-}: FitTextProps) {
+  box,
+  boxTextAlign,
+  fitInsetX = 0,
+  fitInsetY = 0,
+}: FitTextProps & { fitInsetX?: number; fitInsetY?: number }) {
   let best = { lines: [text], size: 0 };
+  const fitWidth = Math.max(40, zone.width - fitInsetX);
+  const fitHeight = Math.max(20, zone.height - fitInsetY);
 
   for (let n = 1; n <= maxLines; n++) {
     const lines = balanceLines(text, n);
     if (lines.length !== n && n > 1) continue;
     const longest = Math.max(...lines.map((l) => l.length), 1);
-    const byWidth = zone.width / (longest * charRatio);
-    const byHeight = zone.height / (lines.length * lineHeight);
+    const byWidth = fitWidth / (longest * charRatio);
+    const byHeight = fitHeight / (lines.length * lineHeight);
     const size = Math.min(maxFontSize, byWidth, byHeight);
     if (size > best.size) best = { lines, size };
   }
+
+  const lines = best.lines.map((l, i) => (
+    <span key={i} style={{ whiteSpace: "nowrap" }}>
+      {l}
+    </span>
+  ));
 
   return (
     <div
@@ -66,17 +78,35 @@ export function FitText({
         flexDirection: "column",
         alignItems: justify,
         justifyContent: align,
-        overflow: "hidden",
+        overflow: box ? "visible" : "hidden",
         ...style,
         fontSize: best.size,
         lineHeight,
       }}
     >
-      {best.lines.map((l, i) => (
-        <span key={i} style={{ whiteSpace: "nowrap" }}>
-          {l}
-        </span>
-      ))}
+      {box ? (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems:
+              boxTextAlign === "center"
+                ? "center"
+                : boxTextAlign === "right"
+                  ? "flex-end"
+                  : "flex-start",
+            justifyContent: "center",
+            boxSizing: "border-box",
+            ...box,
+          }}
+        >
+          {lines}
+        </div>
+      ) : (
+        lines
+      )}
     </div>
   );
+}
+
 }
