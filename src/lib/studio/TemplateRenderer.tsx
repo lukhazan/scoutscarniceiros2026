@@ -154,6 +154,15 @@ const SponsorsLayer = memo(function SponsorsLayer({
   );
 });
 
+function hexToRgba(hex: string, opacity: number) {
+  const m = /^#?([\da-f]{3}|[\da-f]{6})$/i.exec(hex.trim());
+  if (!m) return hex;
+  let h = m[1];
+  if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+  const n = parseInt(h, 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${opacity})`;
+}
+
 const TextLayer = memo(function TextLayer({
   text,
   zone,
@@ -191,6 +200,43 @@ const TextLayer = memo(function TextLayer({
     letterSpacing: config.letterSpacing ?? 0,
     color,
   } as React.CSSProperties;
+
+  const bg = override?.background;
+  const textAlign = align === "center" ? "center" : align === "flex-end" ? "right" : "left";
+
+  /* fundo próprio configurado pelo usuário (vinculado a este texto) */
+  if (bg?.enabled) {
+    const manual = bg.mode === "manual";
+    const box: React.CSSProperties = {
+      background: hexToRgba(bg.color, bg.opacity),
+      borderRadius: bg.radius,
+      padding: `${bg.paddingY}px ${bg.paddingX}px`,
+      transform: `translate(${bg.offsetX}px, ${bg.offsetY}px)`,
+      ...(manual
+        ? {
+            width: bg.width ?? zone.width,
+            minHeight: bg.height ?? zone.height,
+          }
+        : { width: "auto", height: "auto", maxWidth: zone.width }),
+    };
+    return (
+      <FitText
+        text={value}
+        zone={zone}
+        maxFontSize={maxFontSize}
+        maxLines={config.maxLines}
+        charRatio={config.charRatio}
+        lineHeight={config.lineHeight}
+        align="center"
+        justify={align}
+        style={common}
+        box={box}
+        boxTextAlign={textAlign}
+        fitInsetX={bg.paddingX * 2}
+        fitInsetY={bg.paddingY * 2}
+      />
+    );
+  }
 
   if (config.chip) {
     return (
@@ -236,6 +282,7 @@ const TextLayer = memo(function TextLayer({
     />
   );
 });
+
 
 /* ------------------------------ renderizador ------------------------------ */
 
