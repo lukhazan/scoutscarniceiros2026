@@ -80,7 +80,8 @@ import {
   getTemplate,
   type ArtData,
 } from "@/lib/studio/templates";
-import type { TextOverride } from "@/lib/studio/types";
+import type { TextBackground, TextOverride } from "@/lib/studio/types";
+import { DEFAULT_TEXT_BACKGROUND } from "@/lib/studio/types";
 
 type ToolId = "template" | "agenda" | "foto" | "fundo" | "textos" | "elementos" | "camadas";
 type TextLayerKey = "playerName" | "title" | "subtitle";
