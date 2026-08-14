@@ -176,6 +176,167 @@ function SliderRow({
   );
 }
 
+/**
+ * Controles reutilizáveis do fundo de uma camada de texto.
+ * Basta passar `style.background` de qualquer texto para habilitar o recurso.
+ */
+function TextBackgroundControls({
+  value,
+  primaryColor,
+  onChange,
+}: {
+  value?: TextBackground;
+  primaryColor: string;
+  onChange: (bg: TextBackground) => void;
+}) {
+  const bg: TextBackground = value ?? DEFAULT_TEXT_BACKGROUND;
+  const patch = (p: Partial<TextBackground>) => onChange({ ...bg, ...p });
+
+  const presets: { id: string; label: string; apply: Partial<TextBackground> }[] = [
+    { id: "none", label: "Sem fundo", apply: { enabled: false } },
+    {
+      id: "solid",
+      label: "Sólido",
+      apply: { enabled: true, color: "#111111", opacity: 1, radius: 0 },
+    },
+    {
+      id: "red",
+      label: "Vermelho",
+      apply: { enabled: true, color: primaryColor, opacity: 1, radius: 0 },
+    },
+    { id: "custom", label: "Personalizado", apply: { enabled: true } },
+  ];
+
+  return (
+    <div className="space-y-2 rounded-md border border-border/60 p-2">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Fundo do texto
+      </p>
+      <div className="flex flex-wrap gap-1">
+        {presets.map((p) => (
+          <Button
+            key={p.id}
+            size="sm"
+            variant={
+              (p.id === "none" && !bg.enabled) ||
+              (p.id !== "none" &&
+                bg.enabled &&
+                (p.id === "custom" ||
+                  (p.id === "red" && bg.color.toLowerCase() === primaryColor.toLowerCase()) ||
+                  (p.id === "solid" && bg.color.toLowerCase() === "#111111")))
+                ? "default"
+                : "secondary"
+            }
+            className="h-7 px-2 text-[10px]"
+            onClick={() => patch(p.apply)}
+          >
+            {p.label}
+          </Button>
+        ))}
+      </div>
+
+      {bg.enabled ? (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="flex flex-1 items-center gap-2 rounded-md border border-border/60 px-2 py-1">
+              <input
+                type="color"
+                value={bg.color}
+                onChange={(e) => patch({ color: e.target.value })}
+                className="size-5 cursor-pointer rounded border-0 bg-transparent p-0"
+              />
+              <span className="text-[11px] uppercase tabular-nums text-muted-foreground">
+                {bg.color.toUpperCase()}
+              </span>
+            </div>
+            {(["auto", "manual"] as const).map((m) => (
+              <Button
+                key={m}
+                size="sm"
+                variant={bg.mode === m ? "default" : "secondary"}
+                className="h-7 px-2 text-[10px] capitalize"
+                onClick={() => patch({ mode: m })}
+              >
+                {m === "auto" ? "Auto" : "Manual"}
+              </Button>
+            ))}
+          </div>
+
+          <SliderRow
+            label="Opacidade"
+            value={bg.opacity}
+            min={0}
+            max={1}
+            step={0.05}
+            format={(v) => `${Math.round(v * 100)}%`}
+            onChange={(v) => patch({ opacity: v })}
+          />
+          <SliderRow
+            label="Cantos"
+            value={bg.radius}
+            min={0}
+            max={80}
+            step={2}
+            onChange={(v) => patch({ radius: v })}
+          />
+          <SliderRow
+            label="Espaço horizontal"
+            value={bg.paddingX}
+            min={0}
+            max={120}
+            step={2}
+            onChange={(v) => patch({ paddingX: v })}
+          />
+          <SliderRow
+            label="Espaço vertical"
+            value={bg.paddingY}
+            min={0}
+            max={100}
+            step={2}
+            onChange={(v) => patch({ paddingY: v })}
+          />
+          {bg.mode === "manual" ? (
+            <>
+              <SliderRow
+                label="Largura"
+                value={bg.width ?? 960}
+                min={120}
+                max={1080}
+                step={10}
+                onChange={(v) => patch({ width: v })}
+              />
+              <SliderRow
+                label="Altura"
+                value={bg.height ?? 220}
+                min={60}
+                max={800}
+                step={10}
+                onChange={(v) => patch({ height: v })}
+              />
+            </>
+          ) : null}
+          <SliderRow
+            label="Posição X"
+            value={bg.offsetX}
+            min={-400}
+            max={400}
+            step={5}
+            onChange={(v) => patch({ offsetX: v })}
+          />
+          <SliderRow
+            label="Posição Y"
+            value={bg.offsetY}
+            min={-400}
+            max={400}
+            step={5}
+            onChange={(v) => patch({ offsetY: v })}
+          />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 const HANDLES = [
   "left-0 top-0",
   "left-1/2 top-0 -translate-x-1/2",
