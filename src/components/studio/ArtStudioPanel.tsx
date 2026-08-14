@@ -1248,5 +1248,6 @@ export function ArtStudioPanel() {
           </div>
         </div>
       </div>
+    </div>
   );
 }
