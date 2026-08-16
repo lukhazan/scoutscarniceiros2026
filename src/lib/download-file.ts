@@ -21,7 +21,7 @@ export function canShareFile(file: File) {
     canShare?: (data: { files: File[] }) => boolean;
     share?: (data: unknown) => Promise<void>;
   };
-  return Boolean(nav.share && nav.canShare?.({ files: [file] }));
+  return Boolean(typeof nav.share === "function" && nav.canShare?.({ files: [file] }));
 }
 
 /** Aciona o menu nativo. Deve ser chamado a partir de um gesto do usuário. */
