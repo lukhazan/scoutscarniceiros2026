@@ -54,7 +54,11 @@ import {
   BackgroundGallery,
   readDefaultBackground,
 } from "@/components/studio/BackgroundGallery";
-import { saveFile } from "@/lib/download-file";
+import { canShareFile, downloadFile, isMobileDevice } from "@/lib/download-file";
+import {
+  ExportResultDialog,
+  type ExportResult,
+} from "@/components/studio/ExportResultDialog";
 import { publicAgendaQueryOptions } from "@/lib/agenda-data";
 import {
   MAX_AGENDA_ITEMS,
