@@ -1417,6 +1417,8 @@ export function ArtStudioPanel() {
           </div>
         </div>
       </div>
+
+      <ExportResultDialog result={exportResult} onClose={() => setExportResult(null)} />
     </div>
   );
 }
