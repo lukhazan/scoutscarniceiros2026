@@ -363,6 +363,7 @@ export function ArtStudioPanel() {
   const photoInputRef = useRef<HTMLInputElement>(null);
 
   const [exporting, setExporting] = useState(false);
+  const [exportResult, setExportResult] = useState<ExportResult | null>(null);
   const [photoBusy, setPhotoBusy] = useState(false);
   const [slug, setSlug] = useState(STUDIO_TEMPLATES[0].slug);
   const [titleEdited, setTitleEdited] = useState(false);
