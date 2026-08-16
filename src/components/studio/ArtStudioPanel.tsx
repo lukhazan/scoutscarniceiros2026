@@ -519,27 +519,22 @@ export function ArtStudioPanel() {
         return;
       }
       const ext = format === "jpg" ? "jpg" : "png";
-      const file = new File([blob], `${template.slug}-${Date.now()}.${ext}`, {
-        type: blob.type,
-      });
-      if (format === "share" && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: template.name });
-        toast.success("Arte pronta para compartilhar!", { id: toastId });
-        return;
+      const filename = `${template.slug}-${Date.now()}.${ext}`;
+      const file = new File([blob], filename, { type: blob.type });
+
+      // Desktop com download funcional: mantém o comportamento tradicional.
+      if (format !== "share" && !isMobileDevice() && !canShareFile(file)) {
+        if (downloadFile(blob, filename)) {
+          toast.success("Arte baixada!", { id: toastId });
+          return;
+        }
       }
-      const result = await saveFile(blob, file.name);
-      if (result === "shared") {
-        toast.success("Escolha onde salvar ou compartilhar a arte.", { id: toastId });
-      } else if (result === "opened") {
-        toast.success("Arte aberta em nova aba — toque e segure para salvar.", { id: toastId });
-      } else {
-        toast.success("Arte baixada!", { id: toastId });
-      }
-    } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") {
-        toast.dismiss(toastId);
-        return;
-      }
+
+      // Celular (ou pedido explícito de compartilhar): o menu nativo precisa de
+      // um toque do usuário, então abrimos o diálogo de entrega da arte.
+      toast.dismiss(toastId);
+      setExportResult({ blob, filename, title: template.name });
+    } catch {
       toast.error("Não foi possível gerar a imagem. Tente novamente.", { id: toastId });
     } finally {
       setExporting(false);
