@@ -9,7 +9,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { canShareFile, downloadFile, openFile, shareFile } from "@/lib/download-file";
+import {
+  canShareFile,
+  downloadFile,
+  isMobileDevice,
+  openFile,
+  shareFile,
+} from "@/lib/download-file";
 
 export type ExportResult = { blob: Blob; filename: string; title?: string };
 
