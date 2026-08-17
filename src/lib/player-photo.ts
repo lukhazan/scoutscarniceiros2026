@@ -1,7 +1,7 @@
 /** Limite de upload da FOTO ORIGINAL do atleta (25 MB). */
 export const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 /** Acima disso a foto original é otimizada (sem cortar) depois de recebida. */
-const MAX_STORED_BYTES = 3.5 * 1024 * 1024;
+const MAX_STORED_BYTES = 9 * 1024 * 1024;
 
 export type PhotoAdjust = {
   /** 1 = enquadramento padrão, até 3x de aproximação */
@@ -123,7 +123,7 @@ function hasAlpha(ctx: CanvasRenderingContext2D, w: number, h: number) {
  */
 export async function renderOriginalPhoto(
   sourceDataUrl: string,
-  maxSide = 3200,
+  maxSide = 4096,
 ): Promise<string> {
   const img = await loadImage(sourceDataUrl);
   const w = img.naturalWidth;
@@ -132,23 +132,31 @@ export async function renderOriginalPhoto(
   const tooHeavy = dataUrlBytes(sourceDataUrl) > MAX_STORED_BYTES;
   if (!tooBig && !tooHeavy) return sourceDataUrl;
 
-  let ratio = tooBig ? maxSide / Math.max(w, h) : 1;
-  for (let attempt = 0; attempt < 5; attempt += 1) {
+  // Resolução é preservada ao máximo: primeiro reduzimos a QUALIDADE do JPEG
+  // (imperceptível) e só em último caso a escala — reduzir pixels é o que
+  // deixava a foto do atleta fosca na arte final.
+  const ratio = tooBig ? maxSide / Math.max(w, h) : 1;
+  const scales = [ratio, ratio * 0.85, ratio * 0.7];
+  for (const scale of scales) {
     const canvas = document.createElement("canvas");
-    canvas.width = Math.max(1, Math.round(w * ratio));
-    canvas.height = Math.max(1, Math.round(h * ratio));
+    canvas.width = Math.max(1, Math.round(w * scale));
+    canvas.height = Math.max(1, Math.round(h * scale));
     const ctx = canvas.getContext("2d");
     if (!ctx) return sourceDataUrl;
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    // PNG só quando há transparência (recorte); senão JPEG de alta qualidade.
     const transparent = hasAlpha(ctx, canvas.width, canvas.height);
-    const out = transparent
-      ? canvas.toDataURL("image/png")
-      : canvas.toDataURL("image/jpeg", 0.95);
-    if (dataUrlBytes(out) <= MAX_STORED_BYTES || ratio <= 0.35) return out;
-    ratio *= 0.8;
+    if (transparent) {
+      const png = canvas.toDataURL("image/png");
+      if (dataUrlBytes(png) <= MAX_STORED_BYTES) return png;
+      // PNG grande demais: mantém transparência reduzindo só a escala.
+      continue;
+    }
+    for (const quality of [0.95, 0.9, 0.85, 0.8]) {
+      const out = canvas.toDataURL("image/jpeg", quality);
+      if (dataUrlBytes(out) <= MAX_STORED_BYTES) return out;
+    }
   }
   return sourceDataUrl;
 }
