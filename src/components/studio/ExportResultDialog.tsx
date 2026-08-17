@@ -65,10 +65,35 @@ export function ExportResultDialog({
     }
   }
 
-  function handleDownload() {
+  /**
+   * "Baixar arquivo" precisa entregar a imagem AO APARELHO. No celular o
+   * download HTTP não salva nada em Fotos, então abrimos o menu nativo do
+   * sistema (Salvar em Fotos / Arquivos) direto no toque do usuário e só
+   * usamos o download clássico como reserva.
+   */
+  async function handleDownload() {
     if (!result) return;
+    if (file && isMobileDevice() && typeof navigator !== "undefined" && "share" in navigator) {
+      setBusy(true);
+      try {
+        const r = await shareFile(file, result.title);
+        if (r === "shared") {
+          toast.success("Arte salva no seu aparelho.");
+          onClose();
+          return;
+        }
+        toast.message("Salvamento cancelado. A arte continua disponível aqui.");
+        return;
+      } catch {
+        /* segue para o download clássico */
+      } finally {
+        setBusy(false);
+      }
+    }
     if (downloadFile(result.blob, result.filename)) {
       toast.success("Download iniciado.");
+    } else if (openFile(result.blob)) {
+      toast.message("Toque e segure na imagem para salvar em Fotos.");
     } else {
       toast.error("Este navegador não permite baixar. Use abrir a imagem e salve manualmente.");
     }
