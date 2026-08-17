@@ -1,7 +1,7 @@
 /** Limite de upload da FOTO ORIGINAL do atleta (25 MB). */
 export const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 /** Acima disso a foto original é otimizada (sem cortar) depois de recebida. */
-const MAX_STORED_BYTES = 3.5 * 1024 * 1024;
+const MAX_STORED_BYTES = 9 * 1024 * 1024;
 
 export type PhotoAdjust = {
   /** 1 = enquadramento padrão, até 3x de aproximação */
