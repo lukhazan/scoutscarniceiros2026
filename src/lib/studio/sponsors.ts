@@ -39,6 +39,8 @@ export type SponsorConfig = {
   items: SponsorItem[];
   /** preparação para templates salvos: logos fixas (não editáveis na Arte Rápida) */
   locked: boolean;
+  /** true após a migração dos patrocinadores da identidade visual */
+  migrated: boolean;
 };
 
 export const DEFAULT_SPONSOR_AREA: Zone = { x: 60, y: 1660, width: 960, height: 160 };
@@ -55,6 +57,7 @@ export const DEFAULT_SPONSOR_CONFIG: SponsorConfig = {
   logoScale: 1,
   items: [],
   locked: false,
+  migrated: false,
 };
 
 export function newSponsorItem(url: string, name?: string): SponsorItem {
