@@ -42,7 +42,7 @@ export function clampToSafeArea(zone: Zone): Zone {
 
 
 /** Camadas que o usuário pode selecionar e editar no painel de propriedades. */
-export type SelectableLayerId = "photo" | "playerName" | "title" | "subtitle";
+export type SelectableLayerId = "photo" | "playerName" | "title" | "subtitle" | "sponsors";
 
 export type TextLayerConfig = {
   maxFontSize: number;

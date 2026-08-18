@@ -1,6 +1,7 @@
 import type { BrandIdentity } from "@/lib/studio-data";
 import type { LayerId, SelectableLayerId } from "@/lib/studio/layout";
 import type { AgendaArtItem } from "@/lib/studio/agenda-art";
+import { DEFAULT_SPONSOR_CONFIG, type SponsorConfig } from "@/lib/studio/sponsors";
 
 /** Caixa de fundo reutilizável por qualquer camada de texto. */
 export type TextBackground = {
@@ -74,6 +75,8 @@ export type ArtData = {
   agendaWeekOffset: number;
   /** Compromissos usados na arte (cópia somente de leitura da Agenda) */
   agendaItems: AgendaArtItem[];
+  /** Área e logos de patrocinadores (salva junto com o template) */
+  sponsorConfig: SponsorConfig;
 };
 
 export type ArtPlayer = {
@@ -93,6 +96,8 @@ export type TemplateRenderProps = {
   /** camada destacada no editor (não afeta a exportação) */
   selected?: SelectableLayerId | null;
   onSelect?: (layer: SelectableLayerId) => void;
+  /** edição visual da área de patrocinadores (apenas no estúdio) */
+  onSponsorAreaChange?: (area: { x: number; y: number; width: number; height: number }) => void;
 };
 
 export const EMPTY_ART_DATA: ArtData = {
@@ -114,4 +119,5 @@ export const EMPTY_ART_DATA: ArtData = {
   agendaMode: "auto",
   agendaWeekOffset: 0,
   agendaItems: [],
+  sponsorConfig: DEFAULT_SPONSOR_CONFIG,
 };
