@@ -4,6 +4,8 @@ import { FitText } from "@/lib/studio/FitText";
 import { StudioCanvas } from "@/lib/studio/Canvas";
 import { PlayerFrame } from "@/lib/studio/PlayerFrame";
 import { AgendaLayer } from "@/lib/studio/AgendaLayer";
+import { SponsorsLayer } from "@/lib/studio/SponsorsLayer";
+import { DEFAULT_SPONSOR_CONFIG, sponsorsFromBrand, type SponsorConfig } from "@/lib/studio/sponsors";
 import {
   STORY_HEIGHT,
   STORY_WIDTH,
@@ -113,44 +115,6 @@ const ImageLayer = memo(function ImageLayer({
       alt=""
       style={{ ...zoneStyle(zone), objectFit: "contain", opacity }}
     />
-  );
-});
-
-const SponsorsLayer = memo(function SponsorsLayer({
-  zone,
-  footer,
-  sponsors,
-}: {
-  zone: Zone;
-  footer: string | null;
-  sponsors: string[];
-}) {
-  return (
-    <div
-      style={{
-        ...zoneStyle(zone),
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 24,
-      }}
-    >
-      {footer ? (
-        <img src={footer} alt="" style={{ maxHeight: zone.height * 0.7, objectFit: "contain" }} />
-      ) : (
-        <span />
-      )}
-      <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
-        {sponsors.slice(0, 4).map((src, i) => (
-          <img
-            key={i}
-            src={src}
-            alt=""
-            style={{ maxHeight: zone.height * 0.6, objectFit: "contain" }}
-          />
-        ))}
-      </div>
-    </div>
   );
 });
 
@@ -303,6 +267,7 @@ export function TemplateRenderer({
   headline,
   selected = null,
   onSelect,
+  onSponsorAreaChange,
 }: TemplateRendererProps) {
   const c = brandColors(brand);
   const a = layout.areas;
@@ -389,15 +354,29 @@ export function TemplateRenderer({
             colors={c}
           />
         );
-      case "sponsors":
+      case "sponsors": {
+        const base: SponsorConfig = data.sponsorConfig ?? DEFAULT_SPONSOR_CONFIG;
+        // Migração transparente: enquanto o usuário não editar a área, usa as
+        // logos já cadastradas na identidade visual, na posição do template.
+        const config: SponsorConfig = base.migrated
+          ? base
+          : {
+              ...base,
+              area: base.area ?? a.sponsors,
+              items: base.items.length ? base.items : sponsorsFromBrand(brand),
+            };
         return (
           <SponsorsLayer
             key={id}
-            zone={a.sponsors}
-            footer={brand?.footer_logo_url ?? null}
-            sponsors={brand?.sponsors ?? []}
+            config={config}
+            accent={c.primary}
+            editable={Boolean(onSelect) && !locked.includes("sponsors")}
+            selected={selected === "sponsors"}
+            onSelect={() => onSelect?.("sponsors")}
+            onAreaChange={onSponsorAreaChange}
           />
         );
+      }
       default:
         return null;
     }
