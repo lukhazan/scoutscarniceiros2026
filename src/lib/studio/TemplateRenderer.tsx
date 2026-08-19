@@ -358,24 +358,13 @@ export function TemplateRenderer({
         const base: SponsorConfig = data.sponsorConfig ?? DEFAULT_SPONSOR_CONFIG;
         // Migração transparente: enquanto o usuário não editar a área, usa as
         // logos já cadastradas na identidade visual, na posição do template.
-        const config: SponsorConfig = base.migrated
-          ? base
-          : {
-              ...base,
-              area: base.area ?? a.sponsors,
-              items: base.items.length ? base.items : sponsorsFromBrand(brand),
-            };
-        return (
-          <SponsorsLayer
-            key={id}
-            config={config}
-            accent={c.primary}
-            editable={Boolean(onSelect) && !locked.includes("sponsors")}
-            selected={selected === "sponsors"}
-            onSelect={() => onSelect?.("sponsors")}
-            onAreaChange={onSponsorAreaChange}
-          />
-        );
+        const config: SponsorConfig = {
+          ...base,
+          area: base.migrated ? base.area : (base.area ?? DEFAULT_SPONSOR_CONFIG.area),
+          items: base.items.length ? base.items : sponsorsFromBrand(brand),
+        };
+        if (!config.items.length) return null;
+        return <SponsorsLayer key={id} config={config} accent={c.primary} />;
       }
       default:
         return null;

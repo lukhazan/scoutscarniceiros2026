@@ -43,18 +43,19 @@ export type SponsorConfig = {
   migrated: boolean;
 };
 
-export const DEFAULT_SPONSOR_AREA: Zone = { x: 60, y: 1660, width: 960, height: 160 };
+/** Faixa discreta no rodapé da arte (1080x1920). */
+export const DEFAULT_SPONSOR_AREA: Zone = { x: 90, y: 1712, width: 900, height: 112 };
 
 export const DEFAULT_SPONSOR_CONFIG: SponsorConfig = {
   area: DEFAULT_SPONSOR_AREA,
-  arrange: "auto",
+  arrange: "row",
   columns: 3,
-  gapX: 32,
-  gapY: 24,
-  padding: 12,
+  gapX: 40,
+  gapY: 16,
+  padding: 8,
   alignX: "center",
   alignY: "center",
-  logoScale: 1,
+  logoScale: 0.9,
   items: [],
   locked: false,
   migrated: false,
