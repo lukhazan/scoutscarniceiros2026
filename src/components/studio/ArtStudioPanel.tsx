@@ -608,7 +608,14 @@ export function ArtStudioPanel() {
       ...prev,
       sponsorConfig: {
         ...(prev.sponsorConfig ?? DEFAULT_SPONSOR_CONFIG),
-        area: template.layout.areas.sponsors ?? DEFAULT_SPONSOR_CONFIG.area,
+        area: {
+          ...(template.layout.areas.sponsors ?? DEFAULT_SPONSOR_CONFIG.area),
+          // altura inicial maior para as logos não ficarem minúsculas
+          height: Math.max(
+            template.layout.areas.sponsors?.height ?? 0,
+            DEFAULT_SPONSOR_CONFIG.area.height,
+          ),
+        },
         items,
       },
     }));
