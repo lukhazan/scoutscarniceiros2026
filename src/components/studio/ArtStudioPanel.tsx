@@ -31,6 +31,7 @@ import {
   Undo2,
   Unlock,
   X,
+  Handshake,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,10 +85,24 @@ import {
   getTemplate,
   type ArtData,
 } from "@/lib/studio/templates";
+import { SponsorControls } from "@/components/studio/SponsorControls";
+import {
+  DEFAULT_SPONSOR_CONFIG,
+  sponsorsFromBrand,
+  type SponsorConfig,
+} from "@/lib/studio/sponsors";
 import type { TextBackground, TextOverride } from "@/lib/studio/types";
 import { DEFAULT_TEXT_BACKGROUND } from "@/lib/studio/types";
 
-type ToolId = "template" | "agenda" | "foto" | "fundo" | "textos" | "elementos" | "camadas";
+type ToolId =
+  | "template"
+  | "agenda"
+  | "foto"
+  | "fundo"
+  | "textos"
+  | "elementos"
+  | "patrocinadores"
+  | "camadas";
 type TextLayerKey = "playerName" | "title" | "subtitle";
 
 const TOOLS: { id: ToolId; label: string; icon: typeof Type }[] = [
@@ -97,6 +112,7 @@ const TOOLS: { id: ToolId; label: string; icon: typeof Type }[] = [
   { id: "fundo", label: "Fundo", icon: ImagePlus },
   { id: "textos", label: "Textos", icon: Type },
   { id: "elementos", label: "Elementos", icon: Shapes },
+  { id: "patrocinadores", label: "Patroc.", icon: Handshake },
   { id: "camadas", label: "Camadas", icon: Layers },
 ];
 
@@ -382,6 +398,7 @@ export function ArtStudioPanel() {
 
   const template = getTemplate(slug);
   const isAgendaTemplate = template.fields.includes("agenda");
+  const sponsorConfig: SponsorConfig = data.sponsorConfig ?? DEFAULT_SPONSOR_CONFIG;
 
   const commit = useCallback((updater: (prev: ArtData) => ArtData) => {
     setData((prev) => {
@@ -581,6 +598,30 @@ export function ArtStudioPanel() {
     });
   }
 
+  /* Migração: traz os patrocinadores já cadastrados na identidade visual e a
+     área original do template para a nova estrutura configurável. */
+  useEffect(() => {
+    if (sponsorConfig.migrated || sponsorConfig.items.length) return;
+    const items = sponsorsFromBrand(brand);
+    if (!items.length) return;
+    setData((prev) => ({
+      ...prev,
+      sponsorConfig: {
+        ...(prev.sponsorConfig ?? DEFAULT_SPONSOR_CONFIG),
+        area: {
+          ...(template.layout.areas.sponsors ?? DEFAULT_SPONSOR_CONFIG.area),
+          // altura inicial maior para as logos não ficarem minúsculas
+          height: Math.max(
+            template.layout.areas.sponsors?.height ?? 0,
+            DEFAULT_SPONSOR_CONFIG.area.height,
+          ),
+        },
+        items,
+      },
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [brand, template.slug]);
+
   const art = (
     <TemplateArt
       template={template}
@@ -589,6 +630,11 @@ export function ArtStudioPanel() {
       player={artPlayer}
       selected={previewMode ? null : selected}
       onSelect={previewMode ? undefined : setSelected}
+      onSponsorAreaChange={
+        previewMode
+          ? undefined
+          : (area) => set({ sponsorConfig: { ...sponsorConfig, area, migrated: true } })
+      }
     />
   );
 
@@ -679,7 +725,10 @@ export function ArtStudioPanel() {
                 <button
                   key={t.id}
                   type="button"
-                  onClick={() => setTool(t.id)}
+                  onClick={() => {
+                    setTool(t.id);
+                    if (t.id === "patrocinadores") setSelected("sponsors");
+                  }}
                   className={`flex flex-col items-center gap-1 rounded-lg px-1 py-2 text-[10px] transition-colors ${
                     active
                       ? "bg-primary/15 text-primary"
@@ -1082,6 +1131,13 @@ export function ArtStudioPanel() {
               </div>
             ) : null}
 
+            {tool === "patrocinadores" ? (
+              <SponsorControls
+                config={sponsorConfig}
+                onChange={(next) => set({ sponsorConfig: next })}
+              />
+            ) : null}
+
             {tool === "camadas" ? (
               <div className="space-y-2">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -1099,7 +1155,7 @@ export function ArtStudioPanel() {
                       type="button"
                       className="min-w-0 flex-1 truncate text-left text-xs"
                       onClick={() => {
-                        if (["photo", "playerName", "title", "subtitle"].includes(id)) {
+                        if (["photo", "playerName", "title", "subtitle", "sponsors"].includes(id)) {
                           setSelected(id as SelectableLayerId);
                         }
                       }}
