@@ -504,6 +504,39 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_art_templates: {
+        Row: {
+          art_data: Json
+          base_slug: string
+          created_at: string
+          editable_fields: string[]
+          id: string
+          name: string
+          preview_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          art_data?: Json
+          base_slug: string
+          created_at?: string
+          editable_fields?: string[]
+          id?: string
+          name: string
+          preview_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          art_data?: Json
+          base_slug?: string
+          created_at?: string
+          editable_fields?: string[]
+          id?: string
+          name?: string
+          preview_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       team_events: {
         Row: {
           created_at: string

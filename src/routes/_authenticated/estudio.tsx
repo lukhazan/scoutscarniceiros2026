@@ -3,6 +3,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { AdminGate } from "@/components/AdminGate";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArtStudioPanel } from "@/components/studio/ArtStudioPanel";
+import { QuickArtPanel } from "@/components/studio/QuickArtPanel";
 import { BrandIdentityPanel } from "@/components/studio/BrandIdentityPanel";
 import { MediaLibraryPanel } from "@/components/studio/MediaLibraryPanel";
 import { TemplatesPanel } from "@/components/studio/TemplatesPanel";
@@ -33,18 +34,22 @@ function EstudioPage() {
     <AdminGate>
       <AppHeader />
       <main className="mx-auto max-w-5xl px-4 py-6">
-        <h1 className="font-display text-2xl sm:text-3xl">Estúdio de Artes</h1>
+        <h1 className="font-display text-2xl sm:text-3xl">Central de Artes</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Preencha as informações — o template cuida do layout.
+          Use a Arte Rápida para gerar em segundos ou o Estúdio Avançado para criar o padrão.
         </p>
 
-        <Tabs defaultValue="estudio" className="mt-5">
+        <Tabs defaultValue="rapida" className="mt-5">
           <TabsList className="flex w-full flex-wrap">
-            <TabsTrigger value="estudio">Estúdio</TabsTrigger>
+            <TabsTrigger value="rapida">Arte Rápida</TabsTrigger>
+            <TabsTrigger value="estudio">Estúdio avançado</TabsTrigger>
             <TabsTrigger value="identidade">Identidade visual</TabsTrigger>
             <TabsTrigger value="midia">Biblioteca de mídia</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
           </TabsList>
+          <TabsContent value="rapida" className="mt-4">
+            <QuickArtPanel />
+          </TabsContent>
           <TabsContent value="estudio" className="mt-4">
             <ArtStudioPanel />
           </TabsContent>
