@@ -23,6 +23,8 @@ import {
   Redo2,
   Share2,
   Shapes,
+  Save,
+  Copy,
   RefreshCw,
   Trash2,
   CalendarDays,
@@ -91,6 +93,19 @@ import {
 } from "@/lib/studio/sponsors";
 import type { TextBackground, TextOverride } from "@/lib/studio/types";
 import { DEFAULT_TEXT_BACKGROUND } from "@/lib/studio/types";
+import {
+  SaveTemplateDialog,
+  type SaveTemplateSubmit,
+} from "@/components/studio/SaveTemplateDialog";
+import {
+  createSavedTemplate,
+  deleteSavedTemplate,
+  duplicateSavedTemplate,
+  savedArtTemplatesQueryOptions,
+  updateSavedTemplate,
+  type QuickField,
+  type SavedArtTemplate,
+} from "@/lib/studio/saved-templates";
 
 type ToolId =
   | "template"
@@ -388,9 +403,64 @@ export function ArtStudioPanel() {
     backgroundUrl: readDefaultBackground(),
   }));
 
+  const { data: savedTemplates = [] } = useQuery(savedArtTemplatesQueryOptions);
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<SavedArtTemplate | null>(null);
+
   const past = useRef<ArtData[]>([]);
   const future = useRef<ArtData[]>([]);
   const [historyTick, setHistoryTick] = useState(0);
+
+  /** Abre um template salvo no editor avançado, sem perder nada da composição. */
+  function openSavedTemplate(tpl: SavedArtTemplate) {
+    setEditingTemplate(tpl);
+    setSlug(tpl.base_slug);
+    setTitleEdited(true);
+    past.current = [];
+    future.current = [];
+    setData({ ...EMPTY_ART_DATA, ...tpl.art_data });
+    setHistoryTick((t) => t + 1);
+    toast.success(`Template "${tpl.name}" carregado no editor.`);
+  }
+
+  async function handleSaveTemplate(value: SaveTemplateSubmit) {
+    setSavingTemplate(true);
+    try {
+      if (value.mode === "update" && editingTemplate) {
+        await updateSavedTemplate(editingTemplate.id, {
+          name: value.name,
+          art_data: data,
+          editable_fields: value.editableFields,
+        });
+        toast.success("Template atualizado.");
+      } else {
+        const id = await createSavedTemplate({
+          name: value.name,
+          base_slug: slug,
+          art_data: data,
+          editable_fields: value.editableFields,
+        });
+        toast.success("Template salvo. Já disponível na Arte Rápida.");
+        setEditingTemplate({
+          id,
+          name: value.name,
+          base_slug: slug,
+          art_data: data,
+          editable_fields: value.editableFields,
+          preview_url: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+      }
+      await queryClient.invalidateQueries({ queryKey: ["saved-art-templates"] });
+      setSaveOpen(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Não foi possível salvar o template.");
+    } finally {
+      setSavingTemplate(false);
+    }
+  }
 
   const template = getTemplate(slug);
   const isAgendaTemplate = template.fields.includes("agenda");
@@ -668,6 +738,11 @@ export function ArtStudioPanel() {
             <Switch checked={previewMode} onCheckedChange={setPreviewMode} />
           </div>
 
+          <Button variant="secondary" onClick={() => setSaveOpen(true)}>
+            <Save className="mr-2 size-4" />
+            {editingTemplate ? "Salvar template" : "Salvar como template"}
+          </Button>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button disabled={exporting}>
@@ -753,11 +828,12 @@ export function ArtStudioPanel() {
                         onClick={() => {
                           setSlug(t.slug);
                           setTitleEdited(false);
+                          setEditingTemplate(null);
                           setSelected(t.fields.includes("agenda") ? "title" : "photo");
                           set({ ...t.defaults });
                         }}
                         className={`flex w-full items-center gap-2 rounded-lg border p-2 text-left transition-colors ${
-                          slug === t.slug
+                          slug === t.slug && !editingTemplate
                             ? "border-primary bg-primary/10"
                             : "border-border/60 hover:border-primary/50"
                         }`}
@@ -769,6 +845,88 @@ export function ArtStudioPanel() {
                       </button>
                     ))}
                   </div>
+                </section>
+
+                <section>
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Meus templates salvos
+                  </p>
+                  {savedTemplates.length === 0 ? (
+                    <p className="rounded-lg border border-border/60 p-2 text-[11px] text-muted-foreground">
+                      Monte a arte e use "Salvar como template" para reutilizar na Arte Rápida.
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {savedTemplates.map((tpl) => (
+                        <div
+                          key={tpl.id}
+                          className={`rounded-lg border p-2 ${
+                            editingTemplate?.id === tpl.id
+                              ? "border-primary bg-primary/10"
+                              : "border-border/60"
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => openSavedTemplate(tpl)}
+                            className="block w-full truncate text-left text-xs font-semibold"
+                          >
+                            {tpl.name}
+                          </button>
+                          <div className="mt-1 flex items-center gap-1">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="h-7 flex-1 px-2 text-[10px]"
+                              onClick={() => openSavedTemplate(tpl)}
+                            >
+                              Abrir
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="secondary"
+                              className="size-7"
+                              title="Duplicar"
+                              onClick={async () => {
+                                try {
+                                  await duplicateSavedTemplate(tpl);
+                                  await queryClient.invalidateQueries({
+                                    queryKey: ["saved-art-templates"],
+                                  });
+                                  toast.success("Template duplicado.");
+                                } catch {
+                                  toast.error("Não foi possível duplicar.");
+                                }
+                              }}
+                            >
+                              <Copy className="size-3.5" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="secondary"
+                              className="size-7"
+                              title="Excluir"
+                              onClick={async () => {
+                                if (!confirm(`Excluir o template "${tpl.name}"?`)) return;
+                                try {
+                                  await deleteSavedTemplate(tpl.id);
+                                  if (editingTemplate?.id === tpl.id) setEditingTemplate(null);
+                                  await queryClient.invalidateQueries({
+                                    queryKey: ["saved-art-templates"],
+                                  });
+                                  toast.success("Template excluído.");
+                                } catch {
+                                  toast.error("Não foi possível excluir.");
+                                }
+                              }}
+                            >
+                              <Trash2 className="size-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </section>
               </>
             ) : null}
@@ -1452,6 +1610,16 @@ export function ArtStudioPanel() {
       </div>
 
       <ExportResultDialog result={exportResult} onClose={() => setExportResult(null)} />
+
+      <SaveTemplateDialog
+        open={saveOpen}
+        onOpenChange={setSaveOpen}
+        initialName={editingTemplate?.name ?? `${template.name.toUpperCase()} — PADRÃO 01`}
+        initialFields={editingTemplate?.editable_fields as QuickField[] | undefined}
+        canUpdate={Boolean(editingTemplate)}
+        saving={savingTemplate}
+        onSubmit={handleSaveTemplate}
+      />
     </div>
   );
 }

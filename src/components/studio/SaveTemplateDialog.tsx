@@ -46,9 +46,7 @@ export function SaveTemplateDialog({
   onSubmit: (value: SaveTemplateSubmit) => void;
 }) {
   const [name, setName] = useState(initialName);
-  const [fields, setFields] = useState<QuickField[]>(
-    initialFields ?? DEFAULT_EDITABLE_FIELDS,
-  );
+  const [fields, setFields] = useState<QuickField[]>(initialFields ?? DEFAULT_EDITABLE_FIELDS);
 
   useEffect(() => {
     if (!open) return;
@@ -72,8 +70,8 @@ export function SaveTemplateDialog({
         <DialogHeader>
           <DialogTitle>Salvar como template</DialogTitle>
           <DialogDescription>
-            A composição completa é guardada. Marque abaixo somente o que poderá ser
-            trocado no Modo Arte Rápida — o restante fica travado.
+            A composição completa é guardada. Marque abaixo somente o que poderá ser trocado no Modo
+            Arte Rápida — o restante fica travado.
           </DialogDescription>
         </DialogHeader>
 
@@ -105,8 +103,8 @@ export function SaveTemplateDialog({
               ))}
             </div>
             <p className="text-[11px] text-muted-foreground">
-              Tudo que ficar desligado é considerado fixo (fundo, logo, tipografia,
-              posições e demais elementos permanecem como você deixou).
+              Tudo que ficar desligado é considerado fixo (fundo, logo, tipografia, posições e
+              demais elementos permanecem como você deixou).
             </p>
           </div>
         </div>

@@ -6,13 +6,7 @@ import { EMPTY_ART_DATA, type ArtData } from "@/lib/studio/types";
  * A lista é genérica de propósito: novos campos entram aqui sem tocar no motor.
  */
 export type QuickField =
-  | "playerPhoto"
-  | "playerName"
-  | "title"
-  | "subtitle"
-  | "goals"
-  | "background"
-  | "agenda";
+  "playerPhoto" | "playerName" | "title" | "subtitle" | "goals" | "background" | "agenda";
 
 export const QUICK_FIELDS: { id: QuickField; label: string }[] = [
   { id: "playerPhoto", label: "Foto do atleta" },

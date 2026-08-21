@@ -14,10 +14,7 @@ import {
 } from "@/components/ui/select";
 import { ScaledCanvas } from "@/lib/studio/Canvas";
 import { renderStoryBlob } from "@/lib/studio/export-image";
-import {
-  ExportResultDialog,
-  type ExportResult,
-} from "@/components/studio/ExportResultDialog";
+import { ExportResultDialog, type ExportResult } from "@/components/studio/ExportResultDialog";
 import { canShareFile, downloadFile, isMobileDevice } from "@/lib/download-file";
 import { brandIdentityQueryOptions } from "@/lib/studio-data";
 import { displayName, playersQueryOptions } from "@/lib/team-data";
@@ -79,10 +76,7 @@ export function QuickArtPanel() {
   const { data: brand = null } = useQuery(brandIdentityQueryOptions);
   const { data: saved = [], isLoading } = useQuery(savedArtTemplatesQueryOptions);
 
-  const options = useMemo(
-    () => [...saved.map(savedToOption), ...builtinOptions()],
-    [saved],
-  );
+  const options = useMemo(() => [...saved.map(savedToOption), ...builtinOptions()], [saved]);
 
   const [optionId, setOptionId] = useState<string | null>(null);
   const [playerId, setPlayerId] = useState<string | null>(null);
