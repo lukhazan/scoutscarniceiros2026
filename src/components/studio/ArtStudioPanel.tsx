@@ -1610,6 +1610,16 @@ export function ArtStudioPanel() {
       </div>
 
       <ExportResultDialog result={exportResult} onClose={() => setExportResult(null)} />
+
+      <SaveTemplateDialog
+        open={saveOpen}
+        onOpenChange={setSaveOpen}
+        initialName={editingTemplate?.name ?? `${template.name.toUpperCase()} — PADRÃO 01`}
+        initialFields={editingTemplate?.editable_fields as QuickField[] | undefined}
+        canUpdate={Boolean(editingTemplate)}
+        saving={savingTemplate}
+        onSubmit={handleSaveTemplate}
+      />
     </div>
   );
 }
