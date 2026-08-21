@@ -91,6 +91,19 @@ import {
 } from "@/lib/studio/sponsors";
 import type { TextBackground, TextOverride } from "@/lib/studio/types";
 import { DEFAULT_TEXT_BACKGROUND } from "@/lib/studio/types";
+import {
+  SaveTemplateDialog,
+  type SaveTemplateSubmit,
+} from "@/components/studio/SaveTemplateDialog";
+import {
+  createSavedTemplate,
+  deleteSavedTemplate,
+  duplicateSavedTemplate,
+  savedArtTemplatesQueryOptions,
+  updateSavedTemplate,
+  type QuickField,
+  type SavedArtTemplate,
+} from "@/lib/studio/saved-templates";
 
 type ToolId =
   | "template"
