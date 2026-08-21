@@ -738,6 +738,11 @@ export function ArtStudioPanel() {
             <Switch checked={previewMode} onCheckedChange={setPreviewMode} />
           </div>
 
+          <Button variant="secondary" onClick={() => setSaveOpen(true)}>
+            <Save className="mr-2 size-4" />
+            {editingTemplate ? "Salvar template" : "Salvar como template"}
+          </Button>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button disabled={exporting}>
