@@ -23,6 +23,8 @@ import {
   Redo2,
   Share2,
   Shapes,
+  Save,
+  Copy,
   RefreshCw,
   Trash2,
   CalendarDays,
