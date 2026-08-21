@@ -828,11 +828,12 @@ export function ArtStudioPanel() {
                         onClick={() => {
                           setSlug(t.slug);
                           setTitleEdited(false);
+                          setEditingTemplate(null);
                           setSelected(t.fields.includes("agenda") ? "title" : "photo");
                           set({ ...t.defaults });
                         }}
                         className={`flex w-full items-center gap-2 rounded-lg border p-2 text-left transition-colors ${
-                          slug === t.slug
+                          slug === t.slug && !editingTemplate
                             ? "border-primary bg-primary/10"
                             : "border-border/60 hover:border-primary/50"
                         }`}
@@ -844,6 +845,88 @@ export function ArtStudioPanel() {
                       </button>
                     ))}
                   </div>
+                </section>
+
+                <section>
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Meus templates salvos
+                  </p>
+                  {savedTemplates.length === 0 ? (
+                    <p className="rounded-lg border border-border/60 p-2 text-[11px] text-muted-foreground">
+                      Monte a arte e use "Salvar como template" para reutilizar na Arte Rápida.
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {savedTemplates.map((tpl) => (
+                        <div
+                          key={tpl.id}
+                          className={`rounded-lg border p-2 ${
+                            editingTemplate?.id === tpl.id
+                              ? "border-primary bg-primary/10"
+                              : "border-border/60"
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => openSavedTemplate(tpl)}
+                            className="block w-full truncate text-left text-xs font-semibold"
+                          >
+                            {tpl.name}
+                          </button>
+                          <div className="mt-1 flex items-center gap-1">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="h-7 flex-1 px-2 text-[10px]"
+                              onClick={() => openSavedTemplate(tpl)}
+                            >
+                              Abrir
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="secondary"
+                              className="size-7"
+                              title="Duplicar"
+                              onClick={async () => {
+                                try {
+                                  await duplicateSavedTemplate(tpl);
+                                  await queryClient.invalidateQueries({
+                                    queryKey: ["saved-art-templates"],
+                                  });
+                                  toast.success("Template duplicado.");
+                                } catch {
+                                  toast.error("Não foi possível duplicar.");
+                                }
+                              }}
+                            >
+                              <Copy className="size-3.5" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="secondary"
+                              className="size-7"
+                              title="Excluir"
+                              onClick={async () => {
+                                if (!confirm(`Excluir o template "${tpl.name}"?`)) return;
+                                try {
+                                  await deleteSavedTemplate(tpl.id);
+                                  if (editingTemplate?.id === tpl.id) setEditingTemplate(null);
+                                  await queryClient.invalidateQueries({
+                                    queryKey: ["saved-art-templates"],
+                                  });
+                                  toast.success("Template excluído.");
+                                } catch {
+                                  toast.error("Não foi possível excluir.");
+                                }
+                              }}
+                            >
+                              <Trash2 className="size-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </section>
               </>
             ) : null}
