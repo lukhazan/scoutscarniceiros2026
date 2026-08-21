@@ -403,9 +403,64 @@ export function ArtStudioPanel() {
     backgroundUrl: readDefaultBackground(),
   }));
 
+  const { data: savedTemplates = [] } = useQuery(savedArtTemplatesQueryOptions);
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<SavedArtTemplate | null>(null);
+
   const past = useRef<ArtData[]>([]);
   const future = useRef<ArtData[]>([]);
   const [historyTick, setHistoryTick] = useState(0);
+
+  /** Abre um template salvo no editor avançado, sem perder nada da composição. */
+  function openSavedTemplate(tpl: SavedArtTemplate) {
+    setEditingTemplate(tpl);
+    setSlug(tpl.base_slug);
+    setTitleEdited(true);
+    past.current = [];
+    future.current = [];
+    setData({ ...EMPTY_ART_DATA, ...tpl.art_data });
+    setHistoryTick((t) => t + 1);
+    toast.success(`Template "${tpl.name}" carregado no editor.`);
+  }
+
+  async function handleSaveTemplate(value: SaveTemplateSubmit) {
+    setSavingTemplate(true);
+    try {
+      if (value.mode === "update" && editingTemplate) {
+        await updateSavedTemplate(editingTemplate.id, {
+          name: value.name,
+          art_data: data,
+          editable_fields: value.editableFields,
+        });
+        toast.success("Template atualizado.");
+      } else {
+        const id = await createSavedTemplate({
+          name: value.name,
+          base_slug: slug,
+          art_data: data,
+          editable_fields: value.editableFields,
+        });
+        toast.success("Template salvo. Já disponível na Arte Rápida.");
+        setEditingTemplate({
+          id,
+          name: value.name,
+          base_slug: slug,
+          art_data: data,
+          editable_fields: value.editableFields,
+          preview_url: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+      }
+      await queryClient.invalidateQueries({ queryKey: ["saved-art-templates"] });
+      setSaveOpen(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Não foi possível salvar o template.");
+    } finally {
+      setSavingTemplate(false);
+    }
+  }
 
   const template = getTemplate(slug);
   const isAgendaTemplate = template.fields.includes("agenda");
