@@ -261,9 +261,47 @@ export const statsByYearQueryOptions = {
   },
 };
 
+/**
+ * Jogos sem sofrer gols (clean sheets) por jogador.
+ * Calculado a partir dos jogos lançados: partida disputada com 0 gols sofridos.
+ */
+export type CleanSheets = {
+  all: Record<string, number>;
+  byYear: Record<string, Record<string, number>>;
+};
+
+export const cleanSheetsQueryOptions = {
+  queryKey: ["clean_sheets"],
+  queryFn: async (): Promise<CleanSheets> => {
+    const { data, error } = await supabase
+      .from("match_stats")
+      .select("player_id, goals_conceded, played, matches(match_date)");
+    if (error) throw new Error(error.message);
+
+    const all: Record<string, number> = {};
+    const byYear: Record<string, Record<string, number>> = {};
+    for (const row of (data ?? []) as unknown as {
+      player_id: string;
+      goals_conceded: number | null;
+      played: boolean;
+      matches: { match_date: string } | null;
+    }[]) {
+      if (!row.played || (row.goals_conceded ?? 0) !== 0) continue;
+      all[row.player_id] = (all[row.player_id] ?? 0) + 1;
+      const year = row.matches?.match_date?.slice(0, 4);
+      if (year) {
+        const bucket = (byYear[year] ??= {});
+        bucket[row.player_id] = (bucket[row.player_id] ?? 0) + 1;
+      }
+    }
+    return { all, byYear };
+  },
+};
+
 export function displayName(p: { name: string; nickname: string | null }) {
   return p.nickname?.trim() ? p.nickname : p.name;
 }
+
 
 export function formatDate(value: string) {
   const [y, m, d] = value.split("-");
