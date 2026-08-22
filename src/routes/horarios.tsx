@@ -33,19 +33,40 @@ import {
 export const Route = createFileRoute("/horarios")({
   head: () => ({
     meta: [
-      { title: "Horários disponíveis — Carniceiros Fut 7" },
+      { title: "Horários disponíveis — Carniceiros FUT 7" },
       {
         name: "description",
-        content: "Datas e horários livres do Carniceiros Fut 7 para marcar amistosos.",
+        content:
+          "Confira as datas e horários disponíveis do Carniceiros FUT 7 para marcar amistosos.",
       },
-      { property: "og:title", content: "Horários disponíveis — Carniceiros Fut 7" },
+      { property: "og:title", content: "Horários disponíveis — Carniceiros FUT 7" },
       {
         property: "og:description",
-        content: "Datas e horários livres do Carniceiros Fut 7 para marcar amistosos.",
+        content:
+          "Confira as datas e horários disponíveis do Carniceiros FUT 7 para marcar amistosos.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: "https://scoutscarniceiros2026.lovable.app/horarios" },
+      {
+        property: "og:image",
+        content: "https://scoutscarniceiros2026.lovable.app/og-horarios.jpg",
+      },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Horários disponíveis — Carniceiros FUT 7" },
+      {
+        name: "twitter:description",
+        content:
+          "Confira as datas e horários disponíveis do Carniceiros FUT 7 para marcar amistosos.",
+      },
+      {
+        name: "twitter:image",
+        content: "https://scoutscarniceiros2026.lovable.app/og-horarios.jpg",
+      },
     ],
+    links: [{ rel: "canonical", href: "https://scoutscarniceiros2026.lovable.app/horarios" }],
+
   }),
   component: HorariosPublicos,
 });
