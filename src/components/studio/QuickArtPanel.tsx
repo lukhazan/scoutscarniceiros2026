@@ -69,7 +69,7 @@ export function QuickArtPanel() {
   const { data: brand = null } = useQuery(brandIdentityQueryOptions);
   const { data: saved = [], isLoading } = useQuery(savedArtTemplatesQueryOptions);
 
-  const options = useMemo(() => [...saved.map(savedToOption), ...builtinOptions()], [saved]);
+  const options = useMemo(() => saved.map(savedToOption), [saved]);
 
   const [optionId, setOptionId] = useState<string | null>(null);
   const [playerId, setPlayerId] = useState<string | null>(null);
@@ -237,7 +237,7 @@ export function QuickArtPanel() {
             </section>
           ) : null}
 
-          {editable.some((f) => f === "goals" || f === "title" || f === "subtitle") ? (
+          {editable.some((f: QuickField) => f === "goals" || f === "title" || f === "subtitle") ? (
             <section className="space-y-3">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Campos liberados
