@@ -43,17 +43,10 @@ type QuickOption = {
   editable: QuickField[];
 };
 
-/** Templates internos (GOL, CRAQUE...) continuam disponíveis no modo rápido. */
-function builtinOptions(): QuickOption[] {
-  return STUDIO_TEMPLATES.filter((t) => !t.fields.includes("agenda")).map((t) => ({
-    id: `builtin:${t.slug}`,
-    name: t.name,
-    emoji: t.emoji,
-    baseSlug: t.slug,
-    data: { ...EMPTY_ART_DATA, ...t.defaults },
-    editable: DEFAULT_EDITABLE_FIELDS,
-  }));
-}
+/**
+ * Arte Rápida exibe apenas templates salvos pelo usuário.
+ * Modelos padrão do sistema permanecem disponíveis no Estúdio Avançado.
+ */
 
 function savedToOption(row: SavedArtTemplate): QuickOption {
   const base = getTemplate(row.base_slug);
@@ -76,7 +69,7 @@ export function QuickArtPanel() {
   const { data: brand = null } = useQuery(brandIdentityQueryOptions);
   const { data: saved = [], isLoading } = useQuery(savedArtTemplatesQueryOptions);
 
-  const options = useMemo(() => [...saved.map(savedToOption), ...builtinOptions()], [saved]);
+  const options = useMemo(() => saved.map(savedToOption), [saved]);
 
   const [optionId, setOptionId] = useState<string | null>(null);
   const [playerId, setPlayerId] = useState<string | null>(null);
@@ -191,6 +184,13 @@ export function QuickArtPanel() {
             </p>
             {isLoading ? (
               <p className="text-sm text-muted-foreground">Carregando…</p>
+            ) : options.length === 0 ? (
+              <div className="rounded-xl border border-border/60 bg-secondary/40 p-4 text-center">
+                <p className="text-sm font-medium">Nenhum template salvo ainda</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Salve um template no Estúdio Avançado para usá-lo aqui na Arte Rápida.
+                </p>
+              </div>
             ) : (
               <div className="space-y-2">
                 {options.map((o) => (
@@ -210,7 +210,7 @@ export function QuickArtPanel() {
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-semibold">{o.name}</span>
                       <span className="block truncate text-[11px] text-muted-foreground">
-                        {o.id.startsWith("builtin:") ? "Modelo padrão" : "Template salvo"}
+                        Template salvo
                       </span>
                     </span>
                   </button>
@@ -244,7 +244,7 @@ export function QuickArtPanel() {
             </section>
           ) : null}
 
-          {editable.some((f) => f === "goals" || f === "title" || f === "subtitle") ? (
+          {editable.some((f: QuickField) => f === "goals" || f === "title" || f === "subtitle") ? (
             <section className="space-y-3">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Campos liberados
