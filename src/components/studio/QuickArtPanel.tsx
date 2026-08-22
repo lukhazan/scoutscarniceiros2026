@@ -184,6 +184,13 @@ export function QuickArtPanel() {
             </p>
             {isLoading ? (
               <p className="text-sm text-muted-foreground">Carregando…</p>
+            ) : options.length === 0 ? (
+              <div className="rounded-xl border border-border/60 bg-secondary/40 p-4 text-center">
+                <p className="text-sm font-medium">Nenhum template salvo ainda</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Salve um template no Estúdio Avançado para usá-lo aqui na Arte Rápida.
+                </p>
+              </div>
             ) : (
               <div className="space-y-2">
                 {options.map((o) => (
@@ -203,7 +210,7 @@ export function QuickArtPanel() {
                     <span className="min-w-0">
                       <span className="block truncate text-sm font-semibold">{o.name}</span>
                       <span className="block truncate text-[11px] text-muted-foreground">
-                        {o.id.startsWith("builtin:") ? "Modelo padrão" : "Template salvo"}
+                        Template salvo
                       </span>
                     </span>
                   </button>
