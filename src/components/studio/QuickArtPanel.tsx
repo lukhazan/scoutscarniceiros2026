@@ -43,17 +43,10 @@ type QuickOption = {
   editable: QuickField[];
 };
 
-/** Templates internos (GOL, CRAQUE...) continuam disponíveis no modo rápido. */
-function builtinOptions(): QuickOption[] {
-  return STUDIO_TEMPLATES.filter((t) => !t.fields.includes("agenda")).map((t) => ({
-    id: `builtin:${t.slug}`,
-    name: t.name,
-    emoji: t.emoji,
-    baseSlug: t.slug,
-    data: { ...EMPTY_ART_DATA, ...t.defaults },
-    editable: DEFAULT_EDITABLE_FIELDS,
-  }));
-}
+/**
+ * Arte Rápida exibe apenas templates salvos pelo usuário.
+ * Modelos padrão do sistema permanecem disponíveis no Estúdio Avançado.
+ */
 
 function savedToOption(row: SavedArtTemplate): QuickOption {
   const base = getTemplate(row.base_slug);
