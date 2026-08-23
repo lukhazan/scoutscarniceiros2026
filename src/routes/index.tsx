@@ -9,18 +9,26 @@ import {
   FileDown,
   CalendarRange,
   Shield,
+  Share2,
 } from "lucide-react";
 import { toPng } from "html-to-image";
 import { saveFile } from "@/lib/download-file";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
 import { RankingExportCard } from "@/components/RankingExportCard";
+import { CategoryStoryCard, type StoryCategory } from "@/components/CategoryStoryCard";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
 import { Podium } from "@/components/Podium";
 
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -29,11 +37,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  cleanSheetsQueryOptions,
   displayName,
   statsByYearQueryOptions,
   totalsQueryOptions,
   type PlayerTotals,
 } from "@/lib/team-data";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -60,18 +70,21 @@ function Ranking({
   rows,
   metric,
   loading,
+  getValue,
 }: {
   rows: PlayerTotals[];
-  metric: Metric | "goals_conceded";
+  metric: Metric | "clean_sheets";
   loading: boolean;
+  getValue?: (row: PlayerTotals) => number;
 }) {
   const sorted = useMemo(() => {
-    if (metric === "goals_conceded") {
+    if (metric === "clean_sheets") {
+      const value = getValue ?? (() => 0);
       return [...rows]
         .filter((r) => r.position === "Goleiro")
         .sort(
           (a, b) =>
-            a.goals_conceded - b.goals_conceded ||
+            value(b) - value(a) ||
             b.matches_played - a.matches_played ||
             a.name.localeCompare(b.name),
         );
@@ -80,7 +93,7 @@ function Ranking({
     return [...rows].sort(
       (a, b) => b[metric] - a[metric] || b[other] - a[other] || a.name.localeCompare(b.name),
     );
-  }, [rows, metric]);
+  }, [rows, metric, getValue]);
 
   if (loading) {
     return <p className="py-10 text-center text-sm text-muted-foreground">Carregando…</p>;
@@ -89,12 +102,13 @@ function Ranking({
   if (sorted.length === 0) {
     return (
       <p className="py-10 text-center text-sm text-muted-foreground">
-        {metric === "goals_conceded"
+        {metric === "clean_sheets"
           ? "Nenhum goleiro cadastrado ainda."
           : "Nenhum jogador encontrado ainda."}
       </p>
     );
   }
+
 
   return (
     <ol className="divide-y divide-border/60 overflow-hidden rounded-lg border border-border/60 bg-card">
@@ -119,10 +133,11 @@ function Ranking({
 
           <div className="text-right">
             <span className="font-display text-3xl leading-none tabular text-primary">
-              {row[metric]}
+              {metric === "clean_sheets" ? (getValue?.(row) ?? 0) : row[metric]}
             </span>
             <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-              {metric === "goals" ? "Gols" : metric === "assists" ? "Passes" : "Sofridos"}
+              {metric === "goals" ? "Gols" : metric === "assists" ? "Passes" : "Sem sofrer"}
+
             </p>
           </div>
         </li>
@@ -134,6 +149,7 @@ function Ranking({
 function Index() {
   const { data: allTimeData, isLoading } = useQuery(totalsQueryOptions);
   const { data: yearData } = useQuery(statsByYearQueryOptions);
+  const { data: cleanSheets } = useQuery(cleanSheetsQueryOptions);
   const [search, setSearch] = useState("");
   const [period, setPeriod] = useState("all");
 
@@ -148,6 +164,21 @@ function Index() {
   }, [period, allTimeData, yearData]);
 
   const periodLabel = period === "all" ? "Geral (todos os anos)" : `Temporada ${period}`;
+
+  const cleanSheetMap = useMemo(() => {
+    if (!cleanSheets) return {} as Record<string, number>;
+    return period === "all" ? cleanSheets.all : (cleanSheets.byYear[period] ?? {});
+  }, [cleanSheets, period]);
+
+  const keeperRows = useMemo(
+    () => (data ?? []).filter((r) => r.position === "Goleiro"),
+    [data],
+  );
+
+  const cleanSheetsOf = useMemo(
+    () => (row: PlayerTotals) => cleanSheetMap[row.player_id] ?? 0,
+    [cleanSheetMap],
+  );
 
   const rows = useMemo(() => {
     const list = data ?? [];
@@ -169,25 +200,16 @@ function Index() {
     };
   }, [data]);
 
-  const bestKeeper = useMemo(() => {
-    const list = (data ?? []).filter(
-      (r) =>
-        r.position === "Goleiro" &&
-        (r.matches_played > 0 || r.goals_conceded > 0 || r.goals > 0 || r.assists > 0),
-    );
-    return (
-      [...list].sort(
-        (a, b) =>
-          a.goals_conceded - b.goals_conceded ||
-          b.matches_played - a.matches_played ||
-          a.name.localeCompare(b.name),
-      )[0] ?? null
-    );
-  }, [data]);
   const exportRef = useRef<HTMLDivElement>(null);
+  const storyRefs = {
+    goals: useRef<HTMLDivElement>(null),
+    assists: useRef<HTMLDivElement>(null),
+    clean_sheets: useRef<HTMLDivElement>(null),
+  };
   const [exporting, setExporting] = useState(false);
 
   const [exportingPdf, setExportingPdf] = useState(false);
+  const [exportingCategory, setExportingCategory] = useState<StoryCategory | null>(null);
 
   async function renderCard() {
     if (!exportRef.current) return null;
@@ -206,6 +228,25 @@ function Index() {
       toast.error("Não foi possível gerar a imagem.");
     } finally {
       setExporting(false);
+    }
+  }
+
+  async function handleExportCategory(category: StoryCategory) {
+    const node = storyRefs[category].current;
+    if (!node) return;
+    setExportingCategory(category);
+    try {
+      const dataUrl = await toPng(node, { pixelRatio: 1, cacheBust: true });
+      const blob = await (await fetch(dataUrl)).blob();
+      await saveFile(
+        blob,
+        `${category}-${new Date().toISOString().slice(0, 10)}.png`,
+      );
+      toast.success("Arte gerada!");
+    } catch {
+      toast.error("Não foi possível gerar a arte.");
+    } finally {
+      setExportingCategory(null);
     }
   }
 
@@ -235,6 +276,8 @@ function Index() {
       setExportingPdf(false);
     }
   }
+
+  const busy = exporting || exportingPdf || exportingCategory !== null;
 
   return (
     <div className="min-h-screen">
@@ -269,7 +312,7 @@ function Index() {
               variant="outline"
               className="h-11 w-full sm:w-auto"
               onClick={handleExport}
-              disabled={exporting || exportingPdf || (data ?? []).length === 0}
+              disabled={busy || (data ?? []).length === 0}
             >
               <ImageDown className="mr-1.5 size-4" />
               {exporting ? "Gerando…" : "Imagem"}
@@ -278,15 +321,36 @@ function Index() {
               variant="outline"
               className="h-11 w-full sm:w-auto"
               onClick={handleExportPdf}
-              disabled={exporting || exportingPdf || (data ?? []).length === 0}
+              disabled={busy || (data ?? []).length === 0}
             >
               <FileDown className="mr-1.5 size-4" />
               {exportingPdf ? "Gerando…" : "PDF"}
             </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="col-span-2 h-11 w-full sm:w-auto"
+                  disabled={busy || (data ?? []).length === 0}
+                >
+                  <Share2 className="mr-1.5 size-4" />
+                  {exportingCategory ? "Gerando…" : "Exportar por categoria"}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem onSelect={() => handleExportCategory("goals")}>
+                  ⚽ Artilharia (gols)
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => handleExportCategory("assists")}>
+                  🎯 Assistências
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => handleExportCategory("clean_sheets")}>
+                  🧤 Goleiros (jogos sem sofrer gols)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
-
-
 
         <div aria-hidden className="pointer-events-none fixed -left-[4000px] top-0">
           <RankingExportCard
@@ -295,8 +359,28 @@ function Index() {
             teamName="Carniceiros Fut 7"
             periodLabel={periodLabel}
           />
+          <CategoryStoryCard
+            ref={storyRefs.goals}
+            category="goals"
+            rows={data ?? []}
+            getValue={(r) => r.goals}
+            periodLabel={periodLabel}
+          />
+          <CategoryStoryCard
+            ref={storyRefs.assists}
+            category="assists"
+            rows={data ?? []}
+            getValue={(r) => r.assists}
+            periodLabel={periodLabel}
+          />
+          <CategoryStoryCard
+            ref={storyRefs.clean_sheets}
+            category="clean_sheets"
+            rows={keeperRows}
+            getValue={cleanSheetsOf}
+            periodLabel={periodLabel}
+          />
         </div>
-
 
         <div className="mt-5 grid grid-cols-3 gap-2">
           {[
@@ -316,45 +400,27 @@ function Index() {
           ))}
         </div>
 
-        <div className="mt-3" />
-
-
-        <div className="mt-2 rounded-lg border border-primary/40 bg-card px-4 py-3">
-          <p className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground">
-            <Shield className="size-3.5" /> Goleiro menos vazado
-          </p>
-          {bestKeeper ? (
-            <div className="mt-2 flex items-center gap-3">
-              <PlayerAvatar
-                src={bestKeeper.photo_url}
-                name={displayName(bestKeeper)}
-                className="size-14"
-              />
-              <div className="min-w-0">
-                <p className="truncate font-display text-2xl leading-none">
-                  {displayName(bestKeeper)}
-                </p>
-                <p className="mt-1 text-sm text-primary">
-                  {bestKeeper.goals_conceded} gol{bestKeeper.goals_conceded === 1 ? "" : "s"} sofrido
-                  {bestKeeper.goals_conceded === 1 ? "" : "s"} em {bestKeeper.matches_played} jogo
-                  {bestKeeper.matches_played === 1 ? "" : "s"}
-                </p>
-              </div>
-            </div>
-          ) : (
-            <p className="mt-1 text-sm text-muted-foreground">Ainda sem lançamentos</p>
-          )}
-        </div>
-
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
-          <Podium rows={data ?? []} metric="goals" title="Pódio · Artilharia" suffix="gols" />
           <Podium
             rows={data ?? []}
-            metric="assists"
+            getValue={(r) => r.goals}
+            title="Pódio · Artilharia"
+            suffix="gols"
+          />
+          <Podium
+            rows={data ?? []}
+            getValue={(r) => r.assists}
             title="Pódio · Assistências"
             suffix="assist."
           />
+          <Podium
+            rows={keeperRows}
+            getValue={cleanSheetsOf}
+            title="Pódio · Goleiros (jogos sem sofrer gols)"
+            suffix="jogos"
+          />
         </div>
+
 
 
 
@@ -380,7 +446,7 @@ function Index() {
             <TabsTrigger value="assists" className="h-9 text-sm">
               <Handshake className="mr-1.5 size-4" /> Assist.
             </TabsTrigger>
-            <TabsTrigger value="goals_conceded" className="h-9 text-sm">
+            <TabsTrigger value="clean_sheets" className="h-9 text-sm">
               <Shield className="mr-1.5 size-4" /> Goleiros
             </TabsTrigger>
           </TabsList>
@@ -391,12 +457,18 @@ function Index() {
           <TabsContent value="assists" className="mt-3">
             <Ranking rows={rows} metric="assists" loading={isLoading} />
           </TabsContent>
-          <TabsContent value="goals_conceded" className="mt-3">
+          <TabsContent value="clean_sheets" className="mt-3">
             <p className="mb-2 text-xs text-muted-foreground">
-              Ranking de goleiros por gols sofridos — do menos vazado para o mais vazado.
+              Ranking de goleiros por jogos sem sofrer gols (clean sheets).
             </p>
-            <Ranking rows={rows} metric="goals_conceded" loading={isLoading} />
+            <Ranking
+              rows={rows}
+              metric="clean_sheets"
+              loading={isLoading}
+              getValue={cleanSheetsOf}
+            />
           </TabsContent>
+
         </Tabs>
 
         <div className="mt-8 rounded-lg border border-dashed border-border/70 p-4 text-center">

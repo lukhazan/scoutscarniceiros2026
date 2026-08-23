@@ -3,20 +3,25 @@ import { displayName, type PlayerTotals } from "@/lib/team-data";
 
 type Props = {
   rows: PlayerTotals[];
-  metric: "goals" | "assists";
   title: string;
   suffix: string;
+  /** Valor exibido/ordenado para cada atleta nesta categoria. */
+  getValue: (row: PlayerTotals) => number;
 };
 
 const ORDER = [1, 0, 2];
 const HEIGHTS = ["h-24", "h-32", "h-20"];
+export const MEDALS = ["🏆", "🥈", "🥉"];
 
-export function Podium({ rows, metric, title, suffix }: Props) {
-  const other = metric === "goals" ? "assists" : "goals";
-  const top = [...rows]
-    .filter((r) => r[metric] > 0)
-    .sort((a, b) => b[metric] - a[metric] || b[other] - a[other] || a.name.localeCompare(b.name))
+export function topThree(rows: PlayerTotals[], getValue: (row: PlayerTotals) => number) {
+  return [...rows]
+    .filter((r) => getValue(r) > 0)
+    .sort((a, b) => getValue(b) - getValue(a) || a.name.localeCompare(b.name))
     .slice(0, 3);
+}
+
+export function Podium({ rows, title, suffix, getValue }: Props) {
+  const top = topThree(rows, getValue);
 
   if (top.length === 0) return null;
 
@@ -32,23 +37,36 @@ export function Podium({ rows, metric, title, suffix }: Props) {
           if (!player) return <div key={slot} aria-hidden />;
           return (
             <div key={player.player_id} className="flex flex-col items-center">
+              <span className={place === 1 ? "text-2xl leading-none" : "text-lg leading-none"}>
+                {MEDALS[slot]}
+              </span>
               <PlayerAvatar
                 src={player.photo_url}
                 name={displayName(player)}
-                className={place === 1 ? "size-20" : "size-14"}
+                className={`mt-1 ${place === 1 ? "size-20 ring-2 ring-primary" : "size-14"}`}
               />
-              <p className="mt-1 w-full truncate text-center text-xs font-semibold leading-tight">
+              <p
+                className={`mt-1 w-full truncate text-center font-semibold leading-tight ${
+                  place === 1 ? "text-sm" : "text-xs"
+                }`}
+              >
                 {displayName(player)}
               </p>
-              <p className="text-[11px] text-primary">
-                {player[metric]} {suffix}
+              <p
+                className={`text-[11px] ${place === 1 ? "font-bold text-primary" : "text-muted-foreground"}`}
+              >
+                {getValue(player)} {suffix}
               </p>
               <div
                 className={`mt-2 flex w-full items-start justify-center rounded-t-md pt-1.5 ${
                   HEIGHTS[i]
-                } ${place === 1 ? "bg-primary/25" : "bg-secondary"}`}
+                } ${place === 1 ? "bg-primary/30 ring-1 ring-primary/50" : "bg-secondary"}`}
               >
-                <span className="font-display text-2xl leading-none tabular text-foreground">
+                <span
+                  className={`font-display leading-none tabular ${
+                    place === 1 ? "text-3xl text-primary" : "text-2xl text-foreground"
+                  }`}
+                >
                   {place}
                 </span>
               </div>
