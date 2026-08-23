@@ -9,18 +9,26 @@ import {
   FileDown,
   CalendarRange,
   Shield,
+  Share2,
 } from "lucide-react";
 import { toPng } from "html-to-image";
 import { saveFile } from "@/lib/download-file";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
 import { RankingExportCard } from "@/components/RankingExportCard";
+import { CategoryStoryCard, type StoryCategory } from "@/components/CategoryStoryCard";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
 import { Podium } from "@/components/Podium";
 
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -29,11 +37,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  cleanSheetsQueryOptions,
   displayName,
   statsByYearQueryOptions,
   totalsQueryOptions,
   type PlayerTotals,
 } from "@/lib/team-data";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
