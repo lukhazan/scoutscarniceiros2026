@@ -70,18 +70,21 @@ function Ranking({
   rows,
   metric,
   loading,
+  valueOf,
 }: {
   rows: PlayerTotals[];
-  metric: Metric | "goals_conceded";
+  metric: Metric | "clean_sheets";
   loading: boolean;
+  valueOf?: (row: PlayerTotals) => number;
 }) {
   const sorted = useMemo(() => {
-    if (metric === "goals_conceded") {
+    if (metric === "clean_sheets") {
+      const value = valueOf ?? (() => 0);
       return [...rows]
         .filter((r) => r.position === "Goleiro")
         .sort(
           (a, b) =>
-            a.goals_conceded - b.goals_conceded ||
+            value(b) - value(a) ||
             b.matches_played - a.matches_played ||
             a.name.localeCompare(b.name),
         );
@@ -90,7 +93,7 @@ function Ranking({
     return [...rows].sort(
       (a, b) => b[metric] - a[metric] || b[other] - a[other] || a.name.localeCompare(b.name),
     );
-  }, [rows, metric]);
+  }, [rows, metric, valueOf]);
 
   if (loading) {
     return <p className="py-10 text-center text-sm text-muted-foreground">Carregando…</p>;
@@ -99,12 +102,13 @@ function Ranking({
   if (sorted.length === 0) {
     return (
       <p className="py-10 text-center text-sm text-muted-foreground">
-        {metric === "goals_conceded"
+        {metric === "clean_sheets"
           ? "Nenhum goleiro cadastrado ainda."
           : "Nenhum jogador encontrado ainda."}
       </p>
     );
   }
+
 
   return (
     <ol className="divide-y divide-border/60 overflow-hidden rounded-lg border border-border/60 bg-card">
