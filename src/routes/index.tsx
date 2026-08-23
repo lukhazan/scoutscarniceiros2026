@@ -133,10 +133,11 @@ function Ranking({
 
           <div className="text-right">
             <span className="font-display text-3xl leading-none tabular text-primary">
-              {row[metric]}
+              {metric === "clean_sheets" ? (getValue?.(row) ?? 0) : row[metric]}
             </span>
             <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-              {metric === "goals" ? "Gols" : metric === "assists" ? "Passes" : "Sofridos"}
+              {metric === "goals" ? "Gols" : metric === "assists" ? "Passes" : "Sem sofrer"}
+
             </p>
           </div>
         </li>
