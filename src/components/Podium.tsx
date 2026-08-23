@@ -43,7 +43,7 @@ export function Podium({ rows, title, suffix, getValue }: Props) {
               <PlayerAvatar
                 src={player.photo_url}
                 name={displayName(player)}
-                className={`mt-1 ${place === 1 ? "size-20 ring-2 ring-primary" : "size-14"}`}
+                className={`mt-1 ${place === 1 ? "size-20" : "size-14"}`}
               />
               <p
                 className={`mt-1 w-full truncate text-center font-semibold leading-tight ${
