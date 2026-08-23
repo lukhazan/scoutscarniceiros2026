@@ -446,7 +446,7 @@ function Index() {
             <TabsTrigger value="assists" className="h-9 text-sm">
               <Handshake className="mr-1.5 size-4" /> Assist.
             </TabsTrigger>
-            <TabsTrigger value="goals_conceded" className="h-9 text-sm">
+            <TabsTrigger value="clean_sheets" className="h-9 text-sm">
               <Shield className="mr-1.5 size-4" /> Goleiros
             </TabsTrigger>
           </TabsList>
@@ -457,12 +457,18 @@ function Index() {
           <TabsContent value="assists" className="mt-3">
             <Ranking rows={rows} metric="assists" loading={isLoading} />
           </TabsContent>
-          <TabsContent value="goals_conceded" className="mt-3">
+          <TabsContent value="clean_sheets" className="mt-3">
             <p className="mb-2 text-xs text-muted-foreground">
-              Ranking de goleiros por gols sofridos — do menos vazado para o mais vazado.
+              Ranking de goleiros por jogos sem sofrer gols (clean sheets).
             </p>
-            <Ranking rows={rows} metric="goals_conceded" loading={isLoading} />
+            <Ranking
+              rows={rows}
+              metric="clean_sheets"
+              loading={isLoading}
+              getValue={cleanSheetsOf}
+            />
           </TabsContent>
+
         </Tabs>
 
         <div className="mt-8 rounded-lg border border-dashed border-border/70 p-4 text-center">
