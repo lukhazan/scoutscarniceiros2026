@@ -70,16 +70,16 @@ function Ranking({
   rows,
   metric,
   loading,
-  valueOf,
+  getValue,
 }: {
   rows: PlayerTotals[];
   metric: Metric | "clean_sheets";
   loading: boolean;
-  valueOf?: (row: PlayerTotals) => number;
+  getValue?: (row: PlayerTotals) => number;
 }) {
   const sorted = useMemo(() => {
     if (metric === "clean_sheets") {
-      const value = valueOf ?? (() => 0);
+      const value = getValue ?? (() => 0);
       return [...rows]
         .filter((r) => r.position === "Goleiro")
         .sort(
@@ -93,7 +93,7 @@ function Ranking({
     return [...rows].sort(
       (a, b) => b[metric] - a[metric] || b[other] - a[other] || a.name.localeCompare(b.name),
     );
-  }, [rows, metric, valueOf]);
+  }, [rows, metric, getValue]);
 
   if (loading) {
     return <p className="py-10 text-center text-sm text-muted-foreground">Carregando…</p>;
@@ -362,21 +362,21 @@ function Index() {
             ref={storyRefs.goals}
             category="goals"
             rows={data ?? []}
-            valueOf={(r) => r.goals}
+            getValue={(r) => r.goals}
             periodLabel={periodLabel}
           />
           <CategoryStoryCard
             ref={storyRefs.assists}
             category="assists"
             rows={data ?? []}
-            valueOf={(r) => r.assists}
+            getValue={(r) => r.assists}
             periodLabel={periodLabel}
           />
           <CategoryStoryCard
             ref={storyRefs.clean_sheets}
             category="clean_sheets"
             rows={keeperRows}
-            valueOf={cleanSheetsOf}
+            getValue={cleanSheetsOf}
             periodLabel={periodLabel}
           />
         </div>
@@ -402,19 +402,19 @@ function Index() {
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           <Podium
             rows={data ?? []}
-            valueOf={(r) => r.goals}
+            getValue={(r) => r.goals}
             title="Pódio · Artilharia"
             suffix="gols"
           />
           <Podium
             rows={data ?? []}
-            valueOf={(r) => r.assists}
+            getValue={(r) => r.assists}
             title="Pódio · Assistências"
             suffix="assist."
           />
           <Podium
             rows={keeperRows}
-            valueOf={cleanSheetsOf}
+            getValue={cleanSheetsOf}
             title="Pódio · Goleiros (jogos sem sofrer gols)"
             suffix="jogos"
           />

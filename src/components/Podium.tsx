@@ -6,22 +6,22 @@ type Props = {
   title: string;
   suffix: string;
   /** Valor exibido/ordenado para cada atleta nesta categoria. */
-  valueOf: (row: PlayerTotals) => number;
+  getValue: (row: PlayerTotals) => number;
 };
 
 const ORDER = [1, 0, 2];
 const HEIGHTS = ["h-24", "h-32", "h-20"];
 export const MEDALS = ["🏆", "🥈", "🥉"];
 
-export function topThree(rows: PlayerTotals[], valueOf: (row: PlayerTotals) => number) {
+export function topThree(rows: PlayerTotals[], getValue: (row: PlayerTotals) => number) {
   return [...rows]
-    .filter((r) => valueOf(r) > 0)
-    .sort((a, b) => valueOf(b) - valueOf(a) || a.name.localeCompare(b.name))
+    .filter((r) => getValue(r) > 0)
+    .sort((a, b) => getValue(b) - getValue(a) || a.name.localeCompare(b.name))
     .slice(0, 3);
 }
 
-export function Podium({ rows, title, suffix, valueOf }: Props) {
-  const top = topThree(rows, valueOf);
+export function Podium({ rows, title, suffix, getValue }: Props) {
+  const top = topThree(rows, getValue);
 
   if (top.length === 0) return null;
 
@@ -55,7 +55,7 @@ export function Podium({ rows, title, suffix, valueOf }: Props) {
               <p
                 className={`text-[11px] ${place === 1 ? "font-bold text-primary" : "text-muted-foreground"}`}
               >
-                {valueOf(player)} {suffix}
+                {getValue(player)} {suffix}
               </p>
               <div
                 className={`mt-2 flex w-full items-start justify-center rounded-t-md pt-1.5 ${

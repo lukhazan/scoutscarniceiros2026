@@ -20,19 +20,19 @@ const ORDER = [1, 0, 2];
 type Props = {
   category: StoryCategory;
   rows: PlayerTotals[];
-  valueOf: (row: PlayerTotals) => number;
+  getValue: (row: PlayerTotals) => number;
   periodLabel: string;
 };
 
 /** Arte 1080x1920 (stories) com pódio + ranking geral da categoria. */
 export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function CategoryStoryCard(
-  { category, rows, valueOf, periodLabel },
+  { category, rows, getValue, periodLabel },
   ref,
 ) {
   const meta = CATEGORY_META[category];
   const list = [...rows]
-    .filter((r) => valueOf(r) > 0)
-    .sort((a, b) => valueOf(b) - valueOf(a) || a.name.localeCompare(b.name));
+    .filter((r) => getValue(r) > 0)
+    .sort((a, b) => getValue(b) - getValue(a) || a.name.localeCompare(b.name));
   const top = list.slice(0, 3);
   const heights = [190, 250, 150];
 
@@ -90,7 +90,7 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
                   className="mt-1 font-display font-bold text-red-500"
                   style={{ fontSize: first ? 52 : 40 }}
                 >
-                  {valueOf(player)}
+                  {getValue(player)}
                 </p>
                 <div
                   style={{ height: heights[i] }}
@@ -137,7 +137,7 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
                 {displayName(row)}
               </span>
               <span className="font-display text-4xl font-bold tabular text-red-500">
-                {valueOf(row)}
+                {getValue(row)}
               </span>
             </li>
           ))}
