@@ -47,7 +47,16 @@ export function Podium({ rows, title, suffix, getValue }: Props) {
                   place === 1 ? "text-sm" : "text-xs"
                 }`}
               >
-                <span className={place === 1 ? "text-xl leading-none" : "text-base leading-none
+                <span className={place === 1 ? "text-xl leading-none" : "text-base leading-none"}>
+                  {MEDALS[slot]}
+                </span>
+                <span className="truncate">{displayName(player)}</span>
+              </p>
+              <p
+                className={`text-[11px] ${place === 1 ? "font-bold text-primary" : "text-muted-foreground"}`}
+              >
+                {getValue(player)} {suffix}
+              </p>
               <div
                 className={`mt-2 flex w-full items-start justify-center rounded-t-md pt-1.5 ${
                   HEIGHTS[i]
