@@ -149,11 +149,18 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
                   {displayName(row).charAt(0)}
                 </div>
               )}
-              <span className="min-w-0 flex-1 truncate text-3xl font-semibold">
-                {displayName(row)}
-              </span>
+              <div className="min-w-0 flex-1">
+                <span className="block truncate text-3xl font-semibold">
+                  {displayName(row)}
+                </span>
+                {isKeeper && (
+                  <span className="text-base text-white/60">
+                    {row.matches_played} jogo{row.matches_played === 1 ? "" : "s"}
+                  </span>
+                )}
+              </div>
               <span className="font-display text-4xl font-bold tabular text-red-500">
-                {getValue(row)}
+                {isKeeper ? row.goals_conceded : getValue(row)}
               </span>
             </li>
           ))}
