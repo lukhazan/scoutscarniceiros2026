@@ -30,9 +30,20 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
   ref,
 ) {
   const meta = CATEGORY_META[category];
-  const list = [...rows]
-    .filter((r) => getValue(r) > 0)
-    .sort((a, b) => getValue(b) - getValue(a) || a.name.localeCompare(b.name));
+  const isKeeper = category === "clean_sheets";
+
+  const list = isKeeper
+    ? [...rows]
+        .filter((r) => r.position === "Goleiro" && r.matches_played > 0)
+        .sort(
+          (a, b) =>
+            a.goals_conceded - b.goals_conceded ||
+            b.matches_played - a.matches_played ||
+            a.name.localeCompare(b.name),
+        )
+    : [...rows]
+        .filter((r) => getValue(r) > 0)
+        .sort((a, b) => getValue(b) - getValue(a) || a.name.localeCompare(b.name));
   const top = list.slice(0, 3);
   const heights = [190, 250, 150];
 
