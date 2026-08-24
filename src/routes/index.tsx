@@ -70,21 +70,18 @@ function Ranking({
   rows,
   metric,
   loading,
-  getValue,
 }: {
   rows: PlayerTotals[];
   metric: Metric | "clean_sheets";
   loading: boolean;
-  getValue?: (row: PlayerTotals) => number;
 }) {
   const sorted = useMemo(() => {
     if (metric === "clean_sheets") {
-      const value = getValue ?? (() => 0);
       return [...rows]
-        .filter((r) => r.position === "Goleiro")
+        .filter((r) => r.position === "Goleiro" && r.matches_played > 0)
         .sort(
           (a, b) =>
-            value(b) - value(a) ||
+            a.goals_conceded - b.goals_conceded ||
             b.matches_played - a.matches_played ||
             a.name.localeCompare(b.name),
         );
@@ -93,7 +90,7 @@ function Ranking({
     return [...rows].sort(
       (a, b) => b[metric] - a[metric] || b[other] - a[other] || a.name.localeCompare(b.name),
     );
-  }, [rows, metric, getValue]);
+  }, [rows, metric]);
 
   if (loading) {
     return <p className="py-10 text-center text-sm text-muted-foreground">Carregando…</p>;
@@ -103,12 +100,11 @@ function Ranking({
     return (
       <p className="py-10 text-center text-sm text-muted-foreground">
         {metric === "clean_sheets"
-          ? "Nenhum goleiro cadastrado ainda."
+          ? "Nenhum goleiro com jogo registrado."
           : "Nenhum jogador encontrado ainda."}
       </p>
     );
   }
-
 
   return (
     <ol className="divide-y divide-border/60 overflow-hidden rounded-lg border border-border/60 bg-card">
@@ -133,11 +129,10 @@ function Ranking({
 
           <div className="text-right">
             <span className="font-display text-3xl leading-none tabular text-primary">
-              {metric === "clean_sheets" ? (getValue?.(row) ?? 0) : row[metric]}
+              {metric === "clean_sheets" ? row.goals_conceded : row[metric]}
             </span>
             <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-              {metric === "goals" ? "Gols" : metric === "assists" ? "Passes" : "Sem sofrer"}
-
+              {metric === "goals" ? "Gols" : metric === "assists" ? "Passes" : "Gols sofridos"}
             </p>
           </div>
         </li>
