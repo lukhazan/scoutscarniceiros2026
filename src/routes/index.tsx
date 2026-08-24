@@ -144,7 +144,6 @@ function Ranking({
 function Index() {
   const { data: allTimeData, isLoading } = useQuery(totalsQueryOptions);
   const { data: yearData } = useQuery(statsByYearQueryOptions);
-  const { data: cleanSheets } = useQuery(cleanSheetsQueryOptions);
   const [search, setSearch] = useState("");
   const [period, setPeriod] = useState("all");
 
@@ -160,19 +159,9 @@ function Index() {
 
   const periodLabel = period === "all" ? "Geral (todos os anos)" : `Temporada ${period}`;
 
-  const cleanSheetMap = useMemo(() => {
-    if (!cleanSheets) return {} as Record<string, number>;
-    return period === "all" ? cleanSheets.all : (cleanSheets.byYear[period] ?? {});
-  }, [cleanSheets, period]);
-
   const keeperRows = useMemo(
     () => (data ?? []).filter((r) => r.position === "Goleiro"),
     [data],
-  );
-
-  const cleanSheetsOf = useMemo(
-    () => (row: PlayerTotals) => cleanSheetMap[row.player_id] ?? 0,
-    [cleanSheetMap],
   );
 
   const rows = useMemo(() => {
