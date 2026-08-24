@@ -75,27 +75,27 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
             const first = slot === 0;
             return (
               <div key={player.player_id} className="flex flex-col items-center">
-                <span style={{ fontSize: first ? 64 : 48, lineHeight: 1 }}>{MEDALS[slot]}</span>
                 {player.photo_url ? (
                   <img
                     src={player.photo_url}
                     alt=""
                     style={{ height: first ? 200 : 150, width: first ? 200 : 150 }}
-                    className="mt-3 rounded-full border-4 border-red-600 bg-white/5 object-cover"
+                    className="rounded-full border-4 border-red-600 bg-white/5 object-cover"
                   />
                 ) : (
                   <div
                     style={{ height: first ? 200 : 150, width: first ? 200 : 150 }}
-                    className="mt-3 flex items-center justify-center rounded-full border-4 border-red-600 bg-white/10 font-display text-6xl"
+                    className="flex items-center justify-center rounded-full border-4 border-red-600 bg-white/10 font-display text-6xl"
                   >
                     {displayName(player).charAt(0)}
                   </div>
                 )}
                 <p
-                  className="mt-4 w-full truncate text-center font-bold"
+                  className="mt-4 flex w-full items-center justify-center gap-2 truncate text-center font-bold"
                   style={{ fontSize: first ? 38 : 30 }}
                 >
-                  {displayName(player)}
+                  <span style={{ fontSize: first ? 44 : 34, lineHeight: 1 }}>{MEDALS[slot]}</span>
+                  <span className="truncate">{displayName(player)}</span>
                 </p>
                 <p
                   className="mt-1 font-display font-bold text-red-500"
