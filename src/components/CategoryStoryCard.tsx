@@ -101,11 +101,16 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
                   className="mt-1 font-display font-bold text-red-500"
                   style={{ fontSize: first ? 52 : 40 }}
                 >
-                  {getValue(player)}
+                  {isKeeper ? player.goals_conceded : getValue(player)}
                 </p>
+                {isKeeper && (
+                  <p className="text-lg text-white/70">
+                    {player.matches_played} jogo{player.matches_played === 1 ? "" : "s"}
+                  </p>
+                )}
                 <div
                   style={{ height: heights[i] }}
-                  className={`mt-4 flex w-full items-start justify-center rounded-t-2xl pt-4 ${
+                  className={`mt-2 flex w-full items-start justify-center rounded-t-2xl pt-4 ${
                     first ? "bg-red-600/40" : "bg-white/10"
                   }`}
                 >
