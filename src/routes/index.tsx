@@ -329,7 +329,7 @@ function Index() {
                   🎯 Assistências
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => handleExportCategory("clean_sheets")}>
-                  🧤 Goleiros (jogos sem sofrer gols)
+                  🧤 Goleiros (menos gols sofridos)
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
