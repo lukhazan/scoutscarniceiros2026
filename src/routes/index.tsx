@@ -438,14 +438,9 @@ function Index() {
           </TabsContent>
           <TabsContent value="clean_sheets" className="mt-3">
             <p className="mb-2 text-xs text-muted-foreground">
-              Ranking de goleiros por jogos sem sofrer gols (clean sheets).
+              Ranking de goleiros por menor quantidade de gols sofridos.
             </p>
-            <Ranking
-              rows={rows}
-              metric="clean_sheets"
-              loading={isLoading}
-              getValue={cleanSheetsOf}
-            />
+            <Ranking rows={rows} metric="clean_sheets" loading={isLoading} />
           </TabsContent>
 
         </Tabs>
