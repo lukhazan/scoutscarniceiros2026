@@ -37,26 +37,17 @@ export function Podium({ rows, title, suffix, getValue }: Props) {
           if (!player) return <div key={slot} aria-hidden />;
           return (
             <div key={player.player_id} className="flex flex-col items-center">
-              <span className={place === 1 ? "text-2xl leading-none" : "text-lg leading-none"}>
-                {MEDALS[slot]}
-              </span>
               <PlayerAvatar
                 src={player.photo_url}
                 name={displayName(player)}
-                className={`mt-1 ${place === 1 ? "size-20" : "size-14"}`}
+                className={`${place === 1 ? "size-20" : "size-14"}`}
               />
               <p
-                className={`mt-1 w-full truncate text-center font-semibold leading-tight ${
+                className={`mt-2 flex w-full items-center justify-center gap-1 truncate text-center font-semibold leading-tight ${
                   place === 1 ? "text-sm" : "text-xs"
                 }`}
               >
-                {displayName(player)}
-              </p>
-              <p
-                className={`text-[11px] ${place === 1 ? "font-bold text-primary" : "text-muted-foreground"}`}
-              >
-                {getValue(player)} {suffix}
-              </p>
+                <span className={place === 1 ? "text-xl leading-none" : "text-base leading-none
               <div
                 className={`mt-2 flex w-full items-start justify-center rounded-t-md pt-1.5 ${
                   HEIGHTS[i]
