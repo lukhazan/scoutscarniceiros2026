@@ -361,7 +361,7 @@ function Index() {
             ref={storyRefs.clean_sheets}
             category="clean_sheets"
             rows={keeperRows}
-            getValue={cleanSheetsOf}
+            getValue={(r) => r.goals_conceded}
             periodLabel={periodLabel}
           />
         </div>
