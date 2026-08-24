@@ -11,7 +11,7 @@ export const CATEGORY_META: Record<
 > = {
   goals: { title: "Artilharia", icon: "⚽", suffix: "gols" },
   assists: { title: "Assistências", icon: "🎯", suffix: "assist." },
-  clean_sheets: { title: "Goleiros", icon: "🧤", suffix: "jogos sem sofrer gols" },
+  clean_sheets: { title: "Goleiros", icon: "🧤", suffix: "gols sofridos" },
 };
 
 const MEDALS = ["🏆", "🥈", "🥉"];
@@ -30,9 +30,20 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
   ref,
 ) {
   const meta = CATEGORY_META[category];
-  const list = [...rows]
-    .filter((r) => getValue(r) > 0)
-    .sort((a, b) => getValue(b) - getValue(a) || a.name.localeCompare(b.name));
+  const isKeeper = category === "clean_sheets";
+
+  const list = isKeeper
+    ? [...rows]
+        .filter((r) => r.position === "Goleiro" && r.matches_played > 0)
+        .sort(
+          (a, b) =>
+            a.goals_conceded - b.goals_conceded ||
+            b.matches_played - a.matches_played ||
+            a.name.localeCompare(b.name),
+        )
+    : [...rows]
+        .filter((r) => getValue(r) > 0)
+        .sort((a, b) => getValue(b) - getValue(a) || a.name.localeCompare(b.name));
   const top = list.slice(0, 3);
   const heights = [190, 250, 150];
 
@@ -90,11 +101,16 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
                   className="mt-1 font-display font-bold text-red-500"
                   style={{ fontSize: first ? 52 : 40 }}
                 >
-                  {getValue(player)}
+                  {isKeeper ? player.goals_conceded : getValue(player)}
                 </p>
+                {isKeeper && (
+                  <p className="text-lg text-white/70">
+                    {player.matches_played} jogo{player.matches_played === 1 ? "" : "s"}
+                  </p>
+                )}
                 <div
                   style={{ height: heights[i] }}
-                  className={`mt-4 flex w-full items-start justify-center rounded-t-2xl pt-4 ${
+                  className={`mt-2 flex w-full items-start justify-center rounded-t-2xl pt-4 ${
                     first ? "bg-red-600/40" : "bg-white/10"
                   }`}
                 >
@@ -133,11 +149,18 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
                   {displayName(row).charAt(0)}
                 </div>
               )}
-              <span className="min-w-0 flex-1 truncate text-3xl font-semibold">
-                {displayName(row)}
-              </span>
+              <div className="min-w-0 flex-1">
+                <span className="block truncate text-3xl font-semibold">
+                  {displayName(row)}
+                </span>
+                {isKeeper && (
+                  <span className="text-base text-white/60">
+                    {row.matches_played} jogo{row.matches_played === 1 ? "" : "s"}
+                  </span>
+                )}
+              </div>
               <span className="font-display text-4xl font-bold tabular text-red-500">
-                {getValue(row)}
+                {isKeeper ? row.goals_conceded : getValue(row)}
               </span>
             </li>
           ))}
