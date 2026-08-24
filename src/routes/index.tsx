@@ -19,6 +19,7 @@ import { RankingExportCard } from "@/components/RankingExportCard";
 import { CategoryStoryCard, type StoryCategory } from "@/components/CategoryStoryCard";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
 import { Podium } from "@/components/Podium";
+import { GoalkeeperPodium } from "@/components/GoalkeeperPodium";
 
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -37,7 +38,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  cleanSheetsQueryOptions,
   displayName,
   statsByYearQueryOptions,
   totalsQueryOptions,
