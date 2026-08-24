@@ -397,12 +397,7 @@ function Index() {
             title="Pódio · Assistências"
             suffix="assist."
           />
-          <Podium
-            rows={keeperRows}
-            getValue={cleanSheetsOf}
-            title="Pódio · Goleiros (jogos sem sofrer gols)"
-            suffix="jogos"
-          />
+          <GoalkeeperPodium rows={keeperRows} />
         </div>
 
 
