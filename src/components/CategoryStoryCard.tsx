@@ -11,7 +11,7 @@ export const CATEGORY_META: Record<
 > = {
   goals: { title: "Artilharia", icon: "⚽", suffix: "gols" },
   assists: { title: "Assistências", icon: "🎯", suffix: "assist." },
-  clean_sheets: { title: "Goleiros", icon: "🧤", suffix: "jogos sem sofrer gols" },
+  clean_sheets: { title: "Goleiros", icon: "🧤", suffix: "gols sofridos" },
 };
 
 const MEDALS = ["🏆", "🥈", "🥉"];
