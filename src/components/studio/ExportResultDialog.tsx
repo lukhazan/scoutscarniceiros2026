@@ -29,9 +29,11 @@ export type ExportResult = { blob: Blob; filename: string; title?: string };
 export function ExportResultDialog({
   result,
   onClose,
+  heading,
 }: {
   result: ExportResult | null;
   onClose: () => void;
+  heading?: string;
 }) {
   const [busy, setBusy] = useState(false);
   const previewUrl = useMemo(
@@ -118,13 +120,13 @@ export function ExportResultDialog({
     <Dialog open={Boolean(result)} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>Arte pronta (1080 × 1920)</DialogTitle>
+          <DialogTitle>{heading ?? "Arte pronta (1080 × 1920)"}</DialogTitle>
           <DialogDescription>
-            Escolha onde deseja salvar ou compartilhar a arte.
+            Escolha onde deseja salvar ou compartilhar o arquivo.
           </DialogDescription>
         </DialogHeader>
 
-        {previewUrl && (
+        {previewUrl && result?.blob.type.startsWith("image/") && (
           <img
             src={previewUrl}
             alt="Pré-visualização da arte final exportada"

@@ -12,11 +12,17 @@ import {
   Share2,
 } from "lucide-react";
 import { toPng } from "html-to-image";
-import { saveFile } from "@/lib/download-file";
+import { ExportResultDialog, type ExportResult } from "@/components/studio/ExportResultDialog";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
 import { RankingExportCard } from "@/components/RankingExportCard";
 import { CategoryStoryCard, type StoryCategory } from "@/components/CategoryStoryCard";
+
+const CATEGORY_FILE: Record<StoryCategory, string> = {
+  goals: "artilharia",
+  assists: "assistencias",
+  clean_sheets: "goleiros",
+};
 import { PlayerAvatar } from "@/components/PlayerAvatar";
 import { Podium } from "@/components/Podium";
 import { GoalkeeperPodium } from "@/components/GoalkeeperPodium";
@@ -191,6 +197,7 @@ function Index() {
     clean_sheets: useRef<HTMLDivElement>(null),
   };
   const [exporting, setExporting] = useState(false);
+  const [exportResult, setExportResult] = useState<ExportResult | null>(null);
 
   const [exportingPdf, setExportingPdf] = useState(false);
   const [exportingCategory, setExportingCategory] = useState<StoryCategory | null>(null);
@@ -206,8 +213,11 @@ function Index() {
       const dataUrl = await renderCard();
       if (!dataUrl) return;
       const blob = await (await fetch(dataUrl)).blob();
-      await saveFile(blob, `ranking-${new Date().toISOString().slice(0, 10)}.png`);
-      toast.success("Imagem gerada!");
+      setExportResult({
+        blob,
+        filename: `estatisticas-carniceiros-${fileSuffix}.png`,
+        title: `Estatísticas Carniceiros — ${periodLabel}`,
+      });
     } catch {
       toast.error("Não foi possível gerar a imagem.");
     } finally {
@@ -222,11 +232,11 @@ function Index() {
     try {
       const dataUrl = await toPng(node, { pixelRatio: 1, cacheBust: true });
       const blob = await (await fetch(dataUrl)).blob();
-      await saveFile(
+      setExportResult({
         blob,
-        `${category}-${new Date().toISOString().slice(0, 10)}.png`,
-      );
-      toast.success("Arte gerada!");
+        filename: `${CATEGORY_FILE[category]}-carniceiros-${fileSuffix}.png`,
+        title: `${CATEGORY_FILE[category]} Carniceiros — ${periodLabel}`,
+      });
     } catch {
       toast.error("Não foi possível gerar a arte.");
     } finally {
@@ -249,11 +259,11 @@ function Index() {
         format: [width, height],
       });
       pdf.addImage(dataUrl, "PNG", 0, 0, width, height);
-      await saveFile(
-        pdf.output("blob"),
-        `ranking-${new Date().toISOString().slice(0, 10)}.pdf`,
-      );
-      toast.success("PDF gerado!");
+      setExportResult({
+        blob: pdf.output("blob"),
+        filename: `estatisticas-carniceiros-${fileSuffix}.pdf`,
+        title: `Estatísticas Carniceiros — ${periodLabel}`,
+      });
     } catch {
       toast.error("Não foi possível gerar o PDF.");
     } finally {
@@ -261,6 +271,7 @@ function Index() {
     }
   }
 
+  const fileSuffix = period === "all" ? "geral" : period;
   const busy = exporting || exportingPdf || exportingCategory !== null;
 
   return (
@@ -335,6 +346,12 @@ function Index() {
             </DropdownMenu>
           </div>
         </div>
+
+        <ExportResultDialog
+          result={exportResult}
+          onClose={() => setExportResult(null)}
+          heading="Arquivo pronto"
+        />
 
         <div aria-hidden className="pointer-events-none fixed -left-[4000px] top-0">
           <RankingExportCard
