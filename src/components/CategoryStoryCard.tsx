@@ -45,7 +45,13 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
         .filter((r) => getValue(r) > 0)
         .sort((a, b) => getValue(b) - getValue(a) || a.name.localeCompare(b.name));
   const top = list.slice(0, 3);
+  const rest = list.slice(3);
+  const columns = rest.length > 10 ? 2 : 1;
+  const avatar = columns > 1 ? 52 : 64;
+  const nameSize = columns > 1 ? 24 : 30;
+  const valueSize = columns > 1 ? 28 : 36;
   const heights = [190, 250, 150];
+
 
   return (
     <div
