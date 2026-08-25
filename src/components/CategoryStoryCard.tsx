@@ -128,7 +128,7 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
         </div>
       ) : null}
 
-      <div className="mt-12 flex-1">
+      <div className="mt-8 flex min-h-0 flex-1 flex-col">
         <p className="mb-5 text-xl font-bold uppercase tracking-[0.3em] text-red-500">
           Ranking geral
         </p>
@@ -137,6 +137,8 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
             className="grid gap-x-6"
             style={{
               gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+              gridTemplateRows: `repeat(${Math.ceil(rest.length / columns)}, min-content)`,
+              gridAutoFlow: "column",
               rowGap: columns > 1 ? 10 : 12,
             }}
           >
@@ -203,7 +205,7 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
       </div>
 
 
-      <footer className="mt-10 flex items-center justify-between border-t border-white/10 pt-6">
+      <footer className="mt-6 flex items-center justify-between border-t border-white/10 pt-6">
         <p className="text-xl font-semibold uppercase tracking-[0.2em] text-white/50">
           Carniceiros Fut 7
         </p>
