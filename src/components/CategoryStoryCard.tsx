@@ -126,46 +126,76 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
         <p className="mb-5 text-xl font-bold uppercase tracking-[0.3em] text-red-500">
           Ranking geral
         </p>
-        <ol className="space-y-3">
-          {list.map((row, index) => (
-            <li
-              key={row.player_id}
-              className={`flex items-center gap-5 rounded-2xl px-5 py-3 ${
-                index < 3 ? "bg-white/10" : "bg-white/5"
-              }`}
-            >
-              <span
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full font-display text-2xl font-bold"
+        {rest.length > 0 && (
+          <ol
+            className="grid gap-x-6"
+            style={{
+              gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+              rowGap: columns > 1 ? 10 : 12,
+            }}
+          >
+            {rest.map((row, index) => (
+              <li
+                key={row.player_id}
+                className="flex items-center rounded-2xl bg-white/5"
                 style={{
-                  background: index === 0 ? "#dc2626" : index < 3 ? "#3f3f46" : "#1f1f22",
+                  gap: columns > 1 ? 14 : 20,
+                  paddingLeft: columns > 1 ? 12 : 20,
+                  paddingRight: columns > 1 ? 12 : 20,
+                  paddingTop: columns > 1 ? 8 : 12,
+                  paddingBottom: columns > 1 ? 8 : 12,
                 }}
               >
-                {index + 1}
-              </span>
-              {row.photo_url ? (
-                <img src={row.photo_url} alt="" className="h-16 w-16 rounded-full object-cover" />
-              ) : (
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 text-2xl font-bold">
-                  {displayName(row).charAt(0)}
-                </div>
-              )}
-              <div className="min-w-0 flex-1">
-                <span className="block truncate text-3xl font-semibold">
-                  {displayName(row)}
+                <span
+                  className="flex shrink-0 items-center justify-center rounded-full bg-[#1f1f22] font-display font-bold"
+                  style={{
+                    height: avatar,
+                    width: avatar,
+                    fontSize: columns > 1 ? 22 : 28,
+                  }}
+                >
+                  {index + 4}
                 </span>
-                {isKeeper && (
-                  <span className="text-base text-white/60">
-                    {row.matches_played} jogo{row.matches_played === 1 ? "" : "s"}
-                  </span>
+                {row.photo_url ? (
+                  <img
+                    src={row.photo_url}
+                    alt=""
+                    style={{ height: avatar, width: avatar }}
+                    className="shrink-0 rounded-full object-cover"
+                  />
+                ) : (
+                  <div
+                    style={{ height: avatar, width: avatar, fontSize: columns > 1 ? 22 : 28 }}
+                    className="flex shrink-0 items-center justify-center rounded-full bg-white/10 font-bold"
+                  >
+                    {displayName(row).charAt(0)}
+                  </div>
                 )}
-              </div>
-              <span className="font-display text-4xl font-bold tabular text-red-500">
-                {isKeeper ? row.goals_conceded : getValue(row)}
-              </span>
-            </li>
-          ))}
-        </ol>
+                <div className="min-w-0 flex-1">
+                  <span
+                    className="block truncate font-semibold"
+                    style={{ fontSize: nameSize }}
+                  >
+                    {displayName(row)}
+                  </span>
+                  {isKeeper && (
+                    <span className="text-base text-white/60">
+                      {row.matches_played} jogo{row.matches_played === 1 ? "" : "s"}
+                    </span>
+                  )}
+                </div>
+                <span
+                  className="font-display font-bold tabular text-red-500"
+                  style={{ fontSize: valueSize }}
+                >
+                  {isKeeper ? row.goals_conceded : getValue(row)}
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
       </div>
+
 
       <footer className="mt-10 flex items-center justify-between border-t border-white/10 pt-6">
         <p className="text-xl font-semibold uppercase tracking-[0.2em] text-white/50">
