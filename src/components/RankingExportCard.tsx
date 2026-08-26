@@ -1,6 +1,8 @@
 import { forwardRef } from "react";
-const teamLogo = "/team-logo.png";
 import { displayName, type PlayerTotals } from "@/lib/team-data";
+import { teamLogoColor } from "@/assets/team-logo-data";
+
+const teamLogo = teamLogoColor;
 
 export type ExportMetric = "goals" | "assists";
 
