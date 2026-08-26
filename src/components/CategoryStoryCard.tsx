@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import { displayName, type PlayerTotals } from "@/lib/team-data";
 
-const teamLogo = "/team-logo.png";
+const teamLogo = "/team-logo-white.png";
 
 export type StoryCategory = "goals" | "assists" | "clean_sheets";
 
@@ -86,12 +86,12 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
                     src={player.photo_url}
                     alt=""
                     style={{ height: first ? 200 : 150, width: first ? 200 : 150 }}
-                    className="rounded-full border-4 border-red-600 bg-white/5 object-cover"
+                    className="rounded-full bg-white/5 object-cover"
                   />
                 ) : (
                   <div
                     style={{ height: first ? 200 : 150, width: first ? 200 : 150 }}
-                    className="flex items-center justify-center rounded-full border-4 border-red-600 bg-white/10 font-display text-6xl"
+                    className="flex items-center justify-center rounded-full bg-white/10 font-display text-6xl"
                   >
                     {displayName(player).charAt(0)}
                   </div>
