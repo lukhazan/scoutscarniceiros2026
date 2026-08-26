@@ -115,6 +115,7 @@ export const RankingExportCard = forwardRef<
             day: "2-digit",
             month: "long",
             year: "numeric",
+            timeZone: "America/Sao_Paulo",
           })}
         </p>
       </div>
