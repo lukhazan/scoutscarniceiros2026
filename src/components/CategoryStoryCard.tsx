@@ -50,7 +50,7 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
   const avatar = columns > 1 ? 52 : 64;
   const nameSize = columns > 1 ? 24 : 30;
   const valueSize = columns > 1 ? 28 : 36;
-  const heights = [190, 250, 150];
+  const heights = columns > 1 ? [130, 175, 105] : [190, 250, 150];
 
 
   return (
@@ -139,7 +139,7 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
               gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
               gridTemplateRows: `repeat(${Math.ceil(rest.length / columns)}, min-content)`,
               gridAutoFlow: "column",
-              rowGap: columns > 1 ? 10 : 12,
+              rowGap: columns > 1 ? 8 : 12,
             }}
           >
             {rest.map((row, index) => (
@@ -150,8 +150,8 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
                   gap: columns > 1 ? 14 : 20,
                   paddingLeft: columns > 1 ? 12 : 20,
                   paddingRight: columns > 1 ? 12 : 20,
-                  paddingTop: columns > 1 ? 8 : 12,
-                  paddingBottom: columns > 1 ? 8 : 12,
+                  paddingTop: columns > 1 ? 7 : 12,
+                  paddingBottom: columns > 1 ? 7 : 12,
                 }}
               >
                 <span
