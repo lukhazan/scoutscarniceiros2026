@@ -22,7 +22,7 @@ function blobToDataUrl(blob: Blob): Promise<string> {
  * branco — normalmente a foto do atleta, que é a maior. Embutindo e decodificando
  * antes, a rasterização passa a ser 100% síncrona e completa.
  */
-async function inlineAndDecodeImages(node: HTMLElement) {
+export async function inlineAndDecodeImages(node: HTMLElement) {
   const images = Array.from(node.querySelectorAll("img"));
   await Promise.all(
     images.map(async (img) => {
