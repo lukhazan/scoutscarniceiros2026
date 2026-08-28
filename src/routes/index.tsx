@@ -12,6 +12,7 @@ import {
   Share2,
 } from "lucide-react";
 import { toPng } from "html-to-image";
+import { inlineAndDecodeImages } from "@/lib/studio/export-image";
 import { ExportResultDialog, type ExportResult } from "@/components/studio/ExportResultDialog";
 import { toast } from "sonner";
 import { AppHeader } from "@/components/AppHeader";
@@ -240,7 +241,7 @@ function Index() {
     if (!node) return;
     setExportingCategory(category);
     try {
-      const dataUrl = await toPng(node, { pixelRatio: 1, cacheBust: true });
+      const dataUrl = await renderNode(node, 1);
       const blob = await (await fetch(dataUrl)).blob();
       setExportResult({
         blob,
