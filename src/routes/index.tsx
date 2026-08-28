@@ -202,10 +202,20 @@ function Index() {
   const [exportingPdf, setExportingPdf] = useState(false);
   const [exportingCategory, setExportingCategory] = useState<StoryCategory | null>(null);
 
+  async function renderNode(node: HTMLElement, pixelRatio: number) {
+    // Garante logo/fotos embutidas e decodificadas antes de rasterizar.
+    await inlineAndDecodeImages(node);
+    const options = { pixelRatio, cacheBust: false, skipFonts: false };
+    // Primeira passada aquece o cache interno de imagens do html-to-image.
+    await toPng(node, options);
+    return await toPng(node, options);
+  }
+
   async function renderCard() {
     if (!exportRef.current) return null;
-    return await toPng(exportRef.current, { pixelRatio: 2, cacheBust: true });
+    return await renderNode(exportRef.current, 2);
   }
+
 
   async function handleExport() {
     setExporting(true);
