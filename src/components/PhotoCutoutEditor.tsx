@@ -69,9 +69,9 @@ export function PhotoCutoutEditor({ value, onChange }: Props) {
         id="adj-zoom"
         label="Aproximação"
         hint={`${value.zoom.toFixed(1)}x`}
-        min={1}
+        min={0.5}
         max={3}
-        step={0.1}
+        step={0.05}
         value={value.zoom}
         onChange={(v) => set({ zoom: v })}
       />

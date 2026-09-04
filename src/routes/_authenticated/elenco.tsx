@@ -516,7 +516,18 @@ function ElencoPage() {
               </div>
             </div>
             {activeSource && !photoProcessing ? (
-              <PhotoCutoutEditor value={adjust} onChange={setAdjust} />
+              <div className="space-y-2">
+                <div className="flex justify-center rounded-md border border-border/60 bg-secondary/40 p-3">
+                  {form.photo ? (
+                    <img
+                      src={form.photo}
+                      alt="Prévia do recorte"
+                      className="aspect-square w-full max-w-[320px] rounded-md object-contain"
+                    />
+                  ) : null}
+                </div>
+                <PhotoCutoutEditor value={adjust} onChange={setAdjust} />
+              </div>
             ) : null}
 
             <div className="space-y-1.5">
