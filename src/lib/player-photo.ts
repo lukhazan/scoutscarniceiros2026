@@ -74,30 +74,29 @@ async function renderSquare(
   adjust: PhotoAdjust = DEFAULT_ADJUST,
 ): Promise<string> {
   const img = await loadImage(src);
-  const base = Math.min(img.naturalWidth, img.naturalHeight);
-  const zoom = Math.max(1, adjust.zoom || 1);
+  const w = img.naturalWidth;
+  const h = img.naturalHeight;
+  const base = Math.min(w, h);
+  // Zoom abaixo de 1 "afasta" a câmera: o quadrado de recorte cresce além da
+  // imagem e sobra espaço transparente, permitindo enquadrar da cintura para
+  // cima sem encolher demais a figura.
+  const zoom = Math.max(0.5, adjust.zoom || 1);
   const side = base / zoom;
-  const maxDX = (img.naturalWidth - side) / 2;
-  const maxDY = (img.naturalHeight - side) / 2;
-  const sx = maxDX + (adjust.offsetX / 100) * maxDX;
-  const sy = maxDY + (adjust.offsetY / 100) * maxDY;
+  const maxDX = (w - side) / 2;
+  const maxDY = (h - side) / 2;
+  const sx = maxDX + (adjust.offsetX / 100) * Math.abs(maxDX);
+  const sy = maxDY + (adjust.offsetY / 100) * Math.abs(maxDY);
 
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Não foi possível processar a imagem.");
-  ctx.drawImage(
-    img,
-    Math.max(0, sx),
-    Math.max(0, sy),
-    side,
-    side,
-    0,
-    0,
-    size,
-    size,
-  );
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  // Quando o recorte ultrapassa a imagem, a área de fora fica transparente.
+  ctx.clearRect(0, 0, size, size);
+  ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
   applyEdgeAdjust(ctx, size, adjust.trim, adjust.smooth);
 
   return canvas.toDataURL("image/png");
@@ -178,7 +177,7 @@ export function blobToDataUrl(blob: Blob): Promise<string> {
 export function renderAdjustedPhoto(
   sourceDataUrl: string,
   adjust: PhotoAdjust = DEFAULT_ADJUST,
-  size = 256,
+  size = 512,
 ): Promise<string> {
   return renderSquare(sourceDataUrl, size, adjust);
 }
