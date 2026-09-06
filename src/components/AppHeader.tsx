@@ -36,18 +36,20 @@ export function AppHeader() {
           </span>
         </div>
 
-        <nav className="flex shrink-0 items-center gap-1">
+        <nav className="-mr-4 flex min-w-0 shrink-0 items-center gap-1 overflow-x-auto scroll-smooth pr-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {!loading && session ? (
             <>
-              <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+              {isAdmin && (
+                <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
+                  <Link to="/visao-geral">Visão Geral</Link>
+                </Button>
+              )}
+              <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                 <Link to="/">Estatísticas</Link>
               </Button>
               {isAdmin ? (
                 <>
-                  <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
-                    <Link to="/visao-geral">Visão Geral</Link>
-                  </Button>
-                  <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                  <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                     <Link to="/elenco">Elenco</Link>
                   </Button>
                   <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
