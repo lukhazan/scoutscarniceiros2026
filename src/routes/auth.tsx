@@ -34,7 +34,7 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/jogos", replace: true });
+      if (data.session) navigate({ to: "/visao-geral", replace: true });
     });
   }, [navigate]);
 
@@ -49,7 +49,7 @@ function AuthPage() {
       if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword(parsed.data);
         if (error) throw error;
-        navigate({ to: "/jogos", replace: true });
+        navigate({ to: "/visao-geral", replace: true });
       } else {
         const { data, error } = await supabase.auth.signUp({
           ...parsed.data,
@@ -57,7 +57,7 @@ function AuthPage() {
         });
         if (error) throw error;
         if (data.session) {
-          navigate({ to: "/jogos", replace: true });
+          navigate({ to: "/visao-geral", replace: true });
         } else {
           toast.success("Conta criada! Confirme o e-mail para entrar.");
         }
@@ -80,7 +80,7 @@ function AuthPage() {
       return;
     }
     if (result.redirected) return;
-    navigate({ to: "/jogos", replace: true });
+    navigate({ to: "/visao-geral", replace: true });
   }
 
   return (
