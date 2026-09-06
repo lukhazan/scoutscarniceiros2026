@@ -45,6 +45,9 @@ export function AppHeader() {
               {isAdmin ? (
                 <>
                   <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                    <Link to="/visao-geral">Visão Geral</Link>
+                  </Button>
+                  <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
                     <Link to="/elenco">Elenco</Link>
                   </Button>
                   <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">

@@ -18,6 +18,7 @@ import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedElencoRouteImport } from './routes/_authenticated/elenco'
 import { Route as AuthenticatedEstudioRouteImport } from './routes/_authenticated/estudio'
 import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
+import { Route as AuthenticatedVisaoGeralRouteImport } from './routes/_authenticated/visao-geral'
 import { Route as AuthenticatedJogosIndexRouteImport } from './routes/_authenticated/jogos.index'
 import { Route as AuthenticatedJogosMatchIdRouteImport } from './routes/_authenticated/jogos.$matchId'
 import { Route as AuthenticatedJogosNovoRouteImport } from './routes/_authenticated/jogos.novo'
@@ -66,6 +67,11 @@ const AuthenticatedFinanceiroRoute = AuthenticatedFinanceiroRouteImport.update({
   path: '/financeiro',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedVisaoGeralRoute = AuthenticatedVisaoGeralRouteImport.update({
+  id: '/visao-geral',
+  path: '/visao-geral',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedJogosIndexRoute = AuthenticatedJogosIndexRouteImport.update({
   id: '/jogos/',
   path: '/jogos/',
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/elenco': typeof AuthenticatedElencoRoute
   '/estudio': typeof AuthenticatedEstudioRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
+  '/visao-geral': typeof AuthenticatedVisaoGeralRoute
   '/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
   '/jogos/novo': typeof AuthenticatedJogosNovoRoute
   '/jogos/': typeof AuthenticatedJogosIndexRoute
@@ -105,6 +112,7 @@ export interface FileRoutesByTo {
   '/elenco': typeof AuthenticatedElencoRoute
   '/estudio': typeof AuthenticatedEstudioRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
+  '/visao-geral': typeof AuthenticatedVisaoGeralRoute
   '/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
   '/jogos/novo': typeof AuthenticatedJogosNovoRoute
   '/jogos': typeof AuthenticatedJogosIndexRoute
@@ -120,6 +128,7 @@ export interface FileRoutesById {
   '/_authenticated/elenco': typeof AuthenticatedElencoRoute
   '/_authenticated/estudio': typeof AuthenticatedEstudioRoute
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
+  '/_authenticated/visao-geral': typeof AuthenticatedVisaoGeralRoute
   '/_authenticated/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
   '/_authenticated/jogos/novo': typeof AuthenticatedJogosNovoRoute
   '/_authenticated/jogos/': typeof AuthenticatedJogosIndexRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/elenco'
     | '/estudio'
     | '/financeiro'
+    | '/visao-geral'
     | '/jogos/$matchId'
     | '/jogos/novo'
     | '/jogos/'
@@ -148,6 +158,7 @@ export interface FileRouteTypes {
     | '/elenco'
     | '/estudio'
     | '/financeiro'
+    | '/visao-geral'
     | '/jogos/$matchId'
     | '/jogos/novo'
     | '/jogos'
@@ -162,6 +173,7 @@ export interface FileRouteTypes {
     | '/_authenticated/elenco'
     | '/_authenticated/estudio'
     | '/_authenticated/financeiro'
+    | '/_authenticated/visao-geral'
     | '/_authenticated/jogos/$matchId'
     | '/_authenticated/jogos/novo'
     | '/_authenticated/jogos/'
@@ -240,6 +252,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFinanceiroRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/visao-geral': {
+      id: '/_authenticated/visao-geral'
+      path: '/visao-geral'
+      fullPath: '/visao-geral'
+      preLoaderRoute: typeof AuthenticatedVisaoGeralRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/jogos/': {
       id: '/_authenticated/jogos/'
       path: '/jogos'
@@ -269,6 +288,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedElencoRoute: typeof AuthenticatedElencoRoute
   AuthenticatedEstudioRoute: typeof AuthenticatedEstudioRoute
   AuthenticatedFinanceiroRoute: typeof AuthenticatedFinanceiroRoute
+  AuthenticatedVisaoGeralRoute: typeof AuthenticatedVisaoGeralRoute
   AuthenticatedJogosMatchIdRoute: typeof AuthenticatedJogosMatchIdRoute
   AuthenticatedJogosNovoRoute: typeof AuthenticatedJogosNovoRoute
   AuthenticatedJogosIndexRoute: typeof AuthenticatedJogosIndexRoute
@@ -279,6 +299,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedElencoRoute: AuthenticatedElencoRoute,
   AuthenticatedEstudioRoute: AuthenticatedEstudioRoute,
   AuthenticatedFinanceiroRoute: AuthenticatedFinanceiroRoute,
+  AuthenticatedVisaoGeralRoute: AuthenticatedVisaoGeralRoute,
   AuthenticatedJogosMatchIdRoute: AuthenticatedJogosMatchIdRoute,
   AuthenticatedJogosNovoRoute: AuthenticatedJogosNovoRoute,
   AuthenticatedJogosIndexRoute: AuthenticatedJogosIndexRoute,
