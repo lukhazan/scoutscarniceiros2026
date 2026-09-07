@@ -52,25 +52,25 @@ export function AppHeader() {
                   <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                     <Link to="/elenco">Elenco</Link>
                   </Button>
-                  <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                  <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                     <Link to="/jogos">Jogos</Link>
                   </Button>
-                  <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                  <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                     <Link to="/agenda">Agenda</Link>
                   </Button>
-                  <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                  <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                     <Link to="/financeiro">Financeiro</Link>
                   </Button>
-                  <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                  <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                     <Link to="/estudio">Artes</Link>
                   </Button>
                 </>
               ) : (
-                <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                   <Link to="/agenda-time">Agenda</Link>
                 </Button>
               )}
-              <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sair">
+              <Button variant="ghost" size="icon" className="shrink-0" onClick={handleSignOut} aria-label="Sair">
                 <LogOut className="size-4" />
               </Button>
             </>
@@ -78,13 +78,13 @@ export function AppHeader() {
 
             !loading && (
               <>
-                <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                   <Link to="/">Estatísticas</Link>
                 </Button>
-                <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                   <Link to="/agenda-time">Agenda</Link>
                 </Button>
-                <Button asChild size="sm">
+                <Button asChild size="sm" className="shrink-0">
                   <Link to="/auth">Entrar</Link>
                 </Button>
               </>
