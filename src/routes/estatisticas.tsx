@@ -91,12 +91,16 @@ function Ranking({
             a.goals_conceded - b.goals_conceded ||
             b.matches_played - a.matches_played ||
             a.name.localeCompare(b.name),
-        );
+        )
+        .slice(3);
     }
     const other: Metric = metric === "goals" ? "assists" : "goals";
-    return [...rows].sort(
-      (a, b) => b[metric] - a[metric] || b[other] - a[other] || a.name.localeCompare(b.name),
-    );
+    return [...rows]
+      .filter((r) => r[metric] > 0)
+      .sort(
+        (a, b) => b[metric] - a[metric] || b[other] - a[other] || a.name.localeCompare(b.name),
+      )
+      .slice(3);
   }, [rows, metric]);
 
   if (loading) {
@@ -107,8 +111,8 @@ function Ranking({
     return (
       <p className="py-10 text-center text-sm text-muted-foreground">
         {metric === "clean_sheets"
-          ? "Nenhum goleiro com jogo registrado."
-          : "Nenhum jogador encontrado ainda."}
+          ? "Nenhum goleiro além do pódio."
+          : "Nenhum atleta além do pódio."}
       </p>
     );
   }
@@ -119,10 +123,10 @@ function Ranking({
         <li key={row.player_id} className="flex items-center gap-3 px-3 py-3">
           <span
             className={`w-6 shrink-0 text-center font-display text-xl tabular ${
-              index === 0 ? "text-primary" : index < 3 ? "text-accent" : "text-muted-foreground"
+              "text-muted-foreground"
             }`}
           >
-            {index + 1}
+            {index + 4}
           </span>
           <PlayerAvatar src={row.photo_url} name={displayName(row)} className="size-10" />
           <div className="min-w-0 flex-1">
