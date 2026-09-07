@@ -85,7 +85,7 @@ function AuthPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4 py-10">
-      <Link to="/" className="font-display text-3xl">
+      <Link to="/estatisticas" className="font-display text-3xl">
         Súmula
       </Link>
       <p className="mt-1 text-sm text-muted-foreground">Acesso de quem lança os jogos</p>
