@@ -14,7 +14,7 @@ function sortBy(rows: PlayerTotals[], metric: ExportMetric) {
 }
 
 function Column({ rows, metric }: { rows: PlayerTotals[]; metric: ExportMetric }) {
-  const list = sortBy(rows, metric).filter((r) => r.goals > 0 || r.assists > 0);
+  const list = sortBy(rows, metric).filter((r) => r[metric] > 0);
 
   const title = metric === "goals" ? "Artilharia" : "Assistências";
   const accent = metric === "goals" ? "text-red-600" : "text-red-500";
