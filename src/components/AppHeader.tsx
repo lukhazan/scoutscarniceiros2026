@@ -22,7 +22,7 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 pt-[env(safe-area-inset-top)] backdrop-blur">
-      <div className="mx-auto grid max-w-3xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 py-3">
+      <div className="mx-auto grid max-w-3xl grid-cols-[minmax(0,auto)_minmax(0,1fr)] items-center gap-2 px-4 py-3">
         <div className="flex min-w-0 items-center gap-2">
           <img
             src={teamLogo}
