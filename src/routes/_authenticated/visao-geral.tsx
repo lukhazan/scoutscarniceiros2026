@@ -139,7 +139,7 @@ function StatBox({ label, value, tone }: { label: string; value: string; tone?: 
 }
 
 const SHORTCUTS = [
-  { to: "/", label: "Estatísticas", icon: BarChart3 },
+  { to: "/estatisticas", label: "Estatísticas", icon: BarChart3 },
   { to: "/elenco", label: "Elenco", icon: Users },
   { to: "/jogos", label: "Jogos", icon: ClipboardList },
   { to: "/agenda", label: "Agenda", icon: CalendarDays },
@@ -317,7 +317,7 @@ function OverviewPage() {
           </div>
           <div className="mt-3 flex justify-end">
             <Button asChild variant="ghost" size="sm">
-              <Link to="/">
+              <Link to="/estatisticas">
                 Ver Estatísticas <ChevronRight className="size-4" />
               </Link>
             </Button>
