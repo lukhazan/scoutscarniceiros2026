@@ -22,7 +22,7 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 pt-[env(safe-area-inset-top)] backdrop-blur">
-      <div className="mx-auto grid max-w-3xl grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-4 py-3">
+      <div className="mx-auto grid max-w-3xl grid-cols-[minmax(0,auto)_minmax(0,1fr)] items-center gap-2 px-4 py-3">
         <div className="flex min-w-0 items-center gap-2">
           <img
             src={teamLogo}
@@ -36,7 +36,7 @@ export function AppHeader() {
           </span>
         </div>
 
-        <nav className="-mr-4 flex min-w-0 shrink-0 items-center gap-1 overflow-x-auto scroll-smooth pr-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <nav className="-mr-4 flex min-w-0 shrink-0 items-center justify-end gap-1 overflow-x-auto scroll-smooth pr-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {!loading && session ? (
             <>
               {isAdmin && (
@@ -52,25 +52,25 @@ export function AppHeader() {
                   <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                     <Link to="/elenco">Elenco</Link>
                   </Button>
-                  <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                  <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                     <Link to="/jogos">Jogos</Link>
                   </Button>
-                  <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                  <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                     <Link to="/agenda">Agenda</Link>
                   </Button>
-                  <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                  <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                     <Link to="/financeiro">Financeiro</Link>
                   </Button>
-                  <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                  <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                     <Link to="/estudio">Artes</Link>
                   </Button>
                 </>
               ) : (
-                <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                   <Link to="/agenda-time">Agenda</Link>
                 </Button>
               )}
-              <Button variant="ghost" size="icon" onClick={handleSignOut} aria-label="Sair">
+              <Button variant="ghost" size="icon" className="shrink-0" onClick={handleSignOut} aria-label="Sair">
                 <LogOut className="size-4" />
               </Button>
             </>
@@ -78,13 +78,13 @@ export function AppHeader() {
 
             !loading && (
               <>
-                <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                   <Link to="/">Estatísticas</Link>
                 </Button>
-                <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
+                <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                   <Link to="/agenda-time">Agenda</Link>
                 </Button>
-                <Button asChild size="sm">
+                <Button asChild size="sm" className="shrink-0">
                   <Link to="/auth">Entrar</Link>
                 </Button>
               </>
