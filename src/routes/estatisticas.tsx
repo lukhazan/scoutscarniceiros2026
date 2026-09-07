@@ -91,12 +91,16 @@ function Ranking({
             a.goals_conceded - b.goals_conceded ||
             b.matches_played - a.matches_played ||
             a.name.localeCompare(b.name),
-        );
+        )
+        .slice(3);
     }
     const other: Metric = metric === "goals" ? "assists" : "goals";
-    return [...rows].sort(
-      (a, b) => b[metric] - a[metric] || b[other] - a[other] || a.name.localeCompare(b.name),
-    );
+    return [...rows]
+      .filter((r) => r[metric] > 0)
+      .sort(
+        (a, b) => b[metric] - a[metric] || b[other] - a[other] || a.name.localeCompare(b.name),
+      )
+      .slice(3);
   }, [rows, metric]);
 
   if (loading) {
