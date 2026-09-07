@@ -52,7 +52,7 @@ import {
 } from "@/lib/team-data";
 
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/estatisticas")({
   head: () => ({
     meta: [
       { title: "Scouts CF7 2026 — Artilharia e assistências do time" },
