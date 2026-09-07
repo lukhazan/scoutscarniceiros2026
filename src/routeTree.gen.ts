@@ -9,10 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AgendaTimeRouteImport } from './routes/agenda-time'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as EstatisticasRouteImport } from './routes/estatisticas'
 import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedElencoRouteImport } from './routes/_authenticated/elenco'
@@ -23,11 +23,6 @@ import { Route as AuthenticatedJogosIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedJogosMatchIdRouteImport } from './routes/_authenticated/jogos.$matchId'
 import { Route as AuthenticatedJogosNovoRouteImport } from './routes/_authenticated/jogos.novo'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -40,6 +35,11 @@ const AgendaTimeRoute = AgendaTimeRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EstatisticasRoute = EstatisticasRouteImport.update({
+  id: '/estatisticas',
+  path: '/estatisticas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HorariosRoute = HorariosRouteImport.update({
@@ -90,9 +90,10 @@ const AuthenticatedJogosNovoRoute = AuthenticatedJogosNovoRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AuthenticatedRouteRouteWithChildren
   '/agenda-time': typeof AgendaTimeRoute
   '/auth': typeof AuthRoute
+  '/estatisticas': typeof EstatisticasRoute
   '/horarios': typeof HorariosRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/elenco': typeof AuthenticatedElencoRoute
@@ -104,9 +105,10 @@ export interface FileRoutesByFullPath {
   '/jogos/': typeof AuthenticatedJogosIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof AuthenticatedRouteRouteWithChildren
   '/agenda-time': typeof AgendaTimeRoute
   '/auth': typeof AuthRoute
+  '/estatisticas': typeof EstatisticasRoute
   '/horarios': typeof HorariosRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/elenco': typeof AuthenticatedElencoRoute
@@ -119,10 +121,10 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/agenda-time': typeof AgendaTimeRoute
   '/auth': typeof AuthRoute
+  '/estatisticas': typeof EstatisticasRoute
   '/horarios': typeof HorariosRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/elenco': typeof AuthenticatedElencoRoute
@@ -139,6 +141,7 @@ export interface FileRouteTypes {
     | '/'
     | '/agenda-time'
     | '/auth'
+    | '/estatisticas'
     | '/horarios'
     | '/agenda'
     | '/elenco'
@@ -153,6 +156,7 @@ export interface FileRouteTypes {
     | '/'
     | '/agenda-time'
     | '/auth'
+    | '/estatisticas'
     | '/horarios'
     | '/agenda'
     | '/elenco'
@@ -164,10 +168,10 @@ export interface FileRouteTypes {
     | '/jogos'
   id:
     | '__root__'
-    | '/'
     | '/_authenticated'
     | '/agenda-time'
     | '/auth'
+    | '/estatisticas'
     | '/horarios'
     | '/_authenticated/agenda'
     | '/_authenticated/elenco'
@@ -180,22 +184,15 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AgendaTimeRoute: typeof AgendaTimeRoute
   AuthRoute: typeof AuthRoute
+  EstatisticasRoute: typeof EstatisticasRoute
   HorariosRoute: typeof HorariosRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -215,6 +212,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/estatisticas': {
+      id: '/estatisticas'
+      path: '/estatisticas'
+      fullPath: '/estatisticas'
+      preLoaderRoute: typeof EstatisticasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/horarios': {
@@ -309,10 +313,10 @@ const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AgendaTimeRoute: AgendaTimeRoute,
   AuthRoute: AuthRoute,
+  EstatisticasRoute: EstatisticasRoute,
   HorariosRoute: HorariosRoute,
 }
 export const routeTree = rootRouteImport
