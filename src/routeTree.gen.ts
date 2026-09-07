@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AgendaTimeRouteImport } from './routes/agenda-time'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as EstatisticasRouteImport } from './routes/estatisticas'
 import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedElencoRouteImport } from './routes/_authenticated/elenco'
@@ -40,6 +41,11 @@ const AgendaTimeRoute = AgendaTimeRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EstatisticasRoute = EstatisticasRouteImport.update({
+  id: '/estatisticas',
+  path: '/estatisticas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HorariosRoute = HorariosRouteImport.update({
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/agenda-time': typeof AgendaTimeRoute
   '/auth': typeof AuthRoute
+  '/estatisticas': typeof EstatisticasRoute
   '/horarios': typeof HorariosRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/elenco': typeof AuthenticatedElencoRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/agenda-time': typeof AgendaTimeRoute
   '/auth': typeof AuthRoute
+  '/estatisticas': typeof EstatisticasRoute
   '/horarios': typeof HorariosRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/elenco': typeof AuthenticatedElencoRoute
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/agenda-time': typeof AgendaTimeRoute
   '/auth': typeof AuthRoute
+  '/estatisticas': typeof EstatisticasRoute
   '/horarios': typeof HorariosRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/elenco': typeof AuthenticatedElencoRoute
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/'
     | '/agenda-time'
     | '/auth'
+    | '/estatisticas'
     | '/horarios'
     | '/agenda'
     | '/elenco'
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/'
     | '/agenda-time'
     | '/auth'
+    | '/estatisticas'
     | '/horarios'
     | '/agenda'
     | '/elenco'
@@ -168,6 +179,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/agenda-time'
     | '/auth'
+    | '/estatisticas'
     | '/horarios'
     | '/_authenticated/agenda'
     | '/_authenticated/elenco'
@@ -184,6 +196,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AgendaTimeRoute: typeof AgendaTimeRoute
   AuthRoute: typeof AuthRoute
+  EstatisticasRoute: typeof EstatisticasRoute
   HorariosRoute: typeof HorariosRoute
 }
 
@@ -215,6 +228,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/estatisticas': {
+      id: '/estatisticas'
+      path: '/estatisticas'
+      fullPath: '/estatisticas'
+      preLoaderRoute: typeof EstatisticasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/horarios': {
@@ -313,6 +333,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AgendaTimeRoute: AgendaTimeRoute,
   AuthRoute: AuthRoute,
+  EstatisticasRoute: EstatisticasRoute,
   HorariosRoute: HorariosRoute,
 }
 export const routeTree = rootRouteImport

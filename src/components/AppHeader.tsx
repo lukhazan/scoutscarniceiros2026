@@ -45,7 +45,7 @@ export function AppHeader() {
                 </Button>
               )}
               <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
-                <Link to="/">Estatísticas</Link>
+                <Link to="/estatisticas">Estatísticas</Link>
               </Button>
               {isAdmin ? (
                 <>
@@ -79,7 +79,7 @@ export function AppHeader() {
             !loading && (
               <>
                 <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
-                  <Link to="/">Estatísticas</Link>
+                  <Link to="/estatisticas">Estatísticas</Link>
                 </Button>
                 <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                   <Link to="/agenda-time">Agenda</Link>
