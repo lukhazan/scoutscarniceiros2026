@@ -20,6 +20,8 @@ export function PlayerAvatar({ src, name, className = "size-10", fallback }: Pro
       <img
         src={src}
         alt={`Foto de ${name}`}
+        loading="lazy"
+        decoding="async"
         className={`shrink-0 bg-transparent object-contain ${className}`}
       />
     );

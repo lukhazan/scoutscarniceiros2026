@@ -185,7 +185,7 @@ function ElencoPage() {
       season: CURRENT_SEASON,
       ...seasonValues(player.id, CURRENT_SEASON),
       photo: player.photo_url ?? null,
-      photoOriginal: player.photo_original_url ?? null,
+      photoOriginal: null,
     });
     setOpen(true);
   }

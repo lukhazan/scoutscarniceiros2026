@@ -20,16 +20,18 @@ export const QUICK_FIELDS: { id: QuickField; label: string }[] = [
 
 export const DEFAULT_EDITABLE_FIELDS: QuickField[] = ["playerPhoto", "playerName"];
 
-export type SavedArtTemplate = {
+/** Dados leves do template (sem a composição, que pode ter megabytes). */
+export type SavedArtTemplateSummary = {
   id: string;
   name: string;
   base_slug: string;
-  art_data: ArtData;
   editable_fields: QuickField[];
   preview_url: string | null;
   created_at: string;
   updated_at: string;
 };
+
+export type SavedArtTemplate = SavedArtTemplateSummary & { art_data: ArtData };
 
 /** Normaliza o JSON salvo garantindo todas as chaves do ArtData atual. */
 export function toArtData(raw: unknown): ArtData {
@@ -52,23 +54,48 @@ export function stripVariableContent(data: ArtData, editable: QuickField[]): Art
   return out;
 }
 
+/** Lista leve: só o necessário para montar o seletor de templates. */
 export const savedArtTemplatesQueryOptions = {
   queryKey: ["saved-art-templates"],
-  queryFn: async (): Promise<SavedArtTemplate[]> => {
+  queryFn: async (): Promise<SavedArtTemplateSummary[]> => {
     const { data, error } = await supabase
       .from("saved_art_templates")
-      .select("id,name,base_slug,art_data,editable_fields,preview_url,created_at,updated_at")
+      .select("id,name,base_slug,editable_fields,preview_url,created_at,updated_at")
       .order("created_at", { ascending: true });
     if (error) throw error;
     return (data ?? []).map((row) => ({
       ...row,
-      art_data: toArtData(row.art_data),
       editable_fields: (Array.isArray(row.editable_fields)
         ? row.editable_fields
         : DEFAULT_EDITABLE_FIELDS) as QuickField[],
     }));
   },
 };
+
+/** Composição completa de um template — carregada só quando ele é aberto. */
+export function savedArtTemplateQueryOptions(id: string | null | undefined) {
+  return {
+    queryKey: ["saved-art-template", id ?? null],
+    enabled: Boolean(id),
+    queryFn: async (): Promise<SavedArtTemplate | null> => {
+      if (!id) return null;
+      const { data, error } = await supabase
+        .from("saved_art_templates")
+        .select("id,name,base_slug,art_data,editable_fields,preview_url,created_at,updated_at")
+        .eq("id", id)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) return null;
+      return {
+        ...data,
+        art_data: toArtData(data.art_data),
+        editable_fields: (Array.isArray(data.editable_fields)
+          ? data.editable_fields
+          : DEFAULT_EDITABLE_FIELDS) as QuickField[],
+      };
+    },
+  };
+}
 
 export async function createSavedTemplate(input: {
   name: string;
@@ -105,11 +132,16 @@ export async function updateSavedTemplate(
   if (error) throw error;
 }
 
-export async function duplicateSavedTemplate(tpl: SavedArtTemplate) {
+export async function fetchSavedTemplate(id: string): Promise<SavedArtTemplate | null> {
+  return savedArtTemplateQueryOptions(id).queryFn();
+}
+
+export async function duplicateSavedTemplate(tpl: SavedArtTemplateSummary) {
+  const full = await fetchSavedTemplate(tpl.id);
   return createSavedTemplate({
     name: nextCopyName(tpl.name),
     base_slug: tpl.base_slug,
-    art_data: tpl.art_data,
+    art_data: full?.art_data ?? toArtData(null),
     editable_fields: tpl.editable_fields,
   });
 }

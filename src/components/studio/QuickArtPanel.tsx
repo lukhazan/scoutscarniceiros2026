@@ -17,7 +17,11 @@ import { renderStoryBlob } from "@/lib/studio/export-image";
 import { ExportResultDialog, type ExportResult } from "@/components/studio/ExportResultDialog";
 import { canShareFile, downloadFile, isMobileDevice } from "@/lib/download-file";
 import { brandIdentityQueryOptions } from "@/lib/studio-data";
-import { displayName, playersQueryOptions } from "@/lib/team-data";
+import {
+  displayName,
+  playerOriginalPhotoQueryOptions,
+  playersQueryOptions,
+} from "@/lib/team-data";
 import {
   EMPTY_ART_DATA,
   STORY_HEIGHT,
@@ -29,9 +33,11 @@ import {
 } from "@/lib/studio/templates";
 import {
   DEFAULT_EDITABLE_FIELDS,
+  savedArtTemplateQueryOptions,
   savedArtTemplatesQueryOptions,
   type QuickField,
   type SavedArtTemplate,
+  type SavedArtTemplateSummary,
 } from "@/lib/studio/saved-templates";
 
 type QuickOption = {
@@ -39,7 +45,6 @@ type QuickOption = {
   name: string;
   emoji: string;
   baseSlug: string;
-  data: ArtData;
   editable: QuickField[];
 };
 
@@ -48,14 +53,13 @@ type QuickOption = {
  * Modelos padrão do sistema permanecem disponíveis no Estúdio Avançado.
  */
 
-function savedToOption(row: SavedArtTemplate): QuickOption {
+function savedToOption(row: SavedArtTemplateSummary): QuickOption {
   const base = getTemplate(row.base_slug);
   return {
     id: row.id,
     name: row.name,
     emoji: base.emoji,
     baseSlug: row.base_slug,
-    data: row.art_data,
     editable: row.editable_fields,
   };
 }
@@ -93,6 +97,9 @@ export function QuickArtPanel() {
   const template = getTemplate(option?.baseSlug ?? STUDIO_TEMPLATES[0].slug);
   const player = players.find((p) => p.id === playerId) ?? null;
 
+  // Foto original carregada só para o atleta escolhido (evita baixar todas de uma vez).
+  const { data: originalPhoto = null } = useQuery<string | null>(playerOriginalPhotoQueryOptions(playerId));
+
   const artPlayer = player
     ? {
         id: player.id,
@@ -101,7 +108,7 @@ export function QuickArtPanel() {
         position: player.position,
         shirt_number: player.shirt_number,
         photo_url: player.photo_url,
-        photo_original_url: player.photo_original_url,
+        photo_original_url: originalPhoto,
       }
     : null;
 
@@ -112,7 +119,7 @@ export function QuickArtPanel() {
    */
   const data: ArtData = useMemo(() => {
     const base = option?.data ?? EMPTY_ART_DATA;
-    const photo = player?.photo_original_url ?? player?.photo_url ?? base.playerPhotoUrl;
+    const photo = originalPhoto ?? player?.photo_url ?? base.playerPhotoUrl;
     return {
       ...base,
       ...extra,
@@ -123,7 +130,7 @@ export function QuickArtPanel() {
       playerOffsetY: base.playerOffsetY,
       playerRotation: base.playerRotation,
     };
-  }, [option, extra, player]);
+  }, [option, extra, player, originalPhoto]);
 
   const needsPlayer = !template.fields.includes("agenda");
   const canGenerate = Boolean(option) && (!needsPlayer || Boolean(player));
@@ -236,7 +243,7 @@ export function QuickArtPanel() {
                   ))}
                 </SelectContent>
               </Select>
-              {player && !player.photo_original_url && !player.photo_url ? (
+              {player && !originalPhoto && !player.photo_url ? (
                 <p className="text-[11px] text-muted-foreground">
                   Este atleta ainda não tem foto cadastrada no Elenco.
                 </p>
