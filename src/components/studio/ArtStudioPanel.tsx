@@ -69,7 +69,11 @@ import {
   weekRangeLabel,
   type AgendaArtItem,
 } from "@/lib/studio/agenda-art";
-import { displayName, playersQueryOptions } from "@/lib/team-data";
+import {
+  displayName,
+  playerOriginalPhotoQueryOptions,
+  playersQueryOptions,
+} from "@/lib/team-data";
 import {
   ACCEPTED_IMAGE_TYPES,
   brandIdentityQueryOptions,

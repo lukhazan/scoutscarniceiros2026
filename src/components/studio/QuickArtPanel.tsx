@@ -17,7 +17,11 @@ import { renderStoryBlob } from "@/lib/studio/export-image";
 import { ExportResultDialog, type ExportResult } from "@/components/studio/ExportResultDialog";
 import { canShareFile, downloadFile, isMobileDevice } from "@/lib/download-file";
 import { brandIdentityQueryOptions } from "@/lib/studio-data";
-import { displayName, playersQueryOptions } from "@/lib/team-data";
+import {
+  displayName,
+  playerOriginalPhotoQueryOptions,
+  playersQueryOptions,
+} from "@/lib/team-data";
 import {
   EMPTY_ART_DATA,
   STORY_HEIGHT,
