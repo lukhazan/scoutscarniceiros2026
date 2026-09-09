@@ -98,7 +98,7 @@ export function QuickArtPanel() {
   const player = players.find((p) => p.id === playerId) ?? null;
 
   // Foto original carregada só para o atleta escolhido (evita baixar todas de uma vez).
-  const { data: originalPhoto = null } = useQuery(playerOriginalPhotoQueryOptions(playerId));
+  const { data: originalPhoto = null } = useQuery<string | null>(playerOriginalPhotoQueryOptions(playerId));
 
   const artPlayer = player
     ? {

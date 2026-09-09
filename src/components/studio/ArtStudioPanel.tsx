@@ -547,7 +547,7 @@ export function ArtStudioPanel() {
   );
 
   // Foto original só do atleta selecionado.
-  const { data: originalPhoto = null } = useQuery(
+  const { data: originalPhoto = null } = useQuery<string | null>(
     playerOriginalPhotoQueryOptions(data.playerId ?? null),
   );
 
