@@ -33,9 +33,11 @@ import {
 } from "@/lib/studio/templates";
 import {
   DEFAULT_EDITABLE_FIELDS,
+  savedArtTemplateQueryOptions,
   savedArtTemplatesQueryOptions,
   type QuickField,
   type SavedArtTemplate,
+  type SavedArtTemplateSummary,
 } from "@/lib/studio/saved-templates";
 
 type QuickOption = {
@@ -43,7 +45,6 @@ type QuickOption = {
   name: string;
   emoji: string;
   baseSlug: string;
-  data: ArtData;
   editable: QuickField[];
 };
 
@@ -52,14 +53,13 @@ type QuickOption = {
  * Modelos padrão do sistema permanecem disponíveis no Estúdio Avançado.
  */
 
-function savedToOption(row: SavedArtTemplate): QuickOption {
+function savedToOption(row: SavedArtTemplateSummary): QuickOption {
   const base = getTemplate(row.base_slug);
   return {
     id: row.id,
     name: row.name,
     emoji: base.emoji,
     baseSlug: row.base_slug,
-    data: row.art_data,
     editable: row.editable_fields,
   };
 }
