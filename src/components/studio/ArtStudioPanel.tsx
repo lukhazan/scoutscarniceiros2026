@@ -542,6 +542,11 @@ export function ArtStudioPanel() {
     [players, data.playerId],
   );
 
+  // Foto original só do atleta selecionado.
+  const { data: originalPhoto = null } = useQuery(
+    playerOriginalPhotoQueryOptions(data.playerId ?? null),
+  );
+
   const artPlayer = player
     ? {
         id: player.id,
@@ -550,14 +555,19 @@ export function ArtStudioPanel() {
         position: player.position,
         shirt_number: player.shirt_number,
         photo_url: player.photo_url,
-        photo_original_url: player.photo_original_url,
+        photo_original_url: originalPhoto,
       }
     : null;
 
   /** Ao escolher um atleta, carrega a FOTO ORIGINAL (nunca o avatar recortado). */
-  function selectPlayer(id: string) {
-    const p = players.find((x) => x.id === id) ?? null;
-    const original = p?.photo_original_url ?? null;
+  async function selectPlayer(id: string) {
+    set({ playerId: id });
+    let original: string | null = null;
+    try {
+      original = await queryClient.fetchQuery(playerOriginalPhotoQueryOptions(id));
+    } catch {
+      original = null;
+    }
     if (original) {
       set({
         playerId: id,
@@ -567,12 +577,9 @@ export function ArtStudioPanel() {
         playerRotation: 0,
       });
     } else {
-      set({ playerId: id });
-      if (p && !p.photo_original_url) {
-        toast.message(
-          "Este atleta ainda não tem foto original. Cadastre no Elenco ou envie uma foto aqui.",
-        );
-      }
+      toast.message(
+        "Este atleta ainda não tem foto original. Cadastre no Elenco ou envie uma foto aqui.",
+      );
     }
   }
 

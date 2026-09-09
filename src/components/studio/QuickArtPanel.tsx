@@ -93,6 +93,9 @@ export function QuickArtPanel() {
   const template = getTemplate(option?.baseSlug ?? STUDIO_TEMPLATES[0].slug);
   const player = players.find((p) => p.id === playerId) ?? null;
 
+  // Foto original carregada só para o atleta escolhido (evita baixar todas de uma vez).
+  const { data: originalPhoto = null } = useQuery(playerOriginalPhotoQueryOptions(playerId));
+
   const artPlayer = player
     ? {
         id: player.id,
@@ -101,7 +104,7 @@ export function QuickArtPanel() {
         position: player.position,
         shirt_number: player.shirt_number,
         photo_url: player.photo_url,
-        photo_original_url: player.photo_original_url,
+        photo_original_url: originalPhoto,
       }
     : null;
 
@@ -112,7 +115,7 @@ export function QuickArtPanel() {
    */
   const data: ArtData = useMemo(() => {
     const base = option?.data ?? EMPTY_ART_DATA;
-    const photo = player?.photo_original_url ?? player?.photo_url ?? base.playerPhotoUrl;
+    const photo = originalPhoto ?? player?.photo_url ?? base.playerPhotoUrl;
     return {
       ...base,
       ...extra,
@@ -123,7 +126,7 @@ export function QuickArtPanel() {
       playerOffsetY: base.playerOffsetY,
       playerRotation: base.playerRotation,
     };
-  }, [option, extra, player]);
+  }, [option, extra, player, originalPhoto]);
 
   const needsPlayer = !template.fields.includes("agenda");
   const canGenerate = Boolean(option) && (!needsPlayer || Boolean(player));
@@ -236,7 +239,7 @@ export function QuickArtPanel() {
                   ))}
                 </SelectContent>
               </Select>
-              {player && !player.photo_original_url && !player.photo_url ? (
+              {player && !originalPhoto && !player.photo_url ? (
                 <p className="text-[11px] text-muted-foreground">
                   Este atleta ainda não tem foto cadastrada no Elenco.
                 </p>
