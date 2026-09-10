@@ -272,6 +272,25 @@ export function MatchForm({ match }: { match?: Match }) {
       </div>
 
 
+      <div className="rounded-lg border border-border/60 bg-card px-3 py-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Placar</p>
+            <p className="font-display text-3xl leading-none tabular">
+              {totals.goals} <span className="text-muted-foreground">x</span> {totals.conceded}
+            </p>
+          </div>
+          <p className={`font-display text-2xl leading-none ${outcome.tone}`}>{outcome.label}</p>
+        </div>
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-border/60 pt-3">
+          <span className="text-sm font-medium">Gol contra</span>
+          <Stepper label="gols contra" value={ownGoals} onChange={setOwnGoals} />
+        </div>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          O gol contra conta nos gols sofridos do jogo e não entra nas estatísticas dos atletas.
+        </p>
+      </div>
+
       <div className="grid grid-cols-3 gap-2">
         {[
           { label: "Presentes", value: totals.played },
