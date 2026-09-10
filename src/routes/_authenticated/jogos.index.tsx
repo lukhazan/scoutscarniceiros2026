@@ -40,7 +40,14 @@ function JogosPage() {
   const queryClient = useQueryClient();
   const { data: matches, isLoading } = useQuery(matchesQueryOptions);
   const { data: stats } = useQuery(matchTotalsQueryOptions);
+  const { data: results } = useQuery(matchResultsQueryOptions);
   const [toDelete, setToDelete] = useState<Match | null>(null);
+
+  // Placar e resultado vêm da mesma fonte usada na Visão Geral.
+  const resultByMatch = useMemo(
+    () => new Map((results ?? []).map((r) => [r.match_id, r])),
+    [results],
+  );
 
   const byMatch = useMemo(() => {
     const map = new Map<string, { goals: number; assists: number; played: number }>();
