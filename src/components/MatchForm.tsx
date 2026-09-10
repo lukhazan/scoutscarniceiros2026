@@ -80,6 +80,7 @@ export function MatchForm({ match }: { match?: Match }) {
 
   const [date, setDate] = useState(match?.match_date ?? new Date().toISOString().slice(0, 10));
   const [opponent, setOpponent] = useState(match?.opponent ?? "");
+  const [ownGoals, setOwnGoals] = useState(match?.own_goals ?? 0);
   const [search, setSearch] = useState("");
   const [rows, setRows] = useState<Record<string, Row>>({});
   const [saving, setSaving] = useState(false);
@@ -175,6 +176,7 @@ export function MatchForm({ match }: { match?: Match }) {
       const payload = {
         match_date: parsed.data.match_date,
         opponent: parsed.data.opponent ?? null,
+        own_goals: ownGoals,
       };
 
       if (mode === "edit") {
