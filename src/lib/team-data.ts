@@ -202,27 +202,31 @@ type SeasonStatRow = SeasonStat & {
     position: string | null;
     shirt_number: number | null;
     active: boolean;
-    photo_url: string | null;
   } | null;
 };
 
 export const statsByYearQueryOptions = {
   queryKey: ["stats_by_year"],
   queryFn: async (): Promise<Record<string, PlayerTotals[]>> => {
-    const [matchRes, seasonRes] = await Promise.all([
+    // As fotos vêm uma única vez (por atleta), e não repetidas em cada linha de scout.
+    const [matchRes, seasonRes, photoRes] = await Promise.all([
       supabase
         .from("match_stats")
         .select(
-          "player_id, goals, assists, goals_conceded, played, matches(match_date), players(name, nickname, position, shirt_number, active, photo_url)",
+          "player_id, goals, assists, goals_conceded, played, matches(match_date), players(name, nickname, position, shirt_number, active)",
         ),
       supabase
         .from("player_season_stats")
         .select(
-          "id, player_id, season, goals, assists, goals_conceded, players(name, nickname, position, shirt_number, active, photo_url)",
+          "id, player_id, season, goals, assists, goals_conceded, players(name, nickname, position, shirt_number, active)",
         ),
+      supabase.from("players").select("id, photo_url"),
     ]);
     if (matchRes.error) throw new Error(matchRes.error.message);
     if (seasonRes.error) throw new Error(seasonRes.error.message);
+    if (photoRes.error) throw new Error(photoRes.error.message);
+
+    const photos = new Map((photoRes.data ?? []).map((p) => [p.id, p.photo_url]));
 
     const byYear: Record<string, Map<string, PlayerTotals>> = {};
 
@@ -242,7 +246,7 @@ export const statsByYearQueryOptions = {
           position: player.position,
           shirt_number: player.shirt_number,
           active: player.active,
-          photo_url: player.photo_url,
+          photo_url: photos.get(playerId) ?? null,
           matches_played: 0,
           goals: 0,
           assists: 0,
