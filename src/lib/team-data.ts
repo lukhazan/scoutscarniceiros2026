@@ -242,7 +242,7 @@ export const statsByYearQueryOptions = {
           position: player.position,
           shirt_number: player.shirt_number,
           active: player.active,
-          photo_url: photos.get(playerId) ?? null,
+          photo_url: null,
           matches_played: 0,
           goals: 0,
           assists: 0,
