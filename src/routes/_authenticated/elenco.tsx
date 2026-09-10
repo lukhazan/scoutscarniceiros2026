@@ -364,10 +364,7 @@ function ElencoPage() {
                   />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold leading-tight">
-                      {player.name}
-                      {player.nickname ? (
-                        <span className="text-muted-foreground"> · {player.nickname}</span>
-                      ) : null}
+                      {displayName(player)}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {[

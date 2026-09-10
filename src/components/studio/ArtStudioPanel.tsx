@@ -70,6 +70,7 @@ import {
   type AgendaArtItem,
 } from "@/lib/studio/agenda-art";
 import {
+  compareDisplayName,
   displayName,
   playerOriginalPhotoQueryOptions,
   playersQueryOptions,
@@ -1138,7 +1139,7 @@ export function ArtStudioPanel() {
                       <SelectValue placeholder="Selecionar atleta" />
                     </SelectTrigger>
                     <SelectContent>
-                      {players.map((p) => (
+                      {[...players].sort(compareDisplayName).map((p) => (
                         <SelectItem key={p.id} value={p.id}>
                           {displayName(p)}
                         </SelectItem>

@@ -18,6 +18,7 @@ import { ExportResultDialog, type ExportResult } from "@/components/studio/Expor
 import { canShareFile, downloadFile, isMobileDevice } from "@/lib/download-file";
 import { brandIdentityQueryOptions } from "@/lib/studio-data";
 import {
+  compareDisplayName,
   displayName,
   playerOriginalPhotoQueryOptions,
   playersQueryOptions,
@@ -241,7 +242,7 @@ export function QuickArtPanel() {
                   <SelectValue placeholder="Selecionar atleta" />
                 </SelectTrigger>
                 <SelectContent>
-                  {players.map((p) => (
+                  {[...players].sort(compareDisplayName).map((p) => (
                     <SelectItem key={p.id} value={p.id}>
                       {displayName(p)}
                     </SelectItem>
