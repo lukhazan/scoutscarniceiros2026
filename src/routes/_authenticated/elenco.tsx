@@ -41,6 +41,7 @@ import {
   POSITIONS,
   playersQueryOptions,
   seasonStatsQueryOptions,
+  compareDisplayName,
   displayName,
   type Player,
 } from "@/lib/team-data";
