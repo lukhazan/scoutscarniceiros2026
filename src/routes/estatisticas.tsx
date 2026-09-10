@@ -11,7 +11,7 @@ import {
   Shield,
   Share2,
 } from "lucide-react";
-import { toPng } from "html-to-image";
+
 import { inlineAndDecodeImages } from "@/lib/studio/export-image";
 import { ExportResultDialog, type ExportResult } from "@/components/studio/ExportResultDialog";
 import { toast } from "sonner";
@@ -208,6 +208,8 @@ function Index() {
   const [exportingCategory, setExportingCategory] = useState<StoryCategory | null>(null);
 
   async function renderNode(node: HTMLElement, pixelRatio: number) {
+    // Biblioteca de rasterização carregada só na hora de exportar.
+    const { toPng } = await import("html-to-image");
     // Garante logo/fotos embutidas e decodificadas antes de rasterizar.
     await inlineAndDecodeImages(node);
     const options = { pixelRatio, cacheBust: false, skipFonts: false };

@@ -45,7 +45,9 @@ import {
   type Player,
 } from "@/lib/team-data";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
-import { PhotoCutoutEditor } from "@/components/PhotoCutoutEditor";
+const PhotoCutoutEditor = lazy(() =>
+  import("@/components/PhotoCutoutEditor").then((m) => ({ default: m.PhotoCutoutEditor })),
+);
 import {
   DEFAULT_ADJUST,
   fileToCutoutSourceDataUrl,
@@ -264,7 +266,10 @@ function ElencoPage() {
       shirt_number: parsed.data.shirt_number,
       active: parsed.data.active,
       photo_url: parsed.data.photo_url,
-      photo_original_url: parsed.data.photo_original_url,
+      // Sem foto nova em uma edição, preserva a foto original já salva.
+      ...(parsed.data.photo_original_url || !editing
+        ? { photo_original_url: parsed.data.photo_original_url }
+        : {}),
     };
     let playerId = editing?.id ?? "";
     let error = null as { message: string } | null;
@@ -526,7 +531,11 @@ function ElencoPage() {
                     />
                   ) : null}
                 </div>
-                <PhotoCutoutEditor value={adjust} onChange={setAdjust} />
+                <Suspense
+                  fallback={<p className="text-xs text-muted-foreground">Carregando editor…</p>}
+                >
+                  <PhotoCutoutEditor value={adjust} onChange={setAdjust} />
+                </Suspense>
               </div>
             ) : null}
 
