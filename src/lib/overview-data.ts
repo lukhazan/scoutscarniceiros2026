@@ -3,40 +3,55 @@ import { supabase } from "@/integrations/supabase/client";
 export type MatchResultRow = {
   match_id: string;
   match_date: string;
+  opponent: string | null;
   scored: number;
   conceded: number;
+  outcome: "V" | "E" | "D";
 };
 
 /**
- * Resultado de cada partida derivado dos scouts já registrados:
- * gols marcados = soma dos gols dos atletas; gols sofridos = soma dos gols
- * sofridos pelos goleiros. Não altera nenhum cálculo existente.
+ * Fonte única do resultado de cada partida:
+ * gols feitos = soma dos gols dos atletas;
+ * gols sofridos = gols sofridos pelos goleiros + gols contra do jogo.
+ * O gol contra nunca entra nas estatísticas individuais.
  */
 export const matchResultsQueryOptions = {
   queryKey: ["overview", "match_results"],
   queryFn: async (): Promise<MatchResultRow[]> => {
-    const { data, error } = await supabase
-      .from("match_stats")
-      .select("match_id, goals, goals_conceded, matches(match_date)");
-    if (error) throw new Error(error.message);
+    const [matchesRes, statsRes] = await Promise.all([
+      supabase.from("matches").select("id, match_date, opponent, own_goals"),
+      supabase.from("match_stats").select("match_id, goals, goals_conceded"),
+    ]);
+    if (matchesRes.error) throw new Error(matchesRes.error.message);
+    if (statsRes.error) throw new Error(statsRes.error.message);
 
-    const map = new Map<string, MatchResultRow>();
-    for (const row of (data ?? []) as unknown as {
-      match_id: string;
-      goals: number;
-      goals_conceded: number;
-      matches: { match_date: string } | null;
-    }[]) {
-      const date = row.matches?.match_date;
-      if (!date) continue;
-      const entry =
-        map.get(row.match_id) ??
-        ({ match_id: row.match_id, match_date: date, scored: 0, conceded: 0 } as MatchResultRow);
+    const totals = new Map<string, { scored: number; conceded: number; rows: number }>();
+    for (const row of statsRes.data ?? []) {
+      const entry = totals.get(row.match_id) ?? { scored: 0, conceded: 0, rows: 0 };
       entry.scored += row.goals ?? 0;
       entry.conceded += row.goals_conceded ?? 0;
-      map.set(row.match_id, entry);
+      entry.rows += 1;
+      totals.set(row.match_id, entry);
     }
-    return [...map.values()];
+
+    return (matchesRes.data ?? [])
+      .map((match) => {
+        const t = totals.get(match.id) ?? { scored: 0, conceded: 0, rows: 0 };
+        const scored = t.scored;
+        const conceded = t.conceded + (match.own_goals ?? 0);
+        return {
+          match_id: match.id,
+          match_date: match.match_date,
+          opponent: match.opponent,
+          scored,
+          conceded,
+          outcome: (scored > conceded ? "V" : scored === conceded ? "E" : "D") as "V" | "E" | "D",
+          _hasData: t.rows > 0 || (match.own_goals ?? 0) > 0,
+        };
+      })
+      .filter((row) => row._hasData)
+      .map(({ _hasData, ...row }) => row)
+      .sort((a, b) => b.match_date.localeCompare(a.match_date));
   },
 };
 
@@ -44,9 +59,9 @@ export function seasonSummary(rows: MatchResultRow[], year: string) {
   const scoped = year === "all" ? rows : rows.filter((r) => r.match_date.startsWith(year));
   return {
     matches: scoped.length,
-    wins: scoped.filter((r) => r.scored > r.conceded).length,
-    draws: scoped.filter((r) => r.scored === r.conceded).length,
-    losses: scoped.filter((r) => r.scored < r.conceded).length,
+    wins: scoped.filter((r) => r.outcome === "V").length,
+    draws: scoped.filter((r) => r.outcome === "E").length,
+    losses: scoped.filter((r) => r.outcome === "D").length,
     scored: scoped.reduce((sum, r) => sum + r.scored, 0),
     conceded: scoped.reduce((sum, r) => sum + r.conceded, 0),
   };
