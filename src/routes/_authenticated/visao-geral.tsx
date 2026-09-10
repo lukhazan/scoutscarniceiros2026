@@ -236,6 +236,8 @@ function OverviewPage() {
   }, [events]);
 
   const season = seasonSummary(results ?? [], year);
+  // Mesmos resultados da aba Jogos, os 5 mais recentes.
+  const lastResults = useMemo(() => (results ?? []).slice(0, 5), [results]);
 
   const alerts: { tone: "danger" | "info"; text: string }[] = [];
   if (overdueRows.length > 0) {
