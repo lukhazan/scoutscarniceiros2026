@@ -108,7 +108,9 @@ import {
   savedArtTemplatesQueryOptions,
   updateSavedTemplate,
   type QuickField,
+  savedArtTemplateQueryOptions,
   type SavedArtTemplate,
+  type SavedArtTemplateSummary,
 } from "@/lib/studio/saved-templates";
 
 type ToolId =
@@ -410,20 +412,31 @@ export function ArtStudioPanel() {
   const { data: savedTemplates = [] } = useQuery(savedArtTemplatesQueryOptions);
   const [saveOpen, setSaveOpen] = useState(false);
   const [savingTemplate, setSavingTemplate] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<SavedArtTemplate | null>(null);
+  const [editingTemplate, setEditingTemplate] = useState<SavedArtTemplateSummary | null>(null);
 
   const past = useRef<ArtData[]>([]);
   const future = useRef<ArtData[]>([]);
   const [historyTick, setHistoryTick] = useState(0);
 
   /** Abre um template salvo no editor avançado, sem perder nada da composição. */
-  function openSavedTemplate(tpl: SavedArtTemplate) {
+  async function openSavedTemplate(tpl: SavedArtTemplateSummary) {
+    let full: SavedArtTemplate | null = null;
+    try {
+      full = await queryClient.fetchQuery(savedArtTemplateQueryOptions(tpl.id));
+    } catch {
+      toast.error("Não foi possível abrir o template.");
+      return;
+    }
+    if (!full) {
+      toast.error("Não foi possível abrir o template.");
+      return;
+    }
     setEditingTemplate(tpl);
     setSlug(tpl.base_slug);
     setTitleEdited(true);
     past.current = [];
     future.current = [];
-    setData({ ...EMPTY_ART_DATA, ...tpl.art_data });
+    setData({ ...EMPTY_ART_DATA, ...full.art_data });
     setHistoryTick((t) => t + 1);
     toast.success(`Template "${tpl.name}" carregado no editor.`);
   }
@@ -450,7 +463,6 @@ export function ArtStudioPanel() {
           id,
           name: value.name,
           base_slug: slug,
-          art_data: data,
           editable_fields: value.editableFields,
           preview_url: null,
           created_at: new Date().toISOString(),
