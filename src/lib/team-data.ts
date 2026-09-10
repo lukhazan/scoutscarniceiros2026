@@ -35,6 +35,8 @@ export type Match = {
   match_date: string;
   opponent: string | null;
   notes: string | null;
+  /** gols contra da nossa equipe: contam como gols sofridos, nunca como gol de atleta */
+  own_goals: number;
 };
 
 export type MatchStat = {
@@ -109,7 +111,7 @@ export const matchesQueryOptions = {
   queryFn: async (): Promise<Match[]> => {
     const { data, error } = await supabase
       .from("matches")
-      .select("id, match_date, opponent, notes")
+      .select("id, match_date, opponent, notes, own_goals")
       .order("match_date", { ascending: false });
     if (error) throw new Error(error.message);
     return data ?? [];
@@ -122,7 +124,7 @@ export function matchQueryOptions(matchId: string) {
     queryFn: async (): Promise<Match> => {
       const { data, error } = await supabase
         .from("matches")
-        .select("id, match_date, opponent, notes")
+        .select("id, match_date, opponent, notes, own_goals")
         .eq("id", matchId)
         .single();
       if (error) throw new Error(error.message);
