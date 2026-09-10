@@ -1,6 +1,7 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle } from "lucide-react";
-import { playersQueryOptions, displayName } from "@/lib/team-data";
+import { compareDisplayName, playersQueryOptions, displayName } from "@/lib/team-data";
 import { debtsQueryOptions, formatMoney, overdueByPlayer } from "@/lib/finance-data";
 
 /** Aviso administrativo com atletas que possuem débitos vencidos. */
@@ -8,7 +9,25 @@ export function OverdueAlert({ className }: { className?: string }) {
   const { data: debts } = useQuery(debtsQueryOptions);
   const { data: players } = useQuery(playersQueryOptions);
 
-  const rows = overdueByPlayer(debts ?? []);
+  /** Mesmo padrão das demais abas: ordem alfabética pelo apelido exibido. */
+  const rows = useMemo(() => {
+    const found = overdueByPlayer(debts ?? []);
+    const named = found.map((row) => ({
+      row,
+      player: players?.find((p) => p.id === row.player_id),
+    }));
+    return named
+      .sort((a, b) =>
+        a.player && b.player
+          ? compareDisplayName(a.player, b.player)
+          : displayName(a.player ?? { name: "", nickname: null }).localeCompare(
+              displayName(b.player ?? { name: "", nickname: null }),
+              "pt-BR",
+            ),
+      )
+      .map(({ row }) => row);
+  }, [debts, players]);
+
   if (rows.length === 0) return null;
 
   return (
