@@ -45,6 +45,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  compareDisplayName,
   displayName,
   statsByYearQueryOptions,
   totalsQueryOptions,
@@ -90,7 +91,7 @@ function Ranking({
           (a, b) =>
             a.goals_conceded - b.goals_conceded ||
             b.matches_played - a.matches_played ||
-            a.name.localeCompare(b.name),
+            compareDisplayName(a, b),
         )
         .slice(3);
     }
@@ -98,7 +99,7 @@ function Ranking({
     return [...rows]
       .filter((r) => r[metric] > 0)
       .sort(
-        (a, b) => b[metric] - a[metric] || b[other] - a[other] || a.name.localeCompare(b.name),
+        (a, b) => b[metric] - a[metric] || b[other] - a[other] || compareDisplayName(a, b),
       )
       .slice(3);
   }, [rows, metric]);

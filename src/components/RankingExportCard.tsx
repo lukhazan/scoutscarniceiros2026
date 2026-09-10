@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { displayName, type PlayerTotals } from "@/lib/team-data";
+import { compareDisplayName, displayName, type PlayerTotals } from "@/lib/team-data";
 import { teamLogoColor } from "@/assets/team-logo-data";
 
 const teamLogo = teamLogoColor;
@@ -9,7 +9,7 @@ export type ExportMetric = "goals" | "assists";
 function sortBy(rows: PlayerTotals[], metric: ExportMetric) {
   const other: ExportMetric = metric === "goals" ? "assists" : "goals";
   return [...rows].sort(
-    (a, b) => b[metric] - a[metric] || b[other] - a[other] || a.name.localeCompare(b.name),
+    (a, b) => b[metric] - a[metric] || b[other] - a[other] || compareDisplayName(a, b),
   );
 }
 

@@ -144,7 +144,7 @@ function ElencoPage() {
   const sorted = useMemo(
     () =>
       [...(players ?? [])].sort(
-        (a, b) => Number(b.active) - Number(a.active) || a.name.localeCompare(b.name),
+        (a, b) => Number(b.active) - Number(a.active) || compareDisplayName(a, b),
       ),
     [players],
   );
