@@ -23,6 +23,7 @@ import {
   matchesQueryOptions,
   type Match,
 } from "@/lib/team-data";
+import { matchResultsQueryOptions } from "@/lib/overview-data";
 
 export const Route = createFileRoute("/_authenticated/jogos/")({
   head: () => ({
@@ -40,7 +41,14 @@ function JogosPage() {
   const queryClient = useQueryClient();
   const { data: matches, isLoading } = useQuery(matchesQueryOptions);
   const { data: stats } = useQuery(matchTotalsQueryOptions);
+  const { data: results } = useQuery(matchResultsQueryOptions);
   const [toDelete, setToDelete] = useState<Match | null>(null);
+
+  // Placar e resultado vêm da mesma fonte usada na Visão Geral.
+  const resultByMatch = useMemo(
+    () => new Map((results ?? []).map((r) => [r.match_id, r])),
+    [results],
+  );
 
   const byMatch = useMemo(() => {
     const map = new Map<string, { goals: number; assists: number; played: number }>();
@@ -101,15 +109,32 @@ function JogosPage() {
             <ul className="mt-5 divide-y divide-border/60 overflow-hidden rounded-lg border border-border/60 bg-card">
               {(matches ?? []).map((match) => {
                 const totals = byMatch.get(match.id) ?? { goals: 0, assists: 0, played: 0 };
+                const result = resultByMatch.get(match.id);
+                const tone =
+                  result?.outcome === "V"
+                    ? "bg-emerald-500/15 text-emerald-500"
+                    : result?.outcome === "D"
+                      ? "bg-destructive/15 text-destructive"
+                      : "bg-secondary text-muted-foreground";
                 return (
                   <li key={match.id} className="flex items-center gap-3 px-3 py-3">
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold leading-tight">
-                        {match.opponent?.trim() ? `vs ${match.opponent}` : "Jogo do time"}
+                      <p className="flex items-center gap-2 truncate font-semibold leading-tight">
+                        <span className="truncate">
+                          {match.opponent?.trim() ? `vs ${match.opponent}` : "Jogo do time"}
+                        </span>
+                        {result ? (
+                          <span
+                            className={`shrink-0 rounded px-1.5 py-0.5 font-display text-sm tabular ${tone}`}
+                          >
+                            {result.scored} x {result.conceded}
+                          </span>
+                        ) : null}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {formatDate(match.match_date)} · {totals.goals} gols · {totals.assists}{" "}
                         assist. · {totals.played} presentes
+                        {match.own_goals > 0 ? ` · ${match.own_goals} gol contra` : ""}
                       </p>
                     </div>
                     <Button asChild variant="ghost" size="icon">

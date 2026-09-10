@@ -1,0 +1,1 @@
+ALTER TABLE public.matches ADD COLUMN IF NOT EXISTS own_goals integer NOT NULL DEFAULT 0;

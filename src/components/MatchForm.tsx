@@ -80,6 +80,7 @@ export function MatchForm({ match }: { match?: Match }) {
 
   const [date, setDate] = useState(match?.match_date ?? new Date().toISOString().slice(0, 10));
   const [opponent, setOpponent] = useState(match?.opponent ?? "");
+  const [ownGoals, setOwnGoals] = useState(match?.own_goals ?? 0);
   const [search, setSearch] = useState("");
   const [rows, setRows] = useState<Record<string, Row>>({});
   const [saving, setSaving] = useState(false);
@@ -128,15 +129,25 @@ export function MatchForm({ match }: { match?: Match }) {
   }, [players, search, rows]);
 
   const totals = useMemo(() => {
-    return Object.values(rows).reduce(
+    const base = Object.values(rows).reduce(
       (acc, row) => ({
         goals: acc.goals + row.goals,
         assists: acc.assists + row.assists,
+        conceded: acc.conceded + row.goals_conceded,
         played: acc.played + (row.played ? 1 : 0),
       }),
-      { goals: 0, assists: 0, played: 0 },
+      { goals: 0, assists: 0, conceded: 0, played: 0 },
     );
-  }, [rows]);
+    // Gol contra entra apenas nos gols sofridos do jogo.
+    return { ...base, conceded: base.conceded + ownGoals };
+  }, [rows, ownGoals]);
+
+  const outcome =
+    totals.goals > totals.conceded
+      ? { label: "Vitória", tone: "text-emerald-500" }
+      : totals.goals === totals.conceded
+        ? { label: "Empate", tone: "text-muted-foreground" }
+        : { label: "Derrota", tone: "text-destructive" };
 
   function update(playerId: string, patch: Partial<Row>) {
     setRows((current) => {
@@ -175,6 +186,7 @@ export function MatchForm({ match }: { match?: Match }) {
       const payload = {
         match_date: parsed.data.match_date,
         opponent: parsed.data.opponent ?? null,
+        own_goals: ownGoals,
       };
 
       if (mode === "edit") {
@@ -259,6 +271,25 @@ export function MatchForm({ match }: { match?: Match }) {
         </div>
       </div>
 
+
+      <div className="rounded-lg border border-border/60 bg-card px-3 py-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Placar</p>
+            <p className="font-display text-3xl leading-none tabular">
+              {totals.goals} <span className="text-muted-foreground">x</span> {totals.conceded}
+            </p>
+          </div>
+          <p className={`font-display text-2xl leading-none ${outcome.tone}`}>{outcome.label}</p>
+        </div>
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-border/60 pt-3">
+          <span className="text-sm font-medium">Gol contra</span>
+          <Stepper label="gols contra" value={ownGoals} onChange={setOwnGoals} />
+        </div>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          O gol contra conta nos gols sofridos do jogo e não entra nas estatísticas dos atletas.
+        </p>
+      </div>
 
       <div className="grid grid-cols-3 gap-2">
         {[
