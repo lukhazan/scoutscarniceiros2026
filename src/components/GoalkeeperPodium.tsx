@@ -1,5 +1,5 @@
 import { PlayerAvatar } from "@/components/PlayerAvatar";
-import { displayName, type PlayerTotals } from "@/lib/team-data";
+import { compareDisplayName, displayName, type PlayerTotals } from "@/lib/team-data";
 
 type Props = {
   rows: PlayerTotals[];
@@ -16,7 +16,7 @@ function topKeepers(rows: PlayerTotals[]) {
       (a, b) =>
         a.goals_conceded - b.goals_conceded ||
         b.matches_played - a.matches_played ||
-        a.name.localeCompare(b.name),
+        compareDisplayName(a, b),
     )
     .slice(0, 3);
 }

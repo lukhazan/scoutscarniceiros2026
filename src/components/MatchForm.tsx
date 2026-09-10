@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  compareDisplayName,
   displayName,
   matchStatsQueryOptions,
   playersQueryOptions,
@@ -119,7 +120,9 @@ export function MatchForm({ match }: { match?: Match }) {
 
 
   const visible = useMemo(() => {
-    const list = (players ?? []).filter((p) => p.active || rows[p.id]?.played);
+    const list = (players ?? [])
+      .filter((p) => p.active || rows[p.id]?.played)
+      .sort(compareDisplayName);
     const term = search.trim().toLowerCase();
     if (!term) return list;
     return list.filter(

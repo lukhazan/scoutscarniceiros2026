@@ -1,5 +1,5 @@
 import { forwardRef } from "react";
-import { displayName, type PlayerTotals } from "@/lib/team-data";
+import { compareDisplayName, displayName, type PlayerTotals } from "@/lib/team-data";
 
 import { teamLogoWhite } from "@/assets/team-logo-data";
 
@@ -41,11 +41,11 @@ export const CategoryStoryCard = forwardRef<HTMLDivElement, Props>(function Cate
           (a, b) =>
             a.goals_conceded - b.goals_conceded ||
             b.matches_played - a.matches_played ||
-            a.name.localeCompare(b.name),
+            compareDisplayName(a, b),
         )
     : [...rows]
         .filter((r) => getValue(r) > 0)
-        .sort((a, b) => getValue(b) - getValue(a) || a.name.localeCompare(b.name));
+        .sort((a, b) => getValue(b) - getValue(a) || compareDisplayName(a, b));
   const top = list.slice(0, 3);
   const rest = list.slice(3);
   const columns = rest.length > 10 ? 2 : 1;

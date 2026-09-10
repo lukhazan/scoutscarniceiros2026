@@ -288,6 +288,14 @@ export function displayName(p: { name: string; nickname: string | null }) {
   return p.nickname?.trim() ? p.nickname : p.name;
 }
 
+/** Ordena atletas pelo mesmo texto exibido na tela (apelido, ou nome como fallback). */
+export function compareDisplayName(
+  a: { name: string; nickname: string | null },
+  b: { name: string; nickname: string | null },
+) {
+  return displayName(a).localeCompare(displayName(b), "pt-BR");
+}
+
 
 export function formatDate(value: string) {
   const [y, m, d] = value.split("-");

@@ -41,6 +41,7 @@ import {
   POSITIONS,
   playersQueryOptions,
   seasonStatsQueryOptions,
+  compareDisplayName,
   displayName,
   type Player,
 } from "@/lib/team-data";
@@ -144,7 +145,7 @@ function ElencoPage() {
   const sorted = useMemo(
     () =>
       [...(players ?? [])].sort(
-        (a, b) => Number(b.active) - Number(a.active) || a.name.localeCompare(b.name),
+        (a, b) => Number(b.active) - Number(a.active) || compareDisplayName(a, b),
       ),
     [players],
   );
@@ -364,10 +365,7 @@ function ElencoPage() {
                   />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold leading-tight">
-                      {player.name}
-                      {player.nickname ? (
-                        <span className="text-muted-foreground"> · {player.nickname}</span>
-                      ) : null}
+                      {displayName(player)}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {[

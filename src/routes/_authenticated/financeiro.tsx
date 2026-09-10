@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { displayName, playersQueryOptions } from "@/lib/team-data";
+import { compareDisplayName, displayName, playersQueryOptions } from "@/lib/team-data";
 import {
   competenceLabel,
   competenceOptions,
@@ -91,7 +91,7 @@ function FinanceiroPage() {
     [debts, fees, activeIds, competence],
   );
   const sorted = useMemo(
-    () => [...(players ?? [])].sort((a, b) => a.name.localeCompare(b.name, "pt-BR")),
+    () => [...(players ?? [])].sort((a, b) => compareDisplayName(a, b)),
     [players],
   );
 

@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { displayName, playersQueryOptions } from "@/lib/team-data";
+import { compareDisplayName, displayName, playersQueryOptions } from "@/lib/team-data";
 import {
   BULK_TYPES,
   createBulkDebts,
@@ -55,7 +55,7 @@ export function BulkDebtDialog({ open, onOpenChange, defaultPlayerIds }: Props) 
     () =>
       [...(players ?? [])]
         .filter((p) => p.active)
-        .sort((a, b) => a.name.localeCompare(b.name, "pt-BR")),
+        .sort((a, b) => compareDisplayName(a, b)),
     [players],
   );
 

@@ -1,5 +1,5 @@
 import { PlayerAvatar } from "@/components/PlayerAvatar";
-import { displayName, type PlayerTotals } from "@/lib/team-data";
+import { compareDisplayName, displayName, type PlayerTotals } from "@/lib/team-data";
 
 type Props = {
   rows: PlayerTotals[];
@@ -16,7 +16,7 @@ export const MEDALS = ["🏆", "🥈", "🥉"];
 export function topThree(rows: PlayerTotals[], getValue: (row: PlayerTotals) => number) {
   return [...rows]
     .filter((r) => getValue(r) > 0)
-    .sort((a, b) => getValue(b) - getValue(a) || a.name.localeCompare(b.name))
+    .sort((a, b) => getValue(b) - getValue(a) || compareDisplayName(a, b))
     .slice(0, 3);
 }
 

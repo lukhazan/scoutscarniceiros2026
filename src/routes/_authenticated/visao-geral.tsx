@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  compareDisplayName,
   displayName,
   formatDate,
   statsByYearQueryOptions,
@@ -182,14 +183,14 @@ function OverviewPage() {
     const byMetric = (metric: "goals" | "assists") =>
       [...rows]
         .filter((r) => r[metric] > 0)
-        .sort((a, b) => b[metric] - a[metric] || a.name.localeCompare(b.name));
+        .sort((a, b) => b[metric] - a[metric] || compareDisplayName(a, b));
     const keepers = [...rows]
       .filter((r) => r.position === "Goleiro" && r.matches_played > 0)
       .sort(
         (a, b) =>
           a.goals_conceded - b.goals_conceded ||
           b.matches_played - a.matches_played ||
-          a.name.localeCompare(b.name),
+          compareDisplayName(a, b),
       );
     return [
       {
