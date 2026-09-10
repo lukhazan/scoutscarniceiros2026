@@ -161,9 +161,21 @@ function OverviewPage() {
     [byYear],
   );
 
+  // Fotos vêm do ranking geral e são reaproveitadas nas temporadas.
+  const photoMap = useMemo(
+    () => new Map((totals ?? []).map((r) => [r.player_id, r.photo_url])),
+    [totals],
+  );
+
   const rows = useMemo<PlayerTotals[]>(
-    () => (year === "all" ? (totals ?? []) : (byYear?.[year] ?? [])),
-    [year, totals, byYear],
+    () =>
+      year === "all"
+        ? (totals ?? [])
+        : (byYear?.[year] ?? []).map((r) => ({
+            ...r,
+            photo_url: photoMap.get(r.player_id) ?? r.photo_url,
+          })),
+    [year, totals, byYear, photoMap],
   );
 
   const slides = useMemo<RankingSlide[]>(() => {
