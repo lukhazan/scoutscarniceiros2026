@@ -23,6 +23,7 @@ import {
   matchesQueryOptions,
   type Match,
 } from "@/lib/team-data";
+import { matchResultsQueryOptions } from "@/lib/overview-data";
 
 export const Route = createFileRoute("/_authenticated/jogos/")({
   head: () => ({
