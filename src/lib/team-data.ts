@@ -208,8 +208,8 @@ type SeasonStatRow = SeasonStat & {
 export const statsByYearQueryOptions = {
   queryKey: ["stats_by_year"],
   queryFn: async (): Promise<Record<string, PlayerTotals[]>> => {
-    // As fotos vêm uma única vez (por atleta), e não repetidas em cada linha de scout.
-    const [matchRes, seasonRes, photoRes] = await Promise.all([
+    // Sem fotos aqui: as telas reaproveitam as fotos já carregadas no ranking geral.
+    const [matchRes, seasonRes] = await Promise.all([
       supabase
         .from("match_stats")
         .select(
@@ -220,13 +220,9 @@ export const statsByYearQueryOptions = {
         .select(
           "id, player_id, season, goals, assists, goals_conceded, players(name, nickname, position, shirt_number, active)",
         ),
-      supabase.from("players").select("id, photo_url"),
     ]);
     if (matchRes.error) throw new Error(matchRes.error.message);
     if (seasonRes.error) throw new Error(seasonRes.error.message);
-    if (photoRes.error) throw new Error(photoRes.error.message);
-
-    const photos = new Map((photoRes.data ?? []).map((p) => [p.id, p.photo_url]));
 
     const byYear: Record<string, Map<string, PlayerTotals>> = {};
 
@@ -246,7 +242,7 @@ export const statsByYearQueryOptions = {
           position: player.position,
           shirt_number: player.shirt_number,
           active: player.active,
-          photo_url: photos.get(playerId) ?? null,
+          photo_url: null,
           matches_played: 0,
           goals: 0,
           assists: 0,

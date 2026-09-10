@@ -163,10 +163,19 @@ function Index() {
     [yearData],
   );
 
+  // As fotos são carregadas uma única vez (ranking geral) e reaproveitadas por temporada.
+  const photoMap = useMemo(
+    () => new Map((allTimeData ?? []).map((r) => [r.player_id, r.photo_url])),
+    [allTimeData],
+  );
+
   const data = useMemo(() => {
     if (period === "all") return allTimeData ?? [];
-    return yearData?.[period] ?? [];
-  }, [period, allTimeData, yearData]);
+    return (yearData?.[period] ?? []).map((r) => ({
+      ...r,
+      photo_url: photoMap.get(r.player_id) ?? r.photo_url,
+    }));
+  }, [period, allTimeData, yearData, photoMap]);
 
   const periodLabel = period === "all" ? "Geral (todos os anos)" : `Temporada ${period}`;
 
