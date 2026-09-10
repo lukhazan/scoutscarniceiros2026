@@ -129,15 +129,25 @@ export function MatchForm({ match }: { match?: Match }) {
   }, [players, search, rows]);
 
   const totals = useMemo(() => {
-    return Object.values(rows).reduce(
+    const base = Object.values(rows).reduce(
       (acc, row) => ({
         goals: acc.goals + row.goals,
         assists: acc.assists + row.assists,
+        conceded: acc.conceded + row.goals_conceded,
         played: acc.played + (row.played ? 1 : 0),
       }),
-      { goals: 0, assists: 0, played: 0 },
+      { goals: 0, assists: 0, conceded: 0, played: 0 },
     );
-  }, [rows]);
+    // Gol contra entra apenas nos gols sofridos do jogo.
+    return { ...base, conceded: base.conceded + ownGoals };
+  }, [rows, ownGoals]);
+
+  const outcome =
+    totals.goals > totals.conceded
+      ? { label: "Vitória", tone: "text-emerald-500" }
+      : totals.goals === totals.conceded
+        ? { label: "Empate", tone: "text-muted-foreground" }
+        : { label: "Derrota", tone: "text-destructive" };
 
   function update(playerId: string, patch: Partial<Row>) {
     setRows((current) => {
