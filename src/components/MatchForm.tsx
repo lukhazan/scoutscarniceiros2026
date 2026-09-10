@@ -138,8 +138,8 @@ export function MatchForm({ match }: { match?: Match }) {
       }),
       { goals: 0, assists: 0, conceded: 0, played: 0 },
     );
-    // Gol contra entra apenas nos gols sofridos do jogo.
-    return { ...base, conceded: base.conceded + ownGoals };
+    // Gol contra conta como gol da nossa equipe, sem entrar nas estatísticas individuais.
+    return { ...base, goals: base.goals + ownGoals };
   }, [rows, ownGoals]);
 
   const outcome =
@@ -287,7 +287,7 @@ export function MatchForm({ match }: { match?: Match }) {
           <Stepper label="gols contra" value={ownGoals} onChange={setOwnGoals} />
         </div>
         <p className="mt-2 text-[11px] text-muted-foreground">
-          O gol contra conta nos gols sofridos do jogo e não entra nas estatísticas dos atletas.
+          O gol contra conta como gol da nossa equipe e não entra nas estatísticas dos atletas.
         </p>
       </div>
 
