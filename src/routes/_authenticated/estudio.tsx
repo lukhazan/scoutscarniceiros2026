@@ -1,12 +1,29 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Suspense, lazy } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { AdminGate } from "@/components/AdminGate";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArtStudioPanel } from "@/components/studio/ArtStudioPanel";
-import { QuickArtPanel } from "@/components/studio/QuickArtPanel";
-import { BrandIdentityPanel } from "@/components/studio/BrandIdentityPanel";
-import { MediaLibraryPanel } from "@/components/studio/MediaLibraryPanel";
-import { TemplatesPanel } from "@/components/studio/TemplatesPanel";
+
+// Cada aba carrega o próprio código só quando é aberta.
+const ArtStudioPanel = lazy(() =>
+  import("@/components/studio/ArtStudioPanel").then((m) => ({ default: m.ArtStudioPanel })),
+);
+const QuickArtPanel = lazy(() =>
+  import("@/components/studio/QuickArtPanel").then((m) => ({ default: m.QuickArtPanel })),
+);
+const BrandIdentityPanel = lazy(() =>
+  import("@/components/studio/BrandIdentityPanel").then((m) => ({ default: m.BrandIdentityPanel })),
+);
+const MediaLibraryPanel = lazy(() =>
+  import("@/components/studio/MediaLibraryPanel").then((m) => ({ default: m.MediaLibraryPanel })),
+);
+const TemplatesPanel = lazy(() =>
+  import("@/components/studio/TemplatesPanel").then((m) => ({ default: m.TemplatesPanel })),
+);
+
+function PanelFallback() {
+  return <p className="py-10 text-center text-sm text-muted-foreground">Carregando…</p>;
+}
 
 export const Route = createFileRoute("/_authenticated/estudio")({
   head: () => ({
@@ -48,19 +65,29 @@ function EstudioPage() {
             <TabsTrigger value="templates">Templates</TabsTrigger>
           </TabsList>
           <TabsContent value="rapida" className="mt-4">
-            <QuickArtPanel />
+            <Suspense fallback={<PanelFallback />}>
+              <QuickArtPanel />
+            </Suspense>
           </TabsContent>
           <TabsContent value="estudio" className="mt-4">
-            <ArtStudioPanel />
+            <Suspense fallback={<PanelFallback />}>
+              <ArtStudioPanel />
+            </Suspense>
           </TabsContent>
           <TabsContent value="identidade" className="mt-4">
-            <BrandIdentityPanel />
+            <Suspense fallback={<PanelFallback />}>
+              <BrandIdentityPanel />
+            </Suspense>
           </TabsContent>
           <TabsContent value="midia" className="mt-4">
-            <MediaLibraryPanel />
+            <Suspense fallback={<PanelFallback />}>
+              <MediaLibraryPanel />
+            </Suspense>
           </TabsContent>
           <TabsContent value="templates" className="mt-4">
-            <TemplatesPanel />
+            <Suspense fallback={<PanelFallback />}>
+              <TemplatesPanel />
+            </Suspense>
           </TabsContent>
         </Tabs>
       </main>
