@@ -94,6 +94,11 @@ export function QuickArtPanel() {
     setGenerated(false);
   }, [optionId]);
 
+  // Composição completa carregada apenas para o template selecionado.
+  const { data: fullTemplate = null } = useQuery<SavedArtTemplate | null>(
+    savedArtTemplateQueryOptions(optionId),
+  );
+
   const template = getTemplate(option?.baseSlug ?? STUDIO_TEMPLATES[0].slug);
   const player = players.find((p) => p.id === playerId) ?? null;
 
@@ -118,7 +123,7 @@ export function QuickArtPanel() {
    * garantindo que todos os atletas saiam no mesmo padrão visual.
    */
   const data: ArtData = useMemo(() => {
-    const base = option?.data ?? EMPTY_ART_DATA;
+    const base = fullTemplate?.art_data ?? EMPTY_ART_DATA;
     const photo = originalPhoto ?? player?.photo_url ?? base.playerPhotoUrl;
     return {
       ...base,
@@ -130,7 +135,7 @@ export function QuickArtPanel() {
       playerOffsetY: base.playerOffsetY,
       playerRotation: base.playerRotation,
     };
-  }, [option, extra, player, originalPhoto]);
+  }, [fullTemplate, extra, player, originalPhoto]);
 
   const needsPlayer = !template.fields.includes("agenda");
   const canGenerate = Boolean(option) && (!needsPlayer || Boolean(player));
