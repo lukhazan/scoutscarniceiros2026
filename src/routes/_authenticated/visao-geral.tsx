@@ -401,6 +401,59 @@ function OverviewPage() {
           </section>
         </div>
 
+        {/* Últimos resultados */}
+        <section className="rounded-lg border border-border/60 bg-card p-4">
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              Últimos Resultados
+            </p>
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/jogos">
+                Ver Jogos <ChevronRight className="size-4" />
+              </Link>
+            </Button>
+          </div>
+          {lastResults.length === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">Nenhum resultado registrado.</p>
+          ) : (
+            <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {lastResults.map((r) => (
+                <div
+                  key={r.match_id}
+                  className={`w-36 shrink-0 rounded-md border px-3 py-2 ${
+                    r.outcome === "V"
+                      ? "border-emerald-500/40 bg-emerald-500/10"
+                      : r.outcome === "D"
+                        ? "border-destructive/40 bg-destructive/10"
+                        : "border-border/60 bg-secondary/50"
+                  }`}
+                >
+                  <p className="truncate text-xs font-semibold">
+                    {r.opponent?.trim() ? r.opponent : "Jogo do time"}
+                  </p>
+                  <p className="mt-1 font-display text-2xl leading-none tabular">
+                    {r.scored} <span className="text-muted-foreground">x</span> {r.conceded}
+                  </p>
+                  <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+                    {formatDate(r.match_date)} ·{" "}
+                    <span
+                      className={
+                        r.outcome === "V"
+                          ? "text-emerald-500"
+                          : r.outcome === "D"
+                            ? "text-destructive"
+                            : ""
+                      }
+                    >
+                      {r.outcome === "V" ? "Vitória" : r.outcome === "E" ? "Empate" : "Derrota"}
+                    </span>
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
         {/* Resumo da temporada */}
         <section className="rounded-lg border border-border/60 bg-card p-4">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
