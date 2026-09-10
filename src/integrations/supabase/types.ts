@@ -214,6 +214,7 @@ export type Database = {
           match_date: string
           notes: string | null
           opponent: string | null
+          own_goals: number
           updated_at: string
         }
         Insert: {
@@ -222,6 +223,7 @@ export type Database = {
           match_date?: string
           notes?: string | null
           opponent?: string | null
+          own_goals?: number
           updated_at?: string
         }
         Update: {
@@ -230,6 +232,7 @@ export type Database = {
           match_date?: string
           notes?: string | null
           opponent?: string | null
+          own_goals?: number
           updated_at?: string
         }
         Relationships: []
