@@ -11,8 +11,8 @@ export type MatchResultRow = {
 
 /**
  * Fonte única do resultado de cada partida:
- * gols feitos = soma dos gols dos atletas;
- * gols sofridos = gols sofridos pelos goleiros + gols contra do jogo.
+ * gols feitos = soma dos gols dos atletas + gols contra (gols da equipe sem autor cadastrado);
+ * gols sofridos = gols sofridos pelos goleiros.
  * O gol contra nunca entra nas estatísticas individuais.
  */
 export const matchResultsQueryOptions = {
@@ -37,8 +37,8 @@ export const matchResultsQueryOptions = {
     return (matchesRes.data ?? [])
       .map((match) => {
         const t = totals.get(match.id) ?? { scored: 0, conceded: 0, rows: 0 };
-        const scored = t.scored;
-        const conceded = t.conceded + (match.own_goals ?? 0);
+        const scored = t.scored + (match.own_goals ?? 0);
+        const conceded = t.conceded;
         return {
           match_id: match.id,
           match_date: match.match_date,
