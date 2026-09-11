@@ -75,6 +75,8 @@ export type ArtData = {
   agendaWeekOffset: number;
   /** Compromissos usados na arte (cópia somente de leitura da Agenda) */
   agendaItems: AgendaArtItem[];
+  /** Template Relacionados: apelidos da lista, na ordem definida pelo usuário */
+  rosterNames: string[];
   /** Área e logos de patrocinadores (salva junto com o template) */
   sponsorConfig: SponsorConfig;
 };
@@ -119,5 +121,6 @@ export const EMPTY_ART_DATA: ArtData = {
   agendaMode: "auto",
   agendaWeekOffset: 0,
   agendaItems: [],
+  rosterNames: [],
   sponsorConfig: DEFAULT_SPONSOR_CONFIG,
 };
