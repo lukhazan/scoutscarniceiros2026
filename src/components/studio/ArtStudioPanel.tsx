@@ -15,6 +15,7 @@ import {
   ImagePlus,
   Italic,
   Layers,
+  ListChecks,
   LayoutTemplate,
   Loader2,
   Lock,
@@ -117,6 +118,7 @@ import {
 type ToolId =
   | "template"
   | "agenda"
+  | "roster"
   | "foto"
   | "fundo"
   | "textos"
@@ -127,6 +129,7 @@ type TextLayerKey = "playerName" | "title" | "subtitle";
 const TOOLS: { id: ToolId; label: string; icon: typeof Type }[] = [
   { id: "template", label: "Template", icon: LayoutTemplate },
   { id: "agenda", label: "Agenda", icon: CalendarDays },
+  { id: "roster", label: "Relacionados", icon: ListChecks },
   { id: "foto", label: "Foto", icon: ImageIcon },
   { id: "fundo", label: "Fundo", icon: ImagePlus },
   { id: "textos", label: "Textos", icon: Type },
@@ -146,6 +149,7 @@ const LAYER_LABELS: Record<LayerId, string> = {
   title: "Título principal",
   subtitle: "Subtítulo",
   agenda: "Compromissos",
+  roster: "Relacionados",
   sponsors: "Patrocinadores",
 };
 
@@ -481,6 +485,7 @@ export function ArtStudioPanel() {
 
   const template = getTemplate(slug);
   const isAgendaTemplate = template.fields.includes("agenda");
+  const isRosterTemplate = template.fields.includes("roster");
   const sponsorConfig: SponsorConfig = data.sponsorConfig ?? DEFAULT_SPONSOR_CONFIG;
 
   const commit = useCallback((updater: (prev: ArtData) => ArtData) => {
@@ -801,6 +806,7 @@ export function ArtStudioPanel() {
             {TOOLS.filter(
               (t) =>
                 (t.id !== "agenda" || isAgendaTemplate) &&
+                (t.id !== "roster" || isRosterTemplate) &&
                 (t.id !== "foto" || !isAgendaTemplate),
             ).map((t) => {
               const Icon = t.icon;
@@ -1127,6 +1133,104 @@ export function ArtStudioPanel() {
                 )}
                 <p className="text-[11px] text-muted-foreground">
                   A arte não altera a Agenda — os dados são apenas lidos.
+                </p>
+              </div>
+            ) : null}
+
+            {tool === "roster" && isRosterTemplate ? (
+              <div className="space-y-3">
+                <Field label="Adicionar atleta">
+                  <Select
+                    value=""
+                    onValueChange={(name) =>
+                      set({ rosterNames: [...(data.rosterNames ?? []), name] })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecionar do elenco" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[...players]
+                        .sort(compareDisplayName)
+                        .filter((p) => !(data.rosterNames ?? []).includes(displayName(p)))
+                        .map((p) => (
+                          <SelectItem key={p.id} value={displayName(p)}>
+                            {displayName(p)}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[11px] text-muted-foreground">
+                    {(data.rosterNames ?? []).length} relacionado(s)
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="h-7 px-2 text-[10px]"
+                    onClick={() =>
+                      set({
+                        rosterNames: [...(data.rosterNames ?? [])].sort((a, b) =>
+                          a.localeCompare(b, "pt-BR"),
+                        ),
+                      })
+                    }
+                  >
+                    Ordem alfabética
+                  </Button>
+                </div>
+
+                <div className="space-y-1">
+                  {(data.rosterNames ?? []).map((name, idx) => (
+                    <div
+                      key={`${name}-${idx}`}
+                      className="flex items-center gap-1 rounded-lg border border-border/60 p-1.5"
+                    >
+                      <span className="min-w-0 flex-1 truncate text-xs font-semibold">{name}</span>
+                      <button
+                        type="button"
+                        disabled={idx === 0}
+                        className="rounded p-1 text-muted-foreground hover:bg-secondary disabled:opacity-30"
+                        onClick={() => {
+                          const list = [...(data.rosterNames ?? [])];
+                          [list[idx - 1], list[idx]] = [list[idx], list[idx - 1]];
+                          set({ rosterNames: list });
+                        }}
+                      >
+                        <ChevronUp className="size-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={idx === (data.rosterNames ?? []).length - 1}
+                        className="rounded p-1 text-muted-foreground hover:bg-secondary disabled:opacity-30"
+                        onClick={() => {
+                          const list = [...(data.rosterNames ?? [])];
+                          [list[idx + 1], list[idx]] = [list[idx], list[idx + 1]];
+                          set({ rosterNames: list });
+                        }}
+                      >
+                        <ChevronDown className="size-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        className="rounded p-1 text-muted-foreground hover:bg-secondary"
+                        onClick={() =>
+                          set({
+                            rosterNames: (data.rosterNames ?? []).filter((_, i) => i !== idx),
+                          })
+                        }
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="text-[11px] text-muted-foreground">
+                  A lista mostra apenas o apelido, sem foto. Para incluir imagens, use as
+                  ferramentas Foto, Fundo e Elementos.
                 </p>
               </div>
             ) : null}
