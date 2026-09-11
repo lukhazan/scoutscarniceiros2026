@@ -16,10 +16,12 @@ type Colors = {
 export const RosterLayer = memo(function RosterLayer({
   zone,
   names,
+  goalkeepers = [],
   colors,
 }: {
   zone: Zone;
   names: string[];
+  goalkeepers?: string[];
   colors: Colors;
 }) {
   const list = names.filter((n) => n.trim().length > 0);
