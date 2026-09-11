@@ -1142,9 +1142,16 @@ export function ArtStudioPanel() {
                 <Field label="Adicionar atleta">
                   <Select
                     value=""
-                    onValueChange={(name) =>
-                      set({ rosterNames: [...(data.rosterNames ?? []), name] })
-                    }
+                    onValueChange={(name) => {
+                      const player = players.find((p) => displayName(p) === name);
+                      const isKeeper = player?.position === "Goleiro";
+                      set({
+                        rosterNames: [...(data.rosterNames ?? []), name],
+                        rosterGoalkeepers: isKeeper
+                          ? [...(data.rosterGoalkeepers ?? []), name]
+                          : (data.rosterGoalkeepers ?? []).filter((n) => n !== name),
+                      });
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecionar do elenco" />
