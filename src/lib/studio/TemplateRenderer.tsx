@@ -4,6 +4,7 @@ import { FitText } from "@/lib/studio/FitText";
 import { StudioCanvas } from "@/lib/studio/Canvas";
 import { PlayerFrame } from "@/lib/studio/PlayerFrame";
 import { AgendaLayer } from "@/lib/studio/AgendaLayer";
+import { RosterLayer } from "@/lib/studio/RosterLayer";
 import { SponsorsLayer } from "@/lib/studio/SponsorsLayer";
 import { DEFAULT_SPONSOR_CONFIG, sponsorsFromBrand, type SponsorConfig } from "@/lib/studio/sponsors";
 import {
@@ -353,6 +354,10 @@ export function TemplateRenderer({
             teamName={brand?.team_name || "Carniceiros Fut 7"}
             colors={c}
           />
+        );
+      case "roster":
+        return (
+          <RosterLayer key={id} zone={a.roster} names={data.rosterNames ?? []} colors={c} />
         );
       case "sponsors": {
         const base: SponsorConfig = data.sponsorConfig ?? DEFAULT_SPONSOR_CONFIG;
