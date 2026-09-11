@@ -1195,7 +1195,10 @@ export function ArtStudioPanel() {
                       key={`${name}-${idx}`}
                       className="flex items-center gap-1 rounded-lg border border-border/60 p-1.5"
                     >
-                      <span className="min-w-0 flex-1 truncate text-xs font-semibold">{name}</span>
+                      <span className="min-w-0 flex-1 truncate text-xs font-semibold">
+                        {(data.rosterGoalkeepers ?? []).includes(name) ? "🧤 " : ""}
+                        {name}
+                      </span>
                       <button
                         type="button"
                         disabled={idx === 0}
