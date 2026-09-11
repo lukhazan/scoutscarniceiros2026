@@ -77,6 +77,8 @@ export type ArtData = {
   agendaItems: AgendaArtItem[];
   /** Template Relacionados: apelidos da lista, na ordem definida pelo usuário */
   rosterNames: string[];
+  /** Template Relacionados: nomes (de rosterNames) que são goleiros — exibidos com 🧤 */
+  rosterGoalkeepers: string[];
   /** Área e logos de patrocinadores (salva junto com o template) */
   sponsorConfig: SponsorConfig;
 };
@@ -122,5 +124,6 @@ export const EMPTY_ART_DATA: ArtData = {
   agendaWeekOffset: 0,
   agendaItems: [],
   rosterNames: [],
+  rosterGoalkeepers: [],
   sponsorConfig: DEFAULT_SPONSOR_CONFIG,
 };

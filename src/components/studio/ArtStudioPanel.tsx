@@ -1142,9 +1142,16 @@ export function ArtStudioPanel() {
                 <Field label="Adicionar atleta">
                   <Select
                     value=""
-                    onValueChange={(name) =>
-                      set({ rosterNames: [...(data.rosterNames ?? []), name] })
-                    }
+                    onValueChange={(name) => {
+                      const player = players.find((p) => displayName(p) === name);
+                      const isKeeper = player?.position === "Goleiro";
+                      set({
+                        rosterNames: [...(data.rosterNames ?? []), name],
+                        rosterGoalkeepers: isKeeper
+                          ? [...(data.rosterGoalkeepers ?? []), name]
+                          : (data.rosterGoalkeepers ?? []).filter((n) => n !== name),
+                      });
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecionar do elenco" />
@@ -1188,7 +1195,10 @@ export function ArtStudioPanel() {
                       key={`${name}-${idx}`}
                       className="flex items-center gap-1 rounded-lg border border-border/60 p-1.5"
                     >
-                      <span className="min-w-0 flex-1 truncate text-xs font-semibold">{name}</span>
+                      <span className="min-w-0 flex-1 truncate text-xs font-semibold">
+                        {(data.rosterGoalkeepers ?? []).includes(name) ? "🧤 " : ""}
+                        {name}
+                      </span>
                       <button
                         type="button"
                         disabled={idx === 0}
@@ -1219,6 +1229,9 @@ export function ArtStudioPanel() {
                         onClick={() =>
                           set({
                             rosterNames: (data.rosterNames ?? []).filter((_, i) => i !== idx),
+                            rosterGoalkeepers: (data.rosterGoalkeepers ?? []).filter(
+                              (n) => n !== name,
+                            ),
                           })
                         }
                       >

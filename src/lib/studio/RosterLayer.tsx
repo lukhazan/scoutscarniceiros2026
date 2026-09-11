@@ -16,10 +16,12 @@ type Colors = {
 export const RosterLayer = memo(function RosterLayer({
   zone,
   names,
+  goalkeepers = [],
   colors,
 }: {
   zone: Zone;
   names: string[];
+  goalkeepers?: string[];
   colors: Colors;
 }) {
   const list = names.filter((n) => n.trim().length > 0);
@@ -66,6 +68,14 @@ export const RosterLayer = memo(function RosterLayer({
           >
             {String(i + 1).padStart(2, "0")}
           </span>
+          {goalkeepers.includes(name) ? (
+            <span
+              aria-label="Goleiro"
+              style={{ fontSize: fontSize * 0.9, lineHeight: 1, flexShrink: 0 }}
+            >
+              🧤
+            </span>
+          ) : null}
           <span
             style={{
               flex: 1,
