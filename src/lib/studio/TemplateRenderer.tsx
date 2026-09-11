@@ -357,7 +357,13 @@ export function TemplateRenderer({
         );
       case "roster":
         return (
-          <RosterLayer key={id} zone={a.roster} names={data.rosterNames ?? []} colors={c} />
+<RosterLayer
+            key={id}
+            zone={a.roster}
+            names={data.rosterNames ?? []}
+            goalkeepers={data.rosterGoalkeepers ?? []}
+            colors={c}
+          />
         );
       case "sponsors": {
         const base: SponsorConfig = data.sponsorConfig ?? DEFAULT_SPONSOR_CONFIG;

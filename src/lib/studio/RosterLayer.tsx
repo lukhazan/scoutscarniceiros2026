@@ -68,6 +68,14 @@ export const RosterLayer = memo(function RosterLayer({
           >
             {String(i + 1).padStart(2, "0")}
           </span>
+          {goalkeepers.includes(name) ? (
+            <span
+              aria-label="Goleiro"
+              style={{ fontSize: fontSize * 0.9, lineHeight: 1, flexShrink: 0 }}
+            >
+              🧤
+            </span>
+          ) : null}
           <span
             style={{
               flex: 1,
