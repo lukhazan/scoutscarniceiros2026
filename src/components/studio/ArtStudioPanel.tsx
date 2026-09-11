@@ -1229,6 +1229,9 @@ export function ArtStudioPanel() {
                         onClick={() =>
                           set({
                             rosterNames: (data.rosterNames ?? []).filter((_, i) => i !== idx),
+                            rosterGoalkeepers: (data.rosterGoalkeepers ?? []).filter(
+                              (n) => n !== name,
+                            ),
                           })
                         }
                       >
