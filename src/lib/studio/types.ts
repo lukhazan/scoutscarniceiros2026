@@ -79,6 +79,10 @@ export type ArtData = {
   rosterNames: string[];
   /** Template Relacionados: nomes (de rosterNames) que são goleiros — exibidos com 🧤 */
   rosterGoalkeepers: string[];
+  /** Template Relacionados: exibir numeração manual ao lado dos apelidos */
+  rosterShowNumbers: boolean;
+  /** Template Relacionados: número de cada atleta (chave = apelido exibido) */
+  rosterNumbers: Record<string, string>;
   /** Área e logos de patrocinadores (salva junto com o template) */
   sponsorConfig: SponsorConfig;
 };
