@@ -214,7 +214,7 @@ const TextLayer = memo(function TextLayer({
     return (
       <div
         style={{
-          ...zoneStyle(zone),
+          ...zoneStyle(zoneOffset),
           display: "flex",
           alignItems: "flex-end",
           justifyContent: align,
@@ -243,7 +243,7 @@ const TextLayer = memo(function TextLayer({
   return (
     <FitText
       text={value}
-      zone={zone}
+      zone={zoneOffset}
       maxFontSize={maxFontSize}
       maxLines={config.maxLines}
       charRatio={config.charRatio}
