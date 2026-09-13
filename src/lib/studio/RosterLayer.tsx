@@ -60,18 +60,20 @@ export const RosterLayer = memo(function RosterLayer({
             height: rowHeight,
           }}
         >
-          <span
-            style={{
-              width: fontSize * 1.5,
-              textAlign: "right",
-              fontFamily: colors.fontPrimary,
-              fontSize: fontSize * 0.8,
-              fontWeight: 900,
-              color: colors.primary,
-            }}
-          >
-            {String(i + 1).padStart(2, "0")}
-          </span>
+          {showNumbers && (numbers[name] ?? "").trim() ? (
+            <span
+              style={{
+                width: fontSize * 1.5,
+                textAlign: "right",
+                fontFamily: colors.fontPrimary,
+                fontSize: fontSize * 0.8,
+                fontWeight: 900,
+                color: colors.primary,
+              }}
+            >
+              {numbers[name].trim()}
+            </span>
+          ) : null}
           {goalkeepers.includes(name) ? (
             <span
               aria-label="Goleiro"
