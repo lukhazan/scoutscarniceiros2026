@@ -1169,6 +1169,14 @@ export function ArtStudioPanel() {
                   </Select>
                 </Field>
 
+                <div className="flex items-center justify-between gap-2 rounded-lg border border-border/60 p-2">
+                  <Label className="text-[11px]">Numeração</Label>
+                  <Switch
+                    checked={data.rosterShowNumbers ?? false}
+                    onCheckedChange={(v) => set({ rosterShowNumbers: v })}
+                  />
+                </div>
+
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[11px] text-muted-foreground">
                     {(data.rosterNames ?? []).length} relacionado(s)
