@@ -277,6 +277,29 @@ function TextBackgroundControls({
         ))}
       </div>
 
+      {/* Posição funciona com ou sem fundo: o deslocamento é do texto,
+          não do fundo. */}
+      {!bg.enabled ? (
+        <div className="space-y-2">
+          <SliderRow
+            label="Posição X"
+            value={bg.offsetX}
+            min={-400}
+            max={400}
+            step={5}
+            onChange={(v) => patch({ offsetX: v })}
+          />
+          <SliderRow
+            label="Posição Y"
+            value={bg.offsetY}
+            min={-400}
+            max={400}
+            step={5}
+            onChange={(v) => patch({ offsetY: v })}
+          />
+        </div>
+      ) : null}
+
       {bg.enabled ? (
         <div className="space-y-2">
           <div className="flex items-center gap-2">

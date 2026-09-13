@@ -169,6 +169,13 @@ const TextLayer = memo(function TextLayer({
   const bg = override?.background;
   const textAlign = align === "center" ? "center" : align === "flex-end" ? "right" : "left";
 
+  /* Sem fundo, o deslocamento definido pelo usuário move a própria zona do
+     texto, mantendo os mesmos controles de posição disponíveis com fundo. */
+  const zoneOffset =
+    !bg?.enabled && (bg?.offsetX || bg?.offsetY)
+      ? { ...zone, x: zone.x + (bg?.offsetX ?? 0), y: zone.y + (bg?.offsetY ?? 0) }
+      : zone;
+
   /* fundo próprio configurado pelo usuário (vinculado a este texto) */
   if (bg?.enabled) {
     const manual = bg.mode === "manual";
@@ -207,7 +214,7 @@ const TextLayer = memo(function TextLayer({
     return (
       <div
         style={{
-          ...zoneStyle(zone),
+          ...zoneStyle(zoneOffset),
           display: "flex",
           alignItems: "flex-end",
           justifyContent: align,
@@ -236,7 +243,7 @@ const TextLayer = memo(function TextLayer({
   return (
     <FitText
       text={value}
-      zone={zone}
+      zone={zoneOffset}
       maxFontSize={maxFontSize}
       maxLines={config.maxLines}
       charRatio={config.charRatio}
