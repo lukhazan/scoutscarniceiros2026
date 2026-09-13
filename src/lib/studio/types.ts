@@ -129,5 +129,7 @@ export const EMPTY_ART_DATA: ArtData = {
   agendaItems: [],
   rosterNames: [],
   rosterGoalkeepers: [],
+  rosterShowNumbers: false,
+  rosterNumbers: {},
   sponsorConfig: DEFAULT_SPONSOR_CONFIG,
 };
