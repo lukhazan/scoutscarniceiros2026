@@ -17,11 +17,15 @@ export const RosterLayer = memo(function RosterLayer({
   zone,
   names,
   goalkeepers = [],
+  showNumbers = false,
+  numbers = {},
   colors,
 }: {
   zone: Zone;
   names: string[];
   goalkeepers?: string[];
+  showNumbers?: boolean;
+  numbers?: Record<string, string>;
   colors: Colors;
 }) {
   const list = names.filter((n) => n.trim().length > 0);
