@@ -1169,6 +1169,14 @@ export function ArtStudioPanel() {
                   </Select>
                 </Field>
 
+                <div className="flex items-center justify-between gap-2 rounded-lg border border-border/60 p-2">
+                  <Label className="text-[11px]">Numeração</Label>
+                  <Switch
+                    checked={data.rosterShowNumbers ?? false}
+                    onCheckedChange={(v) => set({ rosterShowNumbers: v })}
+                  />
+                </div>
+
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[11px] text-muted-foreground">
                     {(data.rosterNames ?? []).length} relacionado(s)
@@ -1195,6 +1203,22 @@ export function ArtStudioPanel() {
                       key={`${name}-${idx}`}
                       className="flex items-center gap-1 rounded-lg border border-border/60 p-1.5"
                     >
+                      {data.rosterShowNumbers ? (
+                        <Input
+                          value={(data.rosterNumbers ?? {})[name] ?? ""}
+                          onChange={(e) =>
+                            set({
+                              rosterNumbers: {
+                                ...(data.rosterNumbers ?? {}),
+                                [name]: e.target.value,
+                              },
+                            })
+                          }
+                          placeholder="Nº"
+                          inputMode="numeric"
+                          className="h-7 w-12 px-1 text-center text-xs"
+                        />
+                      ) : null}
                       <span className="min-w-0 flex-1 truncate text-xs font-semibold">
                         {(data.rosterGoalkeepers ?? []).includes(name) ? "🧤 " : ""}
                         {name}

@@ -362,6 +362,8 @@ export function TemplateRenderer({
             zone={a.roster}
             names={data.rosterNames ?? []}
             goalkeepers={data.rosterGoalkeepers ?? []}
+            showNumbers={data.rosterShowNumbers ?? false}
+            numbers={data.rosterNumbers ?? {}}
             colors={c}
           />
         );
