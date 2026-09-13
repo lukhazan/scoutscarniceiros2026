@@ -1181,20 +1181,43 @@ export function ArtStudioPanel() {
                   <span className="text-[11px] text-muted-foreground">
                     {(data.rosterNames ?? []).length} relacionado(s)
                   </span>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="h-7 px-2 text-[10px]"
-                    onClick={() =>
-                      set({
-                        rosterNames: [...(data.rosterNames ?? [])].sort((a, b) =>
-                          a.localeCompare(b, "pt-BR"),
-                        ),
-                      })
-                    }
-                  >
-                    Ordem alfabética
-                  </Button>
+                  <div className="flex gap-1">
+                    {data.rosterShowNumbers ? (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="h-7 px-2 text-[10px]"
+                        onClick={() => {
+                          const nums = data.rosterNumbers ?? {};
+                          set({
+                            rosterNames: [...(data.rosterNames ?? [])].sort((a, b) => {
+                              const na = Number.parseInt((nums[a] ?? "").trim(), 10);
+                              const nb = Number.parseInt((nums[b] ?? "").trim(), 10);
+                              const va = Number.isNaN(na) ? Number.POSITIVE_INFINITY : na;
+                              const vb = Number.isNaN(nb) ? Number.POSITIVE_INFINITY : nb;
+                              return va - vb;
+                            }),
+                          });
+                        }}
+                      >
+                        Por número
+                      </Button>
+                    ) : null}
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="h-7 px-2 text-[10px]"
+                      onClick={() =>
+                        set({
+                          rosterNames: [...(data.rosterNames ?? [])].sort((a, b) =>
+                            a.localeCompare(b, "pt-BR"),
+                          ),
+                        })
+                      }
+                    >
+                      Ordem alfabética
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="space-y-1">
