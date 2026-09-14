@@ -81,6 +81,25 @@ export const STUDIO_TEMPLATES: StudioTemplate[] = [
     autoTitle: () => "RELACIONADOS",
     defaults: { title: "RELACIONADOS", subtitle: "", rosterNames: [] },
   },
+  {
+    slug: "resultado",
+    name: "Resultado do Jogo",
+    emoji: "🏁",
+    category: "partida",
+    fields: ["score", "title", "subtitle", "background", "playerPhoto"],
+    layout: RESULT_LAYOUT,
+    autoTitle: () => "FIM DE JOGO",
+    defaults: {
+      title: "FIM DE JOGO",
+      subtitle: "",
+      opponentName: "",
+      homeScore: "0",
+      awayScore: "0",
+      competition: "",
+      matchDateLabel: "",
+      resultLabel: "",
+    },
+  },
 ];
 
 export function getTemplate(slug: string) {
