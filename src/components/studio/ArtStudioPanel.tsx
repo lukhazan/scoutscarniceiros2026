@@ -16,6 +16,7 @@ import {
   Italic,
   Layers,
   ListChecks,
+  Flag,
   LayoutTemplate,
   Loader2,
   Lock,
@@ -119,6 +120,7 @@ type ToolId =
   | "template"
   | "agenda"
   | "roster"
+  | "score"
   | "foto"
   | "fundo"
   | "textos"
@@ -130,6 +132,7 @@ const TOOLS: { id: ToolId; label: string; icon: typeof Type }[] = [
   { id: "template", label: "Template", icon: LayoutTemplate },
   { id: "agenda", label: "Agenda", icon: CalendarDays },
   { id: "roster", label: "Relacionados", icon: ListChecks },
+  { id: "score", label: "Placar", icon: Flag },
   { id: "foto", label: "Foto", icon: ImageIcon },
   { id: "fundo", label: "Fundo", icon: ImagePlus },
   { id: "textos", label: "Textos", icon: Type },
