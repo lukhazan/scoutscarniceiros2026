@@ -380,13 +380,21 @@ export function TemplateRenderer({
           <ScoreLayer
             key={id}
             zone={a.score}
-            teamName={brand?.team_name || "Carniceiros Fut 7"}
+            teamName={data.teamNameOverride || brand?.team_name || "Carniceiros Fut 7"}
             opponentName={data.opponentName || "ADVERSÁRIO"}
             homeScore={data.homeScore ?? "0"}
             awayScore={data.awayScore ?? "0"}
             competition={data.competition ?? ""}
             matchDate={data.matchDateLabel ?? ""}
             resultLabel={data.resultLabel ?? ""}
+            homeLogoUrl={data.homeLogoUrl ?? null}
+            awayLogoUrl={data.awayLogoUrl ?? null}
+            homeLogoScale={data.homeLogoScale ?? 1}
+            awayLogoScale={data.awayLogoScale ?? 1}
+            homeLogoOffsetX={data.homeLogoOffsetX ?? 0}
+            homeLogoOffsetY={data.homeLogoOffsetY ?? 0}
+            awayLogoOffsetX={data.awayLogoOffsetX ?? 0}
+            awayLogoOffsetY={data.awayLogoOffsetY ?? 0}
             colors={c}
           />
         );

@@ -100,6 +100,7 @@ import {
 } from "@/lib/studio/sponsors";
 import type { TextBackground, TextOverride } from "@/lib/studio/types";
 import { DEFAULT_TEXT_BACKGROUND } from "@/lib/studio/types";
+import { fileToCutoutSourceDataUrl } from "@/lib/player-photo";
 import {
   SaveTemplateDialog,
   type SaveTemplateSubmit,
@@ -426,10 +427,14 @@ export function ArtStudioPanel() {
   );
   const exportRef = useRef<HTMLDivElement>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const homeLogoInputRef = useRef<HTMLInputElement>(null);
+  const awayLogoInputRef = useRef<HTMLInputElement>(null);
 
   const [exporting, setExporting] = useState(false);
   const [exportResult, setExportResult] = useState<ExportResult | null>(null);
   const [photoBusy, setPhotoBusy] = useState(false);
+  const [removePhotoBackground, setRemovePhotoBackground] = useState(false);
+  const [logoBusy, setLogoBusy] = useState<"home" | "away" | null>(null);
   const [slug, setSlug] = useState(STUDIO_TEMPLATES[0].slug);
   const [titleEdited, setTitleEdited] = useState(false);
   const [tool, setTool] = useState<ToolId>("template");
@@ -637,7 +642,9 @@ export function ArtStudioPanel() {
     if (!file) return;
     setPhotoBusy(true);
     try {
-      const url = await fileToStudioImage(file);
+      const url = removePhotoBackground
+        ? await fileToCutoutSourceDataUrl(file)
+        : await fileToStudioImage(file);
       set({ playerPhotoUrl: url, playerOffsetX: 0, playerOffsetY: 0, playerRotation: 0 });
       setSelected("photo");
     } catch (err) {
@@ -645,6 +652,25 @@ export function ArtStudioPanel() {
     } finally {
       setPhotoBusy(false);
       if (photoInputRef.current) photoInputRef.current.value = "";
+    }
+  }
+
+  async function handleTeamLogo(side: "home" | "away", file: File | undefined) {
+    if (!file) return;
+    setLogoBusy(side);
+    try {
+      const url = await fileToStudioImage(file, 1600);
+      set(
+        side === "home"
+          ? { homeLogoUrl: url, homeLogoScale: 1, homeLogoOffsetX: 0, homeLogoOffsetY: 0 }
+          : { awayLogoUrl: url, awayLogoScale: 1, awayLogoOffsetX: 0, awayLogoOffsetY: 0 },
+      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Falha ao carregar o escudo.");
+    } finally {
+      setLogoBusy(null);
+      const input = side === "home" ? homeLogoInputRef.current : awayLogoInputRef.current;
+      if (input) input.value = "";
     }
   }
 
@@ -1333,6 +1359,13 @@ export function ArtStudioPanel() {
                     placeholder="Ex.: Copa Várzea"
                   />
                 </Field>
+                <Field label="Nome da equipe principal">
+                  <Input
+                    value={data.teamNameOverride ?? ""}
+                    onChange={(e) => set({ teamNameOverride: e.target.value })}
+                    placeholder={brand?.team_name || "Nome da equipe"}
+                  />
+                </Field>
                 <Field label="Adversário">
                   <Input
                     value={data.opponentName ?? ""}
@@ -1340,6 +1373,100 @@ export function ArtStudioPanel() {
                     placeholder="Nome do adversário"
                   />
                 </Field>
+
+                <input
+                  ref={homeLogoInputRef}
+                  type="file"
+                  accept={ACCEPTED_IMAGE_TYPES}
+                  className="hidden"
+                  onChange={(e) => handleTeamLogo("home", e.target.files?.[0])}
+                />
+                <input
+                  ref={awayLogoInputRef}
+                  type="file"
+                  accept={ACCEPTED_IMAGE_TYPES}
+                  className="hidden"
+                  onChange={(e) => handleTeamLogo("away", e.target.files?.[0])}
+                />
+                {(["home", "away"] as const).map((side) => {
+                  const isHome = side === "home";
+                  const logo = isHome ? data.homeLogoUrl : data.awayLogoUrl;
+                  const scale = isHome ? data.homeLogoScale : data.awayLogoScale;
+                  const offsetX = isHome ? data.homeLogoOffsetX : data.awayLogoOffsetX;
+                  const offsetY = isHome ? data.homeLogoOffsetY : data.awayLogoOffsetY;
+                  const inputRef = isHome ? homeLogoInputRef : awayLogoInputRef;
+                  return (
+                    <section key={side} className="space-y-2 rounded-lg border border-border/60 p-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-semibold">
+                          {isHome ? "Logo da equipe principal" : "Logo do adversário"}
+                        </span>
+                        {logo ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7"
+                            onClick={() => set(isHome ? { homeLogoUrl: null } : { awayLogoUrl: null })}
+                          >
+                            <X className="mr-1 size-3.5" /> Usar nome
+                          </Button>
+                        ) : null}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {logo ? (
+                          <img src={logo} alt="" className="size-14 object-contain" />
+                        ) : (
+                          <div className="grid size-14 place-items-center rounded bg-secondary">
+                            <Flag className="size-5 text-muted-foreground" />
+                          </div>
+                        )}
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="flex-1"
+                          disabled={logoBusy !== null}
+                          onClick={() => inputRef.current?.click()}
+                        >
+                          {logoBusy === side ? (
+                            <Loader2 className="mr-1 size-4 animate-spin" />
+                          ) : (
+                            <ImagePlus className="mr-1 size-4" />
+                          )}
+                          {logo ? "Trocar logo" : "Adicionar logo"}
+                        </Button>
+                      </div>
+                      {logo ? (
+                        <div className="space-y-2 pt-1">
+                          <SliderRow
+                            label="Tamanho"
+                            value={scale ?? 1}
+                            min={0.5}
+                            max={1.8}
+                            step={0.05}
+                            format={(v) => `${Math.round(v * 100)}%`}
+                            onChange={(v) => set(isHome ? { homeLogoScale: v } : { awayLogoScale: v })}
+                          />
+                          <SliderRow
+                            label="Posição X"
+                            value={offsetX ?? 0}
+                            min={-100}
+                            max={100}
+                            step={2}
+                            onChange={(v) => set(isHome ? { homeLogoOffsetX: v } : { awayLogoOffsetX: v })}
+                          />
+                          <SliderRow
+                            label="Posição Y"
+                            value={offsetY ?? 0}
+                            min={-100}
+                            max={100}
+                            step={2}
+                            onChange={(v) => set(isHome ? { homeLogoOffsetY: v } : { awayLogoOffsetY: v })}
+                          />
+                        </div>
+                      ) : null}
+                    </section>
+                  );
+                })}
                 <div className="grid grid-cols-2 gap-2">
                   <Field label="Gols do time">
                     <Input
@@ -1411,6 +1538,18 @@ export function ArtStudioPanel() {
                   onChange={(e) => handlePhoto(e.target.files?.[0])}
                 />
 
+                <div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 p-2">
+                  <div>
+                    <p className="text-xs font-semibold">Remover fundo automaticamente</p>
+                    <p className="text-[11px] text-muted-foreground">Aplicado ao próximo envio.</p>
+                  </div>
+                  <Switch
+                    checked={removePhotoBackground}
+                    onCheckedChange={setRemovePhotoBackground}
+                    disabled={photoBusy}
+                  />
+                </div>
+
                 {data.playerPhotoUrl ? (
                   <div className="space-y-2">
                     <img
@@ -1449,7 +1588,7 @@ export function ArtStudioPanel() {
                     ) : (
                       <ImagePlus className="mr-1 size-4" />
                     )}
-                    Enviar foto do atleta
+                    {photoBusy && removePhotoBackground ? "Removendo fundo…" : "Enviar foto do atleta"}
                   </Button>
                 )}
                 <p className="text-xs text-muted-foreground">
