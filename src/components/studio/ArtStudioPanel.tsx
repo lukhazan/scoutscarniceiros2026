@@ -16,6 +16,7 @@ import {
   Italic,
   Layers,
   ListChecks,
+  Flag,
   LayoutTemplate,
   Loader2,
   Lock,
@@ -119,6 +120,7 @@ type ToolId =
   | "template"
   | "agenda"
   | "roster"
+  | "score"
   | "foto"
   | "fundo"
   | "textos"
@@ -130,6 +132,7 @@ const TOOLS: { id: ToolId; label: string; icon: typeof Type }[] = [
   { id: "template", label: "Template", icon: LayoutTemplate },
   { id: "agenda", label: "Agenda", icon: CalendarDays },
   { id: "roster", label: "Relacionados", icon: ListChecks },
+  { id: "score", label: "Placar", icon: Flag },
   { id: "foto", label: "Foto", icon: ImageIcon },
   { id: "fundo", label: "Fundo", icon: ImagePlus },
   { id: "textos", label: "Textos", icon: Type },
@@ -150,6 +153,7 @@ const LAYER_LABELS: Record<LayerId, string> = {
   subtitle: "Subtítulo",
   agenda: "Compromissos",
   roster: "Relacionados",
+  score: "Placar",
   sponsors: "Patrocinadores",
 };
 
@@ -509,6 +513,7 @@ export function ArtStudioPanel() {
   const template = getTemplate(slug);
   const isAgendaTemplate = template.fields.includes("agenda");
   const isRosterTemplate = template.fields.includes("roster");
+  const isScoreTemplate = template.fields.includes("score");
   const sponsorConfig: SponsorConfig = data.sponsorConfig ?? DEFAULT_SPONSOR_CONFIG;
 
   const commit = useCallback((updater: (prev: ArtData) => ArtData) => {
@@ -830,6 +835,7 @@ export function ArtStudioPanel() {
               (t) =>
                 (t.id !== "agenda" || isAgendaTemplate) &&
                 (t.id !== "roster" || isRosterTemplate) &&
+                (t.id !== "score" || isScoreTemplate) &&
                 (t.id !== "foto" || !isAgendaTemplate),
             ).map((t) => {
               const Icon = t.icon;
@@ -1314,6 +1320,68 @@ export function ArtStudioPanel() {
                 <p className="text-[11px] text-muted-foreground">
                   A lista mostra apenas o apelido, sem foto. Para incluir imagens, use as
                   ferramentas Foto, Fundo e Elementos.
+                </p>
+              </div>
+            ) : null}
+
+            {tool === "score" && isScoreTemplate ? (
+              <div className="space-y-3">
+                <Field label="Competição / campeonato">
+                  <Input
+                    value={data.competition ?? ""}
+                    onChange={(e) => set({ competition: e.target.value })}
+                    placeholder="Ex.: Copa Várzea"
+                  />
+                </Field>
+                <Field label="Adversário">
+                  <Input
+                    value={data.opponentName ?? ""}
+                    onChange={(e) => set({ opponentName: e.target.value })}
+                    placeholder="Nome do adversário"
+                  />
+                </Field>
+                <div className="grid grid-cols-2 gap-2">
+                  <Field label="Gols do time">
+                    <Input
+                      inputMode="numeric"
+                      value={data.homeScore ?? "0"}
+                      onChange={(e) => set({ homeScore: e.target.value })}
+                    />
+                  </Field>
+                  <Field label="Gols do adversário">
+                    <Input
+                      inputMode="numeric"
+                      value={data.awayScore ?? "0"}
+                      onChange={(e) => set({ awayScore: e.target.value })}
+                    />
+                  </Field>
+                </div>
+                <Field label="Data do jogo">
+                  <Input
+                    value={data.matchDateLabel ?? ""}
+                    onChange={(e) => set({ matchDateLabel: e.target.value })}
+                    placeholder="Ex.: 14/09/2026"
+                  />
+                </Field>
+                <Field label="Resultado">
+                  <Select
+                    value={data.resultLabel ? data.resultLabel : "auto"}
+                    onValueChange={(v) => set({ resultLabel: v === "auto" ? "" : v })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="auto">Automático (pelo placar)</SelectItem>
+                      <SelectItem value="VITÓRIA">Vitória</SelectItem>
+                      <SelectItem value="EMPATE">Empate</SelectItem>
+                      <SelectItem value="DERROTA">Derrota</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <p className="text-[11px] text-muted-foreground">
+                  Fotos, escudos, fundos e patrocinadores continuam nas ferramentas Foto, Fundo e
+                  Elementos.
                 </p>
               </div>
             ) : null}

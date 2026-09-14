@@ -85,6 +85,14 @@ export type ArtData = {
   rosterNumbers: Record<string, string>;
   /** Área e logos de patrocinadores (salva junto com o template) */
   sponsorConfig: SponsorConfig;
+  /** Template Resultado do Jogo */
+  opponentName: string;
+  homeScore: string;
+  awayScore: string;
+  competition: string;
+  matchDateLabel: string;
+  /** rótulo do resultado; vazio = calculado pelo placar */
+  resultLabel: string;
 };
 
 export type ArtPlayer = {
@@ -132,4 +140,10 @@ export const EMPTY_ART_DATA: ArtData = {
   rosterShowNumbers: false,
   rosterNumbers: {},
   sponsorConfig: DEFAULT_SPONSOR_CONFIG,
+  opponentName: "",
+  homeScore: "0",
+  awayScore: "0",
+  competition: "",
+  matchDateLabel: "",
+  resultLabel: "",
 };

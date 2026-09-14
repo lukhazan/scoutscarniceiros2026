@@ -5,6 +5,7 @@ import { StudioCanvas } from "@/lib/studio/Canvas";
 import { PlayerFrame } from "@/lib/studio/PlayerFrame";
 import { AgendaLayer } from "@/lib/studio/AgendaLayer";
 import { RosterLayer } from "@/lib/studio/RosterLayer";
+import { ScoreLayer } from "@/lib/studio/ScoreLayer";
 import { SponsorsLayer } from "@/lib/studio/SponsorsLayer";
 import { DEFAULT_SPONSOR_CONFIG, sponsorsFromBrand, type SponsorConfig } from "@/lib/studio/sponsors";
 import {
@@ -371,6 +372,21 @@ export function TemplateRenderer({
             goalkeepers={data.rosterGoalkeepers ?? []}
             showNumbers={data.rosterShowNumbers ?? false}
             numbers={data.rosterNumbers ?? {}}
+            colors={c}
+          />
+        );
+      case "score":
+        return (
+          <ScoreLayer
+            key={id}
+            zone={a.score}
+            teamName={brand?.team_name || "Carniceiros Fut 7"}
+            opponentName={data.opponentName || "ADVERSÁRIO"}
+            homeScore={data.homeScore ?? "0"}
+            awayScore={data.awayScore ?? "0"}
+            competition={data.competition ?? ""}
+            matchDate={data.matchDateLabel ?? ""}
+            resultLabel={data.resultLabel ?? ""}
             colors={c}
           />
         );

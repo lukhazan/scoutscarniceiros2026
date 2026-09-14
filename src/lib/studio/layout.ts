@@ -17,6 +17,7 @@ export type LayerId =
   | "subtitle"
   | "agenda"
   | "roster"
+  | "score"
   | "sponsors";
 
 /** Margens internas do canvas fixo 1080x1920. */
@@ -105,6 +106,7 @@ export const BASE_LAYOUT: TemplateLayout = {
     subtitle: { x: 60, y: 1570, width: 960, height: 60 },
     agenda: { x: 60, y: 470, width: 960, height: 1170 },
     roster: { x: 60, y: 470, width: 960, height: 1120 },
+    score: { x: 60, y: 560, width: 960, height: 800 },
     sponsors: { x: 60, y: 1660, width: 960, height: 110 },
   },
 
@@ -221,6 +223,34 @@ export const ROSTER_LAYOUT: TemplateLayout = makeLayout({
   text: {
     ...BASE_LAYOUT.text,
     title: { ...BASE_LAYOUT.text.title, maxFontSize: 120, maxLines: 2, align: "center" },
+    subtitle: { ...BASE_LAYOUT.text.subtitle, align: "center" },
+  },
+});
+
+/** Layout do template "Resultado do Jogo". */
+export const RESULT_LAYOUT: TemplateLayout = makeLayout({
+  layers: [
+    "background",
+    "graphics",
+    "overlay",
+    "watermark",
+    "photo",
+    "crest",
+    "teamName",
+    "title",
+    "score",
+    "subtitle",
+    "sponsors",
+  ],
+  areas: {
+    ...BASE_LAYOUT.areas,
+    title: { x: 60, y: 250, width: 960, height: 170 },
+    score: { x: 60, y: 500, width: 960, height: 900 },
+    subtitle: { x: 60, y: 1480, width: 960, height: 70 },
+  },
+  text: {
+    ...BASE_LAYOUT.text,
+    title: { ...BASE_LAYOUT.text.title, maxFontSize: 110, maxLines: 2, align: "center" },
     subtitle: { ...BASE_LAYOUT.text.subtitle, align: "center" },
   },
 });

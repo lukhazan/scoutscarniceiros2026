@@ -1,4 +1,4 @@
-import { AGENDA_LAYOUT, BASE_LAYOUT, ROSTER_LAYOUT, STORY_HEIGHT, STORY_WIDTH, type TemplateLayout } from "@/lib/studio/layout";
+import { AGENDA_LAYOUT, BASE_LAYOUT, RESULT_LAYOUT, ROSTER_LAYOUT, STORY_HEIGHT, STORY_WIDTH, type TemplateLayout } from "@/lib/studio/layout";
 import { TemplateRenderer, artPlayerName } from "@/lib/studio/TemplateRenderer";
 import { EMPTY_ART_DATA, type ArtData, type ArtPlayer, type TemplateRenderProps } from "@/lib/studio/types";
 
@@ -14,7 +14,8 @@ export type StudioField =
   | "background"
   | "playerPhoto"
   | "agenda"
-  | "roster";
+  | "roster"
+  | "score";
 
 export type StudioTemplate = {
   slug: string;
@@ -79,6 +80,25 @@ export const STUDIO_TEMPLATES: StudioTemplate[] = [
     layout: ROSTER_LAYOUT,
     autoTitle: () => "RELACIONADOS",
     defaults: { title: "RELACIONADOS", subtitle: "", rosterNames: [] },
+  },
+  {
+    slug: "resultado",
+    name: "Resultado do Jogo",
+    emoji: "🏁",
+    category: "partida",
+    fields: ["score", "title", "subtitle", "background", "playerPhoto"],
+    layout: RESULT_LAYOUT,
+    autoTitle: () => "FIM DE JOGO",
+    defaults: {
+      title: "FIM DE JOGO",
+      subtitle: "",
+      opponentName: "",
+      homeScore: "0",
+      awayScore: "0",
+      competition: "",
+      matchDateLabel: "",
+      resultLabel: "",
+    },
   },
 ];
 
