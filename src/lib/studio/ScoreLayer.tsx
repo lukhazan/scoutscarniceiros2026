@@ -32,6 +32,14 @@ export const ScoreLayer = memo(function ScoreLayer({
   competition,
   matchDate,
   resultLabel,
+  homeLogoUrl,
+  awayLogoUrl,
+  homeLogoScale,
+  awayLogoScale,
+  homeLogoOffsetX,
+  homeLogoOffsetY,
+  awayLogoOffsetX,
+  awayLogoOffsetY,
   colors,
 }: {
   zone: Zone;
@@ -42,6 +50,14 @@ export const ScoreLayer = memo(function ScoreLayer({
   competition: string;
   matchDate: string;
   resultLabel: string;
+  homeLogoUrl: string | null;
+  awayLogoUrl: string | null;
+  homeLogoScale: number;
+  awayLogoScale: number;
+  homeLogoOffsetX: number;
+  homeLogoOffsetY: number;
+  awayLogoOffsetX: number;
+  awayLogoOffsetY: number;
   colors: ScoreColors;
 }) {
   const result = resultLabel || matchResultLabel(homeScore, awayScore);
@@ -78,29 +94,46 @@ export const ScoreLayer = memo(function ScoreLayer({
 
       <div
         style={{
-          display: "flex",
+          display: "grid",
+          gridTemplateColumns: "220px minmax(0, 1fr) 220px",
           alignItems: "center",
-          justifyContent: "center",
-          gap: 40,
+          gap: 20,
           width: "100%",
         }}
       >
-        <Team name={teamName} colors={colors} />
+        <Team
+          name={teamName}
+          logoUrl={homeLogoUrl}
+          logoScale={homeLogoScale}
+          logoOffsetX={homeLogoOffsetX}
+          logoOffsetY={homeLogoOffsetY}
+          colors={colors}
+        />
         <div
           style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 92px 1fr",
+            alignItems: "center",
             fontFamily: colors.fontPrimary,
-            fontSize: 250,
             fontWeight: 900,
             lineHeight: 1,
-            letterSpacing: -6,
+            letterSpacing: 0,
             whiteSpace: "nowrap",
+            textAlign: "center",
           }}
         >
-          {homeScore || "0"}
-          <span style={{ color: colors.primary, padding: "0 14px" }}>x</span>
-          {awayScore || "0"}
+          <span style={{ fontSize: 220 }}>{homeScore || "0"}</span>
+          <span style={{ color: colors.primary, fontSize: 132 }}>X</span>
+          <span style={{ fontSize: 220 }}>{awayScore || "0"}</span>
         </div>
-        <Team name={opponentName} colors={colors} />
+        <Team
+          name={opponentName}
+          logoUrl={awayLogoUrl}
+          logoScale={awayLogoScale}
+          logoOffsetX={awayLogoOffsetX}
+          logoOffsetY={awayLogoOffsetY}
+          colors={colors}
+        />
       </div>
 
       {result ? (
@@ -134,11 +167,51 @@ export const ScoreLayer = memo(function ScoreLayer({
   );
 });
 
-function Team({ name, colors }: { name: string; colors: ScoreColors }) {
+function Team({
+  name,
+  logoUrl,
+  logoScale,
+  logoOffsetX,
+  logoOffsetY,
+  colors,
+}: {
+  name: string;
+  logoUrl: string | null;
+  logoScale: number;
+  logoOffsetX: number;
+  logoOffsetY: number;
+  colors: ScoreColors;
+}) {
+  if (logoUrl) {
+    return (
+      <div
+        style={{
+          width: 220,
+          height: 220,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "visible",
+        }}
+      >
+        <img
+          src={logoUrl}
+          alt={name}
+          style={{
+            width: 190,
+            height: 190,
+            objectFit: "contain",
+            transform: `translate(${logoOffsetX}px, ${logoOffsetY}px) scale(${logoScale})`,
+            transformOrigin: "center",
+          }}
+        />
+      </div>
+    );
+  }
   return (
     <div
       style={{
-        flex: 1,
+        width: 220,
         minWidth: 0,
         fontFamily: colors.fontSecondary,
         fontSize: 40,
@@ -146,7 +219,7 @@ function Team({ name, colors }: { name: string; colors: ScoreColors }) {
         letterSpacing: 2,
         textTransform: "uppercase",
         lineHeight: 1.1,
-        wordBreak: "break-word",
+        overflowWrap: "anywhere",
       }}
     >
       {name}

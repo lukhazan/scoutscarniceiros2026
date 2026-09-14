@@ -86,7 +86,16 @@ export type ArtData = {
   /** Área e logos de patrocinadores (salva junto com o template) */
   sponsorConfig: SponsorConfig;
   /** Template Resultado do Jogo */
+  teamNameOverride: string;
   opponentName: string;
+  homeLogoUrl: string | null;
+  awayLogoUrl: string | null;
+  homeLogoScale: number;
+  awayLogoScale: number;
+  homeLogoOffsetX: number;
+  homeLogoOffsetY: number;
+  awayLogoOffsetX: number;
+  awayLogoOffsetY: number;
   homeScore: string;
   awayScore: string;
   competition: string;
@@ -140,7 +149,16 @@ export const EMPTY_ART_DATA: ArtData = {
   rosterShowNumbers: false,
   rosterNumbers: {},
   sponsorConfig: DEFAULT_SPONSOR_CONFIG,
+  teamNameOverride: "",
   opponentName: "",
+  homeLogoUrl: null,
+  awayLogoUrl: null,
+  homeLogoScale: 1,
+  awayLogoScale: 1,
+  homeLogoOffsetX: 0,
+  homeLogoOffsetY: 0,
+  awayLogoOffsetX: 0,
+  awayLogoOffsetY: 0,
   homeScore: "0",
   awayScore: "0",
   competition: "",
