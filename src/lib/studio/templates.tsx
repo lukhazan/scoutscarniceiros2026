@@ -1,4 +1,4 @@
-import { AGENDA_LAYOUT, BASE_LAYOUT, ROSTER_LAYOUT, STORY_HEIGHT, STORY_WIDTH, type TemplateLayout } from "@/lib/studio/layout";
+import { AGENDA_LAYOUT, BASE_LAYOUT, RESULT_LAYOUT, ROSTER_LAYOUT, STORY_HEIGHT, STORY_WIDTH, type TemplateLayout } from "@/lib/studio/layout";
 import { TemplateRenderer, artPlayerName } from "@/lib/studio/TemplateRenderer";
 import { EMPTY_ART_DATA, type ArtData, type ArtPlayer, type TemplateRenderProps } from "@/lib/studio/types";
 
@@ -14,7 +14,8 @@ export type StudioField =
   | "background"
   | "playerPhoto"
   | "agenda"
-  | "roster";
+  | "roster"
+  | "score";
 
 export type StudioTemplate = {
   slug: string;
