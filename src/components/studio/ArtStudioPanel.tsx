@@ -150,6 +150,7 @@ const LAYER_LABELS: Record<LayerId, string> = {
   subtitle: "Subtítulo",
   agenda: "Compromissos",
   roster: "Relacionados",
+  score: "Placar",
   sponsors: "Patrocinadores",
 };
 
