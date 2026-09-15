@@ -267,6 +267,112 @@ export type Database = {
         }
         Relationships: []
       }
+      pelada_participants: {
+        Row: {
+          created_at: string
+          guest_name: string | null
+          id: string
+          pelada_id: string
+          player_id: string | null
+          status: string
+          team_no: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          guest_name?: string | null
+          id?: string
+          pelada_id: string
+          player_id?: string | null
+          status?: string
+          team_no?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          guest_name?: string | null
+          id?: string
+          pelada_id?: string
+          player_id?: string | null
+          status?: string
+          team_no?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pelada_participants_pelada_id_fkey"
+            columns: ["pelada_id"]
+            isOneToOne: false
+            referencedRelation: "peladas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pelada_participants_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "player_totals"
+            referencedColumns: ["player_id"]
+          },
+          {
+            foreignKeyName: "pelada_participants_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      peladas: {
+        Row: {
+          confirm_deadline: string | null
+          created_at: string
+          end_time: string | null
+          id: string
+          location: string | null
+          max_players: number | null
+          name: string
+          next_date: string | null
+          notes: string | null
+          public_token: string
+          start_time: string | null
+          status: string
+          updated_at: string
+          weekday: number | null
+        }
+        Insert: {
+          confirm_deadline?: string | null
+          created_at?: string
+          end_time?: string | null
+          id?: string
+          location?: string | null
+          max_players?: number | null
+          name?: string
+          next_date?: string | null
+          notes?: string | null
+          public_token?: string
+          start_time?: string | null
+          status?: string
+          updated_at?: string
+          weekday?: number | null
+        }
+        Update: {
+          confirm_deadline?: string | null
+          created_at?: string
+          end_time?: string | null
+          id?: string
+          location?: string | null
+          max_players?: number | null
+          name?: string
+          next_date?: string | null
+          notes?: string | null
+          public_token?: string
+          start_time?: string | null
+          status?: string
+          updated_at?: string
+          weekday?: number | null
+        }
+        Relationships: []
+      }
       player_debts: {
         Row: {
           amount: number
