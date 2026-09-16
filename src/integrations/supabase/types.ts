@@ -56,6 +56,8 @@ export type Database = {
       brand_identity: {
         Row: {
           accent_color: string
+          city: string | null
+          contact_email: string | null
           created_at: string
           crest_black_url: string | null
           crest_url: string | null
@@ -64,15 +66,20 @@ export type Database = {
           font_secondary: string
           footer_logo_url: string | null
           id: string
+          modality: string
           primary_color: string
           secondary_color: string
+          short_name: string | null
           sponsors: Json
+          state: string | null
           team_name: string
           updated_at: string
           watermark_url: string | null
         }
         Insert: {
           accent_color?: string
+          city?: string | null
+          contact_email?: string | null
           created_at?: string
           crest_black_url?: string | null
           crest_url?: string | null
@@ -81,15 +88,20 @@ export type Database = {
           font_secondary?: string
           footer_logo_url?: string | null
           id?: string
+          modality?: string
           primary_color?: string
           secondary_color?: string
+          short_name?: string | null
           sponsors?: Json
+          state?: string | null
           team_name?: string
           updated_at?: string
           watermark_url?: string | null
         }
         Update: {
           accent_color?: string
+          city?: string | null
+          contact_email?: string | null
           created_at?: string
           crest_black_url?: string | null
           crest_url?: string | null
@@ -98,9 +110,12 @@ export type Database = {
           font_secondary?: string
           footer_logo_url?: string | null
           id?: string
+          modality?: string
           primary_color?: string
           secondary_color?: string
+          short_name?: string | null
           sponsors?: Json
+          state?: string | null
           team_name?: string
           updated_at?: string
           watermark_url?: string | null
