@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as EstatisticasRouteImport } from './routes/estatisticas'
 import { Route as HorariosRouteImport } from './routes/horarios'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
+import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
 import { Route as AuthenticatedElencoRouteImport } from './routes/_authenticated/elenco'
 import { Route as AuthenticatedEstudioRouteImport } from './routes/_authenticated/estudio'
 import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
@@ -60,6 +61,12 @@ const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
   path: '/agenda',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedConfiguracoesRoute =
+  AuthenticatedConfiguracoesRouteImport.update({
+    id: '/configuracoes',
+    path: '/configuracoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedElencoRoute = AuthenticatedElencoRouteImport.update({
   id: '/elenco',
   path: '/elenco',
@@ -114,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/estatisticas': typeof EstatisticasRoute
   '/horarios': typeof HorariosRoute
   '/agenda': typeof AuthenticatedAgendaRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/elenco': typeof AuthenticatedElencoRoute
   '/estudio': typeof AuthenticatedEstudioRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
@@ -131,6 +139,7 @@ export interface FileRoutesByTo {
   '/estatisticas': typeof EstatisticasRoute
   '/horarios': typeof HorariosRoute
   '/agenda': typeof AuthenticatedAgendaRoute
+  '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/elenco': typeof AuthenticatedElencoRoute
   '/estudio': typeof AuthenticatedEstudioRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
@@ -150,6 +159,7 @@ export interface FileRoutesById {
   '/estatisticas': typeof EstatisticasRoute
   '/horarios': typeof HorariosRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
+  '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/elenco': typeof AuthenticatedElencoRoute
   '/_authenticated/estudio': typeof AuthenticatedEstudioRoute
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
@@ -169,6 +179,7 @@ export interface FileRouteTypes {
     | '/estatisticas'
     | '/horarios'
     | '/agenda'
+    | '/configuracoes'
     | '/elenco'
     | '/estudio'
     | '/financeiro'
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/estatisticas'
     | '/horarios'
     | '/agenda'
+    | '/configuracoes'
     | '/elenco'
     | '/estudio'
     | '/financeiro'
@@ -204,6 +216,7 @@ export interface FileRouteTypes {
     | '/estatisticas'
     | '/horarios'
     | '/_authenticated/agenda'
+    | '/_authenticated/configuracoes'
     | '/_authenticated/elenco'
     | '/_authenticated/estudio'
     | '/_authenticated/financeiro'
@@ -276,6 +289,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAgendaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/configuracoes': {
+      id: '/_authenticated/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/elenco': {
       id: '/_authenticated/elenco'
       path: '/elenco'
@@ -344,6 +364,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
+  AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedElencoRoute: typeof AuthenticatedElencoRoute
   AuthenticatedEstudioRoute: typeof AuthenticatedEstudioRoute
   AuthenticatedFinanceiroRoute: typeof AuthenticatedFinanceiroRoute
@@ -356,6 +377,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
+  AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedElencoRoute: AuthenticatedElencoRoute,
   AuthenticatedEstudioRoute: AuthenticatedEstudioRoute,
   AuthenticatedFinanceiroRoute: AuthenticatedFinanceiroRoute,
