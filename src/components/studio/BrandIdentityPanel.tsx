@@ -24,6 +24,11 @@ const EMPTY: Form = {
   font_secondary: "Inter",
   watermark_url: null,
   sponsors: [],
+  short_name: null,
+  modality: "fut7",
+  city: null,
+  state: null,
+  contact_email: null,
 };
 
 function ColorField({
