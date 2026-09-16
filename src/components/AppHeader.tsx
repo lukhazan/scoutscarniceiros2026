@@ -59,6 +59,9 @@ export function AppHeader() {
                     <Link to="/agenda">Agenda</Link>
                   </Button>
                   <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
+                    <Link to="/pelada">Pelada</Link>
+                  </Button>
+                  <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                     <Link to="/financeiro">Financeiro</Link>
                   </Button>
                   <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
