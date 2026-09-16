@@ -67,6 +67,9 @@ export function AppHeader() {
                   <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
                     <Link to="/estudio">Artes</Link>
                   </Button>
+                  <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">
+                    <Link to="/configuracoes">Configurações</Link>
+                  </Button>
                 </>
               ) : (
                 <Button asChild variant="ghost" size="sm" className="shrink-0 px-2 sm:px-3">

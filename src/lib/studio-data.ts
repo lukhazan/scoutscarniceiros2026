@@ -14,7 +14,19 @@ export type BrandIdentity = {
   font_secondary: string;
   watermark_url: string | null;
   sponsors: string[];
+  short_name: string | null;
+  modality: string;
+  city: string | null;
+  state: string | null;
+  contact_email: string | null;
 };
+
+/** Modalidades disponíveis para a equipe (base para regras futuras de posições). */
+export const MODALITIES: { value: string; label: string }[] = [
+  { value: "fut7", label: "Futebol 7 (Fut7)" },
+  { value: "campo", label: "Futebol de Campo" },
+  { value: "futsal", label: "Futsal" },
+];
 
 export type MediaCategory = "fundo" | "escudo" | "patrocinador" | "foto";
 
