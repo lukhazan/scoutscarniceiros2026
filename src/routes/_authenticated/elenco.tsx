@@ -45,6 +45,7 @@ import {
   displayName,
   type Player,
 } from "@/lib/team-data";
+import { brandIdentityQueryOptions } from "@/lib/studio-data";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
 const PhotoCutoutEditor = lazy(() =>
   import("@/components/PhotoCutoutEditor").then((m) => ({ default: m.PhotoCutoutEditor })),
