@@ -111,6 +111,8 @@ function ElencoPage() {
   const queryClient = useQueryClient();
   const { data: players, isLoading } = useQuery(playersQueryOptions);
   const { data: seasonStats } = useQuery(seasonStatsQueryOptions);
+  const { data: brand } = useQuery(brandIdentityQueryOptions);
+  const positions = positionsForModality(brand?.modality);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Player | null>(null);
   const [form, setForm] = useState(empty);
