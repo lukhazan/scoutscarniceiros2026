@@ -49,14 +49,18 @@ export type MatchStat = {
   played: boolean;
 };
 
-export const POSITIONS = [
-  "Goleiro",
-  "Zagueiro",
-  "Lateral",
-  "Volante",
-  "Meia",
-  "Atacante",
-] as const;
+/** Posições disponíveis por modalidade da equipe (definida em Configurações). */
+export const POSITIONS_BY_MODALITY: Record<string, string[]> = {
+  fut7: ["Goleiro", "Fixo/Central", "Ala", "Meia", "Pivô"],
+  campo: ["Goleiro", "Zagueiro", "Lateral", "Meio-campista", "Atacante"],
+  futsal: ["Goleiro", "Fixo", "Ala", "Pivô"],
+};
+
+export function positionsForModality(modality?: string | null): string[] {
+  return POSITIONS_BY_MODALITY[modality ?? "fut7"] ?? POSITIONS_BY_MODALITY.fut7;
+}
+
+export const POSITIONS = POSITIONS_BY_MODALITY.fut7;
 
 /**
  * Lista do elenco SEM a foto original (que pode ter megabytes por atleta).
