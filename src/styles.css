@@ -169,3 +169,10 @@
 @utility tabular {
   font-variant-numeric: tabular-nums;
 }
+
+/* Deslocamento do conteúdo quando a navegação lateral está visível (desktop). */
+@media (min-width: 1024px) {
+  body.has-app-nav {
+    padding-left: var(--app-nav, 15rem);
+  }
+}
