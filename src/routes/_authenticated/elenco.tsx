@@ -38,13 +38,14 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import {
-  POSITIONS,
+  positionsForModality,
   playersQueryOptions,
   seasonStatsQueryOptions,
   compareDisplayName,
   displayName,
   type Player,
 } from "@/lib/team-data";
+import { brandIdentityQueryOptions } from "@/lib/studio-data";
 import { PlayerAvatar } from "@/components/PlayerAvatar";
 const PhotoCutoutEditor = lazy(() =>
   import("@/components/PhotoCutoutEditor").then((m) => ({ default: m.PhotoCutoutEditor })),
@@ -111,6 +112,8 @@ function ElencoPage() {
   const queryClient = useQueryClient();
   const { data: players, isLoading } = useQuery(playersQueryOptions);
   const { data: seasonStats } = useQuery(seasonStatsQueryOptions);
+  const { data: brand } = useQuery(brandIdentityQueryOptions);
+  const positions = positionsForModality(brand?.modality);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Player | null>(null);
   const [form, setForm] = useState(empty);
@@ -369,7 +372,11 @@ function ElencoPage() {
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {[
-                        player.position,
+                        player.position
+                          ? positions.includes(player.position)
+                            ? player.position
+                            : `${player.position} ⚠️`
+                          : null,
                         player.active ? null : "Inativo",
                         (() => {
                           const s = seasonValues(player.id, CURRENT_SEASON);
@@ -581,13 +588,23 @@ function ElencoPage() {
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
-                  {POSITIONS.map((p) => (
+                  {positions.map((p) => (
                     <SelectItem key={p} value={p}>
                       {p}
                     </SelectItem>
                   ))}
+                  {form.position && !positions.includes(form.position) ? (
+                    <SelectItem value={form.position}>
+                      {form.position} (fora da modalidade)
+                    </SelectItem>
+                  ) : null}
                 </SelectContent>
               </Select>
+              {form.position && !positions.includes(form.position) ? (
+                <p className="text-xs text-amber-500">
+                  Esta posição não existe na modalidade atual. Selecione uma posição válida.
+                </p>
+              ) : null}
             </div>
 
             <div className="rounded-md border border-border/60 p-3">
