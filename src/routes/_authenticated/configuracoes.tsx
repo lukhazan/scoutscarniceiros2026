@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Loader2, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminGate } from "@/components/AdminGate";
+import { NavOrderPanel } from "@/components/NavOrderPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -215,6 +216,13 @@ function SettingsPage() {
             />
           </div>
         </div>
+      </section>
+
+      <section className="space-y-4 rounded-xl border border-border/70 bg-card p-4">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Ordem do menu
+        </h2>
+        <NavOrderPanel />
       </section>
 
       <section className="space-y-4 rounded-xl border border-border/70 bg-card p-4">
