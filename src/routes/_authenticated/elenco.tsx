@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import {
-  POSITIONS,
+  positionsForModality,
   playersQueryOptions,
   seasonStatsQueryOptions,
   compareDisplayName,
