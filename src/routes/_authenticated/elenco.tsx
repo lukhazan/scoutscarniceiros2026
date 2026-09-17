@@ -372,7 +372,11 @@ function ElencoPage() {
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {[
-                        player.position,
+                        player.position
+                          ? positions.includes(player.position)
+                            ? player.position
+                            : `${player.position} ⚠️`
+                          : null,
                         player.active ? null : "Inativo",
                         (() => {
                           const s = seasonValues(player.id, CURRENT_SEASON);
