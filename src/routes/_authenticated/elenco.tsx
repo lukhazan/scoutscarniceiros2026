@@ -584,13 +584,23 @@ function ElencoPage() {
                   <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
-                  {POSITIONS.map((p) => (
+                  {positions.map((p) => (
                     <SelectItem key={p} value={p}>
                       {p}
                     </SelectItem>
                   ))}
+                  {form.position && !positions.includes(form.position) ? (
+                    <SelectItem value={form.position}>
+                      {form.position} (fora da modalidade)
+                    </SelectItem>
+                  ) : null}
                 </SelectContent>
               </Select>
+              {form.position && !positions.includes(form.position) ? (
+                <p className="text-xs text-amber-500">
+                  Esta posição não existe na modalidade atual. Selecione uma posição válida.
+                </p>
+              ) : null}
             </div>
 
             <div className="rounded-md border border-border/60 p-3">
