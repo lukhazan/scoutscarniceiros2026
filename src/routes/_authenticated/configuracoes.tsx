@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Loader2, Save } from "lucide-react";
+import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminGate } from "@/components/AdminGate";
 import { NavOrderPanel } from "@/components/NavOrderPanel";
@@ -67,6 +67,7 @@ const EMPTY: TeamForm = {
 
 function SettingsPage() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { data: brand, isLoading } = useQuery(brandIdentityQueryOptions);
   const { data: whatsapp } = useQuery(whatsappNumberQueryOptions);
   const [form, setForm] = useState<TeamForm>(EMPTY);
@@ -124,6 +125,7 @@ function SettingsPage() {
         queryKey: ["team_settings", "whatsapp_number"],
       });
       toast.success("Configurações salvas.");
+      navigate({ to: "/visao-geral" });
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : "Não foi possível salvar.",
@@ -143,6 +145,15 @@ function SettingsPage() {
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-6 px-4 py-6">
+      <div>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/visao-geral">
+            <ArrowLeft />
+            Voltar para o início
+          </Link>
+        </Button>
+      </div>
+
       <header className="space-y-1">
         <h1 className="font-display text-3xl">Configurações</h1>
         <p className="text-sm text-muted-foreground">
