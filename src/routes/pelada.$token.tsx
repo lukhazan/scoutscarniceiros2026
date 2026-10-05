@@ -14,7 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { compareDisplayName, displayName, formatDate, playersQueryOptions } from "@/lib/team-data";
+import { compareDisplayName, displayName, formatDate, playersQueryOptions, positionsForModality } from "@/lib/team-data";
+import { AmistosoLineup } from "@/components/AmistosoLineup";
 import {
   participantsQueryOptions,
   peladaByTokenQueryOptions,
@@ -66,7 +67,14 @@ function PeladaPublicPage() {
     if (!pelada || !selected) return toast.error("Escolha seu nome na lista.");
     const existing = list.find((p) => p.player_id === selected);
     const { error } = existing
-      ? await supabase.from("pelada_participants").update({ status }).eq("id", existing.id)
+      ? await supabase
+          .from("pelada_participants")
+          .update(
+            status === "confirmado" && existing.status !== "confirmado"
+              ? { status, confirmed_at: new Date().toISOString() }
+              : { status },
+          )
+          .eq("id", existing.id)
       : await supabase
           .from("pelada_participants")
           .insert({ pelada_id: pelada.id, player_id: selected, status });
@@ -185,6 +193,18 @@ function PeladaPublicPage() {
           </section>
         ) : null}
 
+        {pelada.kind === "amistoso" ? (
+          <section className="mt-6 rounded-xl border border-border bg-card p-4">
+            <h2 className="font-display text-lg">Escalação</h2>
+            <AmistosoLineup
+              list={list}
+              slots={pelada.position_slots ?? {}}
+              positions={positionsForModality(null)}
+              positionOf={(id) => roster.find((p) => p.id === id)?.position ?? ""}
+              nameOf={(p) => p.guest_name ?? nameOfPlayer(p.player_id)}
+            />
+          </section>
+        ) : (
         <section className="mt-6 rounded-xl border border-border bg-card p-4">
           <h2 className="font-display text-lg">Confirmados</h2>
           <ol className="mt-2 grid gap-1 text-sm">
@@ -213,6 +233,7 @@ function PeladaPublicPage() {
             </>
           ) : null}
         </section>
+        )}
       </main>
     </div>
   );
