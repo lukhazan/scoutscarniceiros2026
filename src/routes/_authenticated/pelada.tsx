@@ -122,7 +122,14 @@ function PeladaAdminPage({ kind }: { kind: PeladaKind }) {
     if (!pelada) return;
     const existing = list.find((p) => p.player_id === playerId);
     const { error } = existing
-      ? await supabase.from("pelada_participants").update({ status }).eq("id", existing.id)
+      ? await supabase
+          .from("pelada_participants")
+          .update(
+            status === "confirmado" && existing.status !== "confirmado"
+              ? { status, confirmed_at: new Date().toISOString() }
+              : { status },
+          )
+          .eq("id", existing.id)
       : await supabase
           .from("pelada_participants")
           .insert({ pelada_id: pelada.id, player_id: playerId, status });
