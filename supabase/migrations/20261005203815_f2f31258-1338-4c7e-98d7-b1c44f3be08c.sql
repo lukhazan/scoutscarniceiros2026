@@ -1,0 +1,1 @@
+ALTER TABLE public.peladas ADD COLUMN opponent text;

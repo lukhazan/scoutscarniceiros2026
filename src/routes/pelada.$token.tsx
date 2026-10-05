@@ -126,6 +126,9 @@ function PeladaPublicPage() {
       <AppHeader />
       <main className="mx-auto max-w-2xl px-4 py-6 pb-16">
         <h1 className="font-display text-2xl">{pelada.name}</h1>
+        {pelada.opponent ? (
+          <p className="mt-1 text-sm text-muted-foreground">Adversário: {pelada.opponent}</p>
+        ) : null}
         {!open ? (
           <p className="mt-2 rounded-md bg-muted px-3 py-2 text-sm">
             {pelada.status === "cancelada"
