@@ -1,0 +1,2 @@
+ALTER TABLE public.peladas ADD COLUMN kind text NOT NULL DEFAULT 'pelada', ADD COLUMN position_slots jsonb NOT NULL DEFAULT '{}'::jsonb;
+ALTER TABLE public.pelada_participants ADD COLUMN confirmed_at timestamptz NOT NULL DEFAULT now();
