@@ -16,6 +16,7 @@ export type Pelada = {
   notes: string | null;
   public_token: string;
   kind: PeladaKind;
+  opponent: string | null;
   position_slots: Record<string, number>;
 };
 
@@ -33,7 +34,7 @@ export type PeladaParticipant = {
 };
 
 export const PELADA_FIELDS =
-  "id, name, weekday, start_time, end_time, location, next_date, max_players, status, confirm_deadline, notes, public_token, kind, position_slots";
+  "id, name, weekday, start_time, end_time, location, next_date, max_players, status, confirm_deadline, notes, public_token, kind, position_slots, opponent";
 
 export const PARTICIPANT_FIELDS =
   "id, pelada_id, player_id, guest_name, status, team_no, created_at, confirmed_at";

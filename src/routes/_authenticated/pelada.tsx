@@ -26,6 +26,7 @@ import {
   drawTeams,
   participantsQueryOptions,
   splitParticipants,
+  splitByPosition,
   PELADA_STATUS_OPTIONS,
   WEEKDAYS,
   type Pelada,
@@ -174,6 +175,41 @@ function PeladaAdminPage({ kind }: { kind: PeladaKind }) {
     pelada && typeof window !== "undefined"
       ? `${window.location.origin}/pelada/${pelada.public_token}`
       : "";
+
+  function shareLineup() {
+    if (!pelada) return;
+    const slots = pelada.position_slots ?? {};
+    const groups = splitByPosition(
+      list,
+      slots,
+      (id) => roster.find((p) => p.id === id)?.position ?? "",
+    );
+    const order = [...positions, ...Object.keys(groups).filter((k) => !positions.includes(k))];
+    const team = brand?.short_name || brand?.team_name || "Nosso time";
+    const date = pelada.next_date ? pelada.next_date.split("-").reverse().join("/") : "";
+    const time = pelada.start_time
+      ? pelada.start_time.slice(0, 5) + (pelada.end_time ? ` às ${pelada.end_time.slice(0, 5)}` : "")
+      : "";
+    const lines = [
+      `*${pelada.name}*`,
+      pelada.opponent ? `⚽ ${team} x ${pelada.opponent}` : "",
+      date ? `📅 ${date}` : "",
+      time ? `⏰ ${time}` : "",
+      pelada.location ? `📍 ${pelada.location}` : "",
+      pelada.notes ? `📝 ${pelada.notes}` : "",
+    ].filter(Boolean);
+    for (const pos of order) {
+      const g = groups[pos] ?? { starters: [], subs: [] };
+      const limit = slots[pos];
+      if (!limit && g.starters.length === 0) continue;
+      lines.push(`\n*${pos}* (${g.starters.length}${limit != null ? `/${limit}` : ""})`);
+      g.starters.forEach((p) => lines.push(`• ${nameOf(p.id)}`));
+      if (limit) for (let i = g.starters.length; i < limit; i += 1) lines.push("• _vaga_");
+      if (g.subs.length) lines.push(`Suplentes: ${g.subs.map((p) => nameOf(p.id)).join(", ")}`);
+    }
+    if (publicUrl) lines.push(`\nConfirme sua presença: ${publicUrl}`);
+    window.open(`https://wa.me/?text=${encodeURIComponent(lines.join("\n"))}`, "_blank");
+  }
 
   function shareTeams() {
     const teams = new Map<number, string[]>();
@@ -367,6 +403,19 @@ function PeladaAdminPage({ kind }: { kind: PeladaKind }) {
 
           {isAmistoso ? (
             <div>
+              <Label htmlFor="pelada-adv">Adversário</Label>
+              <Input
+                id="pelada-adv"
+                className="h-11"
+                placeholder="Nome do clube adversário"
+                defaultValue={pelada.opponent ?? ""}
+                onBlur={(e) => update({ opponent: e.target.value.trim() || null })}
+              />
+            </div>
+          ) : null}
+
+          {isAmistoso ? (
+            <div>
               <Label>Atletas por posição</Label>
               <div className="mt-1 grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {positions.map((pos) => (
@@ -414,6 +463,11 @@ function PeladaAdminPage({ kind }: { kind: PeladaKind }) {
             >
               <Share2 className="mr-1 size-4" /> Enviar no WhatsApp
             </Button>
+            {isAmistoso ? (
+              <Button variant="outline" className="h-11" onClick={shareLineup}>
+                <Share2 className="mr-1 size-4" /> Compartilhar escalação
+              </Button>
+            ) : null}
           </div>
         </section>
 
