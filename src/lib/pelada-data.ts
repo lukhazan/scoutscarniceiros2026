@@ -15,7 +15,11 @@ export type Pelada = {
   confirm_deadline: string | null;
   notes: string | null;
   public_token: string;
+  kind: PeladaKind;
+  position_slots: Record<string, number>;
 };
+
+export type PeladaKind = "pelada" | "amistoso";
 
 export type PeladaParticipant = {
   id: string;
@@ -25,13 +29,14 @@ export type PeladaParticipant = {
   status: "confirmado" | "fora" | "espera";
   team_no: number | null;
   created_at: string;
+  confirmed_at: string;
 };
 
 export const PELADA_FIELDS =
-  "id, name, weekday, start_time, end_time, location, next_date, max_players, status, confirm_deadline, notes, public_token";
+  "id, name, weekday, start_time, end_time, location, next_date, max_players, status, confirm_deadline, notes, public_token, kind, position_slots";
 
 export const PARTICIPANT_FIELDS =
-  "id, pelada_id, player_id, guest_name, status, team_no, created_at";
+  "id, pelada_id, player_id, guest_name, status, team_no, created_at, confirmed_at";
 
 export const PELADA_STATUS_OPTIONS = [
   { value: "aberta", label: "Aberta" },
@@ -54,19 +59,24 @@ export function weekdayLabel(value: number | null) {
 }
 
 /** Pelada ativa mais recente (versão enxuta: uma pelada por equipe). */
-export const currentPeladaQueryOptions = {
-  queryKey: ["pelada", "current"],
+export const currentPeladaQueryOptions = peladaQueryOptions("pelada");
+
+export function peladaQueryOptions(kind: PeladaKind) {
+  return {
+  queryKey: ["pelada", "current", kind],
   queryFn: async (): Promise<Pelada | null> => {
     const { data, error } = await supabase
       .from("peladas")
       .select(PELADA_FIELDS)
+      .eq("kind", kind)
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    return (data as Pelada | null) ?? null;
+    return (data as unknown as Pelada | null) ?? null;
   },
-};
+  };
+}
 
 export function peladaByTokenQueryOptions(token: string) {
   return {
@@ -78,7 +88,7 @@ export function peladaByTokenQueryOptions(token: string) {
         .eq("public_token", token)
         .maybeSingle();
       if (error) throw new Error(error.message);
-      return (data as Pelada | null) ?? null;
+      return (data as unknown as Pelada | null) ?? null;
     },
   };
 }
@@ -137,4 +147,24 @@ export function drawTeams(
     index += 1;
   }
   return result;
+}
+
+/** Amistoso: titulares por posição (ordem de confirmação) e suplentes que sobem automaticamente. */
+export function splitByPosition(
+  list: PeladaParticipant[],
+  slots: Record<string, number>,
+  positionOf: (playerId: string | null) => string,
+) {
+  const confirmed = list
+    .filter((p) => p.status === "confirmado")
+    .sort((a, b) => a.confirmed_at.localeCompare(b.confirmed_at));
+  const groups: Record<string, { starters: PeladaParticipant[]; subs: PeladaParticipant[] }> = {};
+  for (const p of confirmed) {
+    const pos = positionOf(p.player_id) || "Sem posição";
+    const g = (groups[pos] ??= { starters: [], subs: [] });
+    const limit = slots[pos];
+    if (limit == null || g.starters.length < limit) g.starters.push(p);
+    else g.subs.push(p);
+  }
+  return groups;
 }
