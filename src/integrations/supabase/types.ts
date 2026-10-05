@@ -284,6 +284,7 @@ export type Database = {
       }
       pelada_participants: {
         Row: {
+          confirmed_at: string
           created_at: string
           guest_name: string | null
           id: string
@@ -294,6 +295,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          confirmed_at?: string
           created_at?: string
           guest_name?: string | null
           id?: string
@@ -304,6 +306,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          confirmed_at?: string
           created_at?: string
           guest_name?: string | null
           id?: string
@@ -343,11 +346,13 @@ export type Database = {
           created_at: string
           end_time: string | null
           id: string
+          kind: string
           location: string | null
           max_players: number | null
           name: string
           next_date: string | null
           notes: string | null
+          position_slots: Json
           public_token: string
           start_time: string | null
           status: string
@@ -359,11 +364,13 @@ export type Database = {
           created_at?: string
           end_time?: string | null
           id?: string
+          kind?: string
           location?: string | null
           max_players?: number | null
           name?: string
           next_date?: string | null
           notes?: string | null
+          position_slots?: Json
           public_token?: string
           start_time?: string | null
           status?: string
@@ -375,11 +382,13 @@ export type Database = {
           created_at?: string
           end_time?: string | null
           id?: string
+          kind?: string
           location?: string | null
           max_players?: number | null
           name?: string
           next_date?: string | null
           notes?: string | null
+          position_slots?: Json
           public_token?: string
           start_time?: string | null
           status?: string

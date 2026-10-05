@@ -17,9 +17,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { compareDisplayName, displayName, playersQueryOptions } from "@/lib/team-data";
+import { compareDisplayName, displayName, playersQueryOptions, positionsForModality } from "@/lib/team-data";
+import { brandIdentityQueryOptions } from "@/lib/studio-data";
+import { AmistosoLineup } from "@/components/AmistosoLineup";
 import {
-  currentPeladaQueryOptions,
+  peladaQueryOptions,
+  type PeladaKind,
   drawTeams,
   participantsQueryOptions,
   splitParticipants,
@@ -48,12 +51,39 @@ export const Route = createFileRoute("/_authenticated/pelada")({
   }),
   component: () => (
     <AdminGate>
-      <PeladaAdminPage />
+      <PeladaTabs />
     </AdminGate>
   ),
 });
 
-function PeladaAdminPage() {
+function PeladaTabs() {
+  const [kind, setKind] = useState<PeladaKind>("pelada");
+  return (
+    <>
+      <div className="fixed bottom-4 left-1/2 z-40 flex -translate-x-1/2 gap-1 rounded-full border border-border bg-card p-1 shadow-lg">
+        {(["pelada", "amistoso"] as const).map((k) => (
+          <Button
+            key={k}
+            size="sm"
+            className="rounded-full"
+            variant={kind === k ? "default" : "ghost"}
+            onClick={() => setKind(k)}
+          >
+            {k === "pelada" ? "Pelada da Semana" : "Amistoso externo"}
+          </Button>
+        ))}
+      </div>
+      <PeladaAdminPage key={kind} kind={kind} />
+    </>
+  );
+}
+
+function PeladaAdminPage({ kind }: { kind: PeladaKind }) {
+  const isAmistoso = kind === "amistoso";
+  const title = isAmistoso ? "Amistoso externo" : "Pelada da Semana";
+  const currentPeladaQueryOptions = peladaQueryOptions(kind);
+  const { data: brand } = useQuery(brandIdentityQueryOptions);
+  const positions = positionsForModality(brand?.modality);
   const queryClient = useQueryClient();
   const { data: pelada, isLoading } = useQuery(currentPeladaQueryOptions);
   const { data: players } = useQuery(playersQueryOptions);
@@ -75,7 +105,7 @@ function PeladaAdminPage() {
 
   async function createPelada() {
     setSaving(true);
-    const { error } = await supabase.from("peladas").insert({ name: "Pelada da Semana" });
+    const { error } = await supabase.from("peladas").insert({ name: title, kind });
     setSaving(false);
     if (error) return toast.error(error.message);
     refresh();
@@ -92,7 +122,14 @@ function PeladaAdminPage() {
     if (!pelada) return;
     const existing = list.find((p) => p.player_id === playerId);
     const { error } = existing
-      ? await supabase.from("pelada_participants").update({ status }).eq("id", existing.id)
+      ? await supabase
+          .from("pelada_participants")
+          .update(
+            status === "confirmado" && existing.status !== "confirmado"
+              ? { status, confirmed_at: new Date().toISOString() }
+              : { status },
+          )
+          .eq("id", existing.id)
       : await supabase
           .from("pelada_participants")
           .insert({ pelada_id: pelada.id, player_id: playerId, status });
@@ -175,7 +212,7 @@ function PeladaAdminPage() {
       <div className="min-h-screen bg-background">
         <AppHeader />
         <main className="mx-auto max-w-3xl px-4 py-6">
-          <h1 className="font-display text-2xl">Pelada da Semana</h1>
+          <h1 className="font-display text-2xl">{title}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             Crie a pelada para começar a receber confirmações dos atletas.
           </p>
@@ -194,7 +231,7 @@ function PeladaAdminPage() {
     <div className="min-h-screen bg-background">
       <AppHeader />
       <main className="mx-auto max-w-3xl px-4 py-6 pb-16">
-        <h1 className="font-display text-2xl">Pelada da Semana</h1>
+        <h1 className="font-display text-2xl">{title}</h1>
 
         <section className="mt-4 grid gap-3 rounded-xl border border-border bg-card p-4">
           <div>
@@ -328,6 +365,32 @@ function PeladaAdminPage() {
             />
           </div>
 
+          {isAmistoso ? (
+            <div>
+              <Label>Atletas por posição</Label>
+              <div className="mt-1 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {positions.map((pos) => (
+                  <label key={pos} className="flex items-center gap-2 text-sm">
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      className="h-11 w-16"
+                      defaultValue={pelada.position_slots?.[pos] ?? ""}
+                      onBlur={(e) => {
+                        const next = { ...(pelada.position_slots ?? {}) };
+                        if (e.target.value === "") delete next[pos];
+                        else next[pos] = Math.max(0, Number(e.target.value));
+                        update({ position_slots: next });
+                      }}
+                    />
+                    <span className="truncate">{pos}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
           <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
@@ -411,6 +474,20 @@ function PeladaAdminPage() {
           </ul>
         </section>
 
+        {isAmistoso ? (
+          <section className="mt-6 rounded-xl border border-border bg-card p-4">
+            <h2 className="font-display text-lg">Escalação por posição</h2>
+            <AmistosoLineup
+              list={list}
+              slots={pelada.position_slots ?? {}}
+              positions={positions}
+              positionOf={(id) => roster.find((p) => p.id === id)?.position ?? ""}
+              nameOf={(p) => nameOf(p.id)}
+            />
+          </section>
+        ) : null}
+
+        {isAmistoso ? null : (
         <section className="mt-6 rounded-xl border border-border bg-card p-4">
           <h2 className="font-display text-lg">Times</h2>
           <div className="mt-3 flex flex-wrap items-end gap-2">
@@ -474,6 +551,7 @@ function PeladaAdminPage() {
             ))}
           </div>
         </section>
+        )}
       </main>
     </div>
   );
