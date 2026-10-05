@@ -352,6 +352,7 @@ export type Database = {
           name: string
           next_date: string | null
           notes: string | null
+          opponent: string | null
           position_slots: Json
           public_token: string
           start_time: string | null
@@ -370,6 +371,7 @@ export type Database = {
           name?: string
           next_date?: string | null
           notes?: string | null
+          opponent?: string | null
           position_slots?: Json
           public_token?: string
           start_time?: string | null
@@ -388,6 +390,7 @@ export type Database = {
           name?: string
           next_date?: string | null
           notes?: string | null
+          opponent?: string | null
           position_slots?: Json
           public_token?: string
           start_time?: string | null
