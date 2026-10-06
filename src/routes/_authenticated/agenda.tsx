@@ -229,6 +229,10 @@ function AgendaPage() {
       toast.error(error.message);
       return;
     }
+    if (!form.id && payload.event_type === "jogo") {
+      await ensureMatchForEvent(payload.event_date, payload.opponent);
+      queryClient.invalidateQueries({ queryKey: ["matches"] });
+    }
     toast.success("Compromisso salvo.");
     setForm(null);
     queryClient.invalidateQueries({ queryKey: ["team_events"] });

@@ -272,6 +272,15 @@ export function generatedSlotWhatsappLink(slot: GeneratedSlot, fallbackPhone?: s
   return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }
 
+/** Cria o jogo na aba Jogos (súmula vazia) para um jogo da agenda, sem duplicar. */
+export async function ensureMatchForEvent(date: string, opponent: string | null) {
+  let q = supabase.from("matches").select("id").eq("match_date", date).limit(1);
+  q = opponent ? q.eq("opponent", opponent) : q.is("opponent", null);
+  const { data } = await q;
+  if (data && data.length) return;
+  await supabase.from("matches").insert({ match_date: date, opponent });
+}
+
 /* ---------- Solicitações de amistoso ---------- */
 
 export type MatchRequest = {
@@ -371,6 +380,7 @@ export async function confirmMatchRequest(request: MatchRequest) {
       status: "confirmado",
     });
     if (error) throw new Error(error.message);
+    await ensureMatchForEvent(request.request_date, request.team_name);
   }
 
   const { error: updateError } = await supabase
