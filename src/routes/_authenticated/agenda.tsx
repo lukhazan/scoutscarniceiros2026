@@ -39,6 +39,7 @@ import {
   typeMeta,
   whatsappNumberQueryOptions,
   type TeamEvent,
+  ensureMatchForEvent,
 } from "@/lib/agenda-data";
 
 export const Route = createFileRoute("/_authenticated/agenda")({
@@ -228,6 +229,10 @@ function AgendaPage() {
     if (error) {
       toast.error(error.message);
       return;
+    }
+    if (!form.id && payload.event_type === "jogo") {
+      await ensureMatchForEvent(payload.event_date, payload.opponent);
+      queryClient.invalidateQueries({ queryKey: ["matches"] });
     }
     toast.success("Compromisso salvo.");
     setForm(null);

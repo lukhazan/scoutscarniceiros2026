@@ -20,6 +20,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { compareDisplayName, displayName, playersQueryOptions, positionsForModality } from "@/lib/team-data";
 import { brandIdentityQueryOptions } from "@/lib/studio-data";
 import { AmistosoLineup } from "@/components/AmistosoLineup";
+import { eventsQueryOptions } from "@/lib/agenda-data";
+
+/** Quantidade padrão de atletas por posição ao vincular um jogo externo. */
+const DEFAULT_SLOTS: Record<string, Record<string, number>> = {
+  fut7: { Goleiro: 2, "Fixo/Central": 3, Ala: 4, Meia: 4, "Pivô": 2 },
+  campo: { Goleiro: 2, Zagueiro: 4, Lateral: 4, "Meio-campista": 6, Atacante: 4 },
+  futsal: { Goleiro: 2, Fixo: 3, Ala: 4, "Pivô": 3 },
+};
 import {
   peladaQueryOptions,
   type PeladaKind,
@@ -85,6 +93,11 @@ function PeladaAdminPage({ kind }: { kind: PeladaKind }) {
   const currentPeladaQueryOptions = peladaQueryOptions(kind);
   const { data: brand } = useQuery(brandIdentityQueryOptions);
   const positions = positionsForModality(brand?.modality);
+  const { data: events } = useQuery(eventsQueryOptions);
+  const today = new Date().toLocaleDateString("en-CA");
+  const upcomingGames = (events ?? []).filter(
+    (e) => e.event_type === "jogo" && e.event_date >= today,
+  );
   const queryClient = useQueryClient();
   const { data: pelada, isLoading } = useQuery(currentPeladaQueryOptions);
   const { data: players } = useQuery(playersQueryOptions);
@@ -175,6 +188,25 @@ function PeladaAdminPage({ kind }: { kind: PeladaKind }) {
     pelada && typeof window !== "undefined"
       ? `${window.location.origin}/pelada/${pelada.public_token}`
       : "";
+
+  function inviteText() {
+    if (!pelada) return publicUrl;
+    const team = brand?.short_name || brand?.team_name || "Nosso time";
+    const time = pelada.start_time
+      ? pelada.start_time.slice(0, 5) + (pelada.end_time ? ` às ${pelada.end_time.slice(0, 5)}` : "")
+      : "";
+    return [
+      `*${pelada.name}*`,
+      pelada.opponent ? `⚽ ${team} x ${pelada.opponent}` : "",
+      pelada.next_date ? `📅 ${pelada.next_date.split("-").reverse().join("/")}` : "",
+      time ? `⏰ ${time}` : "",
+      pelada.location ? `📍 ${pelada.location}` : "",
+      pelada.notes ? `📝 ${pelada.notes}` : "",
+      `\nConfirme sua presença: ${publicUrl}`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+  }
 
   function shareLineup() {
     if (!pelada) return;
@@ -269,7 +301,10 @@ function PeladaAdminPage({ kind }: { kind: PeladaKind }) {
       <main className="mx-auto max-w-3xl px-4 py-6 pb-16">
         <h1 className="font-display text-2xl">{title}</h1>
 
-        <section className="mt-4 grid gap-3 rounded-xl border border-border bg-card p-4">
+        <section
+          key={`${pelada.next_date}-${pelada.opponent}-${pelada.start_time}`}
+          className="mt-4 grid gap-3 rounded-xl border border-border bg-card p-4"
+        >
           <div>
             <Label htmlFor="pelada-nome">Nome da pelada</Label>
             <Input
@@ -403,6 +438,52 @@ function PeladaAdminPage({ kind }: { kind: PeladaKind }) {
 
           {isAmistoso ? (
             <div>
+              <Label>Jogo da agenda</Label>
+              <Select
+                value=""
+                onValueChange={async (id) => {
+                  const ev = upcomingGames.find((e) => e.id === id);
+                  if (!ev) return;
+                  if (list.length && !window.confirm("Trocar o jogo limpa as confirmações atuais. Continuar?"))
+                    return;
+                  if (list.length)
+                    await supabase.from("pelada_participants").delete().eq("pelada_id", pelada.id);
+                  const slots = Object.keys(pelada.position_slots ?? {}).length
+                    ? pelada.position_slots
+                    : (DEFAULT_SLOTS[brand?.modality ?? "fut7"] ?? DEFAULT_SLOTS.fut7);
+                  await update({
+                    name: ev.opponent ? `Amistoso vs ${ev.opponent}` : ev.title,
+                    opponent: ev.opponent,
+                    next_date: ev.event_date,
+                    start_time: ev.start_time,
+                    end_time: ev.end_time,
+                    location: ev.location,
+                    position_slots: slots,
+                  });
+                  refresh();
+                  toast.success("Jogo vinculado.");
+                }}
+              >
+                <SelectTrigger className="h-11">
+                  <SelectValue
+                    placeholder={
+                      upcomingGames.length ? "Puxar dados de um jogo futuro" : "Nenhum jogo futuro na agenda"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {upcomingGames.map((e) => (
+                    <SelectItem key={e.id} value={e.id}>
+                      {e.event_date.split("-").reverse().join("/")} · {e.opponent || e.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
+
+          {isAmistoso ? (
+            <div>
               <Label htmlFor="pelada-adv">Adversário</Label>
               <Input
                 id="pelada-adv"
@@ -445,7 +526,7 @@ function PeladaAdminPage({ kind }: { kind: PeladaKind }) {
               variant="outline"
               className="h-11"
               onClick={() => {
-                navigator.clipboard.writeText(publicUrl);
+                navigator.clipboard.writeText(inviteText());
                 toast.success("Link público copiado.");
               }}
             >
@@ -456,7 +537,7 @@ function PeladaAdminPage({ kind }: { kind: PeladaKind }) {
               className="h-11"
               onClick={() =>
                 window.open(
-                  `https://wa.me/?text=${encodeURIComponent(`${pelada.name}: confirme sua presença ${publicUrl}`)}`,
+                  `https://wa.me/?text=${encodeURIComponent(inviteText())}`,
                   "_blank",
                 )
               }
