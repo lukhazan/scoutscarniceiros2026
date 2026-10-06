@@ -39,6 +39,7 @@ import {
   typeMeta,
   whatsappNumberQueryOptions,
   type TeamEvent,
+  ensureMatchForEvent,
 } from "@/lib/agenda-data";
 
 export const Route = createFileRoute("/_authenticated/agenda")({
