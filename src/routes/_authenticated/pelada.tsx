@@ -189,6 +189,25 @@ function PeladaAdminPage({ kind }: { kind: PeladaKind }) {
       ? `${window.location.origin}/pelada/${pelada.public_token}`
       : "";
 
+  function inviteText() {
+    if (!pelada) return publicUrl;
+    const team = brand?.short_name || brand?.team_name || "Nosso time";
+    const time = pelada.start_time
+      ? pelada.start_time.slice(0, 5) + (pelada.end_time ? ` às ${pelada.end_time.slice(0, 5)}` : "")
+      : "";
+    return [
+      `*${pelada.name}*`,
+      pelada.opponent ? `⚽ ${team} x ${pelada.opponent}` : "",
+      pelada.next_date ? `📅 ${pelada.next_date.split("-").reverse().join("/")}` : "",
+      time ? `⏰ ${time}` : "",
+      pelada.location ? `📍 ${pelada.location}` : "",
+      pelada.notes ? `📝 ${pelada.notes}` : "",
+      `\nConfirme sua presença: ${publicUrl}`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+  }
+
   function shareLineup() {
     if (!pelada) return;
     const slots = pelada.position_slots ?? {};
@@ -282,7 +301,10 @@ function PeladaAdminPage({ kind }: { kind: PeladaKind }) {
       <main className="mx-auto max-w-3xl px-4 py-6 pb-16">
         <h1 className="font-display text-2xl">{title}</h1>
 
-        <section className="mt-4 grid gap-3 rounded-xl border border-border bg-card p-4">
+        <section
+          key={`${pelada.next_date}-${pelada.opponent}-${pelada.start_time}`}
+          className="mt-4 grid gap-3 rounded-xl border border-border bg-card p-4"
+        >
           <div>
             <Label htmlFor="pelada-nome">Nome da pelada</Label>
             <Input
@@ -504,7 +526,7 @@ function PeladaAdminPage({ kind }: { kind: PeladaKind }) {
               variant="outline"
               className="h-11"
               onClick={() => {
-                navigator.clipboard.writeText(publicUrl);
+                navigator.clipboard.writeText(inviteText());
                 toast.success("Link público copiado.");
               }}
             >
@@ -515,7 +537,7 @@ function PeladaAdminPage({ kind }: { kind: PeladaKind }) {
               className="h-11"
               onClick={() =>
                 window.open(
-                  `https://wa.me/?text=${encodeURIComponent(`${pelada.name}: confirme sua presença ${publicUrl}`)}`,
+                  `https://wa.me/?text=${encodeURIComponent(inviteText())}`,
                   "_blank",
                 )
               }
