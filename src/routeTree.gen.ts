@@ -26,7 +26,6 @@ import { Route as PeladaTokenRouteImport } from './routes/pelada.$token'
 import { Route as AuthenticatedJogosIndexRouteImport } from './routes/_authenticated/jogos.index'
 import { Route as AuthenticatedJogosMatchIdRouteImport } from './routes/_authenticated/jogos.$matchId'
 import { Route as AuthenticatedJogosNovoRouteImport } from './routes/_authenticated/jogos.novo'
-import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media.$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -114,11 +113,6 @@ const AuthenticatedJogosNovoRoute = AuthenticatedJogosNovoRouteImport.update({
   path: '/jogos/novo',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
-  id: '/api/public/media/$',
-  path: '/api/public/media/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -137,7 +131,6 @@ export interface FileRoutesByFullPath {
   '/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
   '/jogos/novo': typeof AuthenticatedJogosNovoRoute
   '/jogos/': typeof AuthenticatedJogosIndexRoute
-  '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -156,7 +149,6 @@ export interface FileRoutesByTo {
   '/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
   '/jogos/novo': typeof AuthenticatedJogosNovoRoute
   '/jogos': typeof AuthenticatedJogosIndexRoute
-  '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -177,7 +169,6 @@ export interface FileRoutesById {
   '/_authenticated/jogos/$matchId': typeof AuthenticatedJogosMatchIdRoute
   '/_authenticated/jogos/novo': typeof AuthenticatedJogosNovoRoute
   '/_authenticated/jogos/': typeof AuthenticatedJogosIndexRoute
-  '/api/public/media/$': typeof ApiPublicMediaSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -198,7 +189,6 @@ export interface FileRouteTypes {
     | '/jogos/$matchId'
     | '/jogos/novo'
     | '/jogos/'
-    | '/api/public/media/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -217,7 +207,6 @@ export interface FileRouteTypes {
     | '/jogos/$matchId'
     | '/jogos/novo'
     | '/jogos'
-    | '/api/public/media/$'
   id:
     | '__root__'
     | '/'
@@ -237,7 +226,6 @@ export interface FileRouteTypes {
     | '/_authenticated/jogos/$matchId'
     | '/_authenticated/jogos/novo'
     | '/_authenticated/jogos/'
-    | '/api/public/media/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -248,7 +236,6 @@ export interface RootRouteChildren {
   EstatisticasRoute: typeof EstatisticasRoute
   HorariosRoute: typeof HorariosRoute
   PeladaTokenRoute: typeof PeladaTokenRoute
-  ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -372,13 +359,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedJogosNovoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/public/media/$': {
-      id: '/api/public/media/$'
-      path: '/api/public/media/$'
-      fullPath: '/api/public/media/$'
-      preLoaderRoute: typeof ApiPublicMediaSplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -419,7 +399,6 @@ const rootRouteChildren: RootRouteChildren = {
   EstatisticasRoute: EstatisticasRoute,
   HorariosRoute: HorariosRoute,
   PeladaTokenRoute: PeladaTokenRoute,
-  ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

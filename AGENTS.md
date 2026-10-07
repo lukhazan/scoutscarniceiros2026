@@ -8,4 +8,3 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
-- Images (player photos, crests, sponsors) are stored in the private 'media' bucket via persistImage and served by /api/public/media/<sha256>; never save base64 data URLs in table columns — they made every list query megabytes large.

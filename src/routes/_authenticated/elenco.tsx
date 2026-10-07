@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { ImagePlus, Loader2, Pencil, Plus, RotateCcw, Scissors, Trash2, UserRound, Wallet, X } from "lucide-react";
 import { PlayerFinanceDialog } from "@/components/PlayerFinanceDialog";
 import { supabase } from "@/integrations/supabase/client";
-import { persistImageFields } from "@/lib/media-upload";
 import { ensurePlayerFee, financeSettingsQueryOptions } from "@/lib/finance-data";
 import { AppHeader } from "@/components/AppHeader";
 import { AdminGate } from "@/components/AdminGate";
@@ -278,19 +277,11 @@ function ElencoPage() {
     };
     let playerId = editing?.id ?? "";
     let error = null as { message: string } | null;
-    let stored = payload;
-    try {
-      stored = await persistImageFields(payload, ["photo_url", "photo_original_url"]);
-    } catch (e) {
-      setSaving(false);
-      toast.error(e instanceof Error ? e.message : "Falha ao enviar a foto.");
-      return;
-    }
     if (editing) {
-      const res = await supabase.from("players").update(stored).eq("id", editing.id);
+      const res = await supabase.from("players").update(payload).eq("id", editing.id);
       error = res.error;
     } else {
-      const res = await supabase.from("players").insert(stored).select("id").single();
+      const res = await supabase.from("players").insert(payload).select("id").single();
       error = res.error;
       playerId = res.data?.id ?? "";
     }

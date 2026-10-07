@@ -3,7 +3,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { persistImageFields } from "@/lib/media-upload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -78,17 +77,8 @@ export function BrandIdentityPanel() {
   const set = (patch: Partial<Form>) => setForm((prev) => ({ ...prev, ...patch }));
 
   async function handleSave() {
-    const formState = form;
     setSaving(true);
     try {
-      const form = await persistImageFields(formState, [
-        "crest_url",
-        "crest_white_url",
-        "crest_black_url",
-        "footer_logo_url",
-        "watermark_url",
-        "sponsors",
-      ]);
       if (data?.id) {
         const { error } = await supabase
           .from("brand_identity")
