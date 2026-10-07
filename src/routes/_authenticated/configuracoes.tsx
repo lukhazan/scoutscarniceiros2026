@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { persistImageFields } from "@/lib/media-upload";
 import { AdminGate } from "@/components/AdminGate";
 import { NavOrderPanel } from "@/components/NavOrderPanel";
 import { Button } from "@/components/ui/button";
@@ -101,7 +102,7 @@ function SettingsPage() {
       const payload = {
         team_name: form.team_name.trim() || "Minha equipe",
         short_name: form.short_name.trim() || null,
-        crest_url: form.crest_url,
+        crest_url: (await persistImageFields({ u: form.crest_url }, ["u"])).u,
         modality: form.modality,
         city: form.city.trim() || null,
         state: form.state.trim().toUpperCase() || null,
